@@ -1,0 +1,25 @@
+# Large Presentation files & binary dumps
+*.pptx
+*.ppt
+*.zip
+*.tar.gz
+
+# Environment & Dependencies
+.env
+/server/.env
+/server/vendor/
+/server/node_modules/
+/server/public/storage
+/server/storage/*.key
+/server/storage/app/*
+!/server/storage/app/.gitignore
+/server/storage/framework/cache/*
+/server/storage/framework/sessions/*
+/server/storage/framework/views/*
+/server/storage/logs/*
+
+# OS / Editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

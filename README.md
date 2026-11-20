@@ -1,0 +1,109 @@
+# Utah Fashion Ltd. - KPI Performance Management & Automated Presentation System
+
+The **UFL KPI Performance Management System** is an enterprise-grade, local-first performance intelligence and executive reporting suite built for **Utah Fashion Ltd.**. It delivers automated 85-slide PowerPoint deck generation matching the official factory baseline (`KPI Presentation-Oct (All).pptx`), seamless monthly data cloning, dynamic personnel/role photo management, real-time spreadsheet data entry, and secure LAN/Tailscale distribution.
+
+---
+
+## 🚀 Key Highlights & User Capabilities
+
+### 1. 🖥️ Standalone Desktop App & 1-Click Client Distribution
+- **Zero Terminal Commands for Clients**: Clients can install and run the system directly on their Windows PCs.
+- **Silent 1-Click Launcher**: `UFL_KPI_Launcher.vbs` starts the local engine and opens the dashboard with zero black command prompt windows.
+- **Interactive Launcher**: `start-ufl-kpi.bat` provides verbose status checking.
+- **Official Windows Installer**: Inno Setup script (`installer/setup.iss`) compiles an `.exe` setup wizard with Desktop and Start Menu shortcuts.
+- **Electron Desktop Wrapper**: `desktop/` provides a native desktop Chromium window with application menus and graceful process lifecycle management.
+- **Dual Database Architecture**: Works seamlessly with local Laragon MySQL on LAN host server and standalone portable SQLite (`database/database.sqlite`) for offline client PCs.
+
+### 2. 🔄 Monthly Roll-Forward / 1-Click Baseline Cloning
+> *"proti mas e jehetu same types er data bosiye kaj korte hoy tai chaile previous pptx er data gulo current mas e use kora jay sudhu jekhane change kora dorkar sekhane change korbe."*
+- Click **"Copy Previous Month Baseline"** in the **Monthly Data Entry** tab.
+- Automatically carries over all 45 production lines, targets, budgets, operator counts, standard SMV, and line cost baselines from the prior month (e.g. October 2026 into November 2026).
+- Floor staff and In-Charges only edit what actually changed in the real-time reactive spreadsheet grid.
+- Instant atomic batch saving (`PUT /api/v1/submissions/{id}/batch-update`).
+
+### 3. 📸 Real-Time Personnel & Role Avatar Photo Manager
+> *"and role gulor image jeno change kora jay anytime."*
+- Full management of photos for **Department Heads** (PM-Hafizur Rahman, FM-Mohibul Islam, AGM-Rafiq, PM-Mr. Suhag, AGM-Mr. Jahangir, AGM-Mr. Azam, EMBM-Mr. Zulfiker, SFM-Mr. Kamal, AGM-Mr. Hafiz Al Asad), **Line Supervisors**, and **System Roles & Badges**.
+- Upload or update any photo anytime with instant live preview.
+- All updated photos are immediately embedded into live dashboards and exported PowerPoint presentations!
+
+### 4. 📊 85-Slide Automated Native PowerPoint Deck Generator
+- Generates 100% editable Microsoft PowerPoint (`.pptx`) presentations matching the official 85-slide deck:
+  - **Slide 1**: Cover & Review Title
+  - **Slide 2**: Factory Executive KPI Scorecard
+  - **Slides 3-17**: Knit-01 (Overview, Lines 1-9 DHU & Defect Charts, Line Cost, Shipment, NPT, Leftovers)
+  - **Slides 18-40**: Knit-02 (Overview, Lines 1-18 DHU & Defect Charts, Leftovers, NPT, Summary)
+  - **Slides 41-55**: Knit-03 (Overview, Lines 1-9 DHU & Defect Charts, Line Cost, Shipment, NPT, Summary)
+  - **Slides 56-71**: Woven (Overview, Lines 1-9 DHU & Defect Charts, Costing Productivity, Wastage, NPT, Shipment)
+  - **Slides 72-76**: Cutting (Overview, Supervisors Fozlu, Salam, Sumon & Delower, Fabric Utilization)
+  - **Slides 77-80**: Printing ($2500 Daily Target), Embroidery, Schiffli, Specialized Summary
+  - **Slides 81-84**: Sample (Capacity, Lead Time, Buyer-wise RFT %, Rejection Root Cause)
+  - **Slide 85**: Executive Conclusion & Corrective Roadmap
+- **Zero Screenshots**: Every slide contains true native PowerPoint shapes, tables, chart series, and photo cards editable in PowerPoint!
+
+### 5. 🧮 Weighted YTD Aggregation & Zero-Denominator Safety
+- Implements `App\Services\KpiCalculationEngine` with strict division-by-zero guards.
+- Respects industrial apparel standards: monthly percentages (DHU, efficiency, achievement) are never averaged directly; numerators and denominators are aggregated across reporting periods.
+
+---
+
+## 📁 Repository & Directory Layout
+
+```
+D:\UFL KPI Performance Management
+├── client/                     # React 19 + TypeScript + Tailwind CSS v4 Single Page App
+│   ├── src/components/         # ExecutiveDashboard, DepartmentAnalytics, MonthlyDataEntry,
+│   │                           # PersonnelManager, PresentationGenerator, SystemSettings
+│   └── dist/                   # Production build assets
+├── server/                     # Laravel 11/13 Backend API & Reporting Engine
+│   ├── app/Models/             # 22 Normalized Eloquent Domain Models
+│   ├── app/Services/           # KpiCalculationEngine, PresentationDataService
+│   ├── app/Http/Controllers/   # DashboardController, KpiSubmissionController, PersonnelController, ReportExportController
+│   ├── database/seeders/       # MasterOrganizationSeeder, ReportingPeriodsSeeder, HistoricalDataSeeder (2026 data)
+│   ├── scripts/                # generate_presentation.js (Native 85-slide pptxgen engine)
+│   ├── public/                 # Bundled SPA assets & public storage link
+│   └── tests/Feature/          # 19 Feature & Unit tests (100% Passing)
+├── desktop/                    # Native Electron Desktop Application Wrapper
+│   ├── main.cjs                # Background server launcher & native desktop window
+│   └── package.json            # Electron configuration
+├── installer/                  # Inno Setup Script
+│   └── setup.iss               # Builds 1-click Windows client installer setup.exe
+├── start-ufl-kpi.bat           # 1-Click interactive launcher
+├── stop-ufl-kpi.bat            # Clean server shutdown script
+├── UFL_KPI_Launcher.vbs        # Silent background launcher (no command prompt popup)
+├── DECISION_LOG.md             # Architectural & engineering decisions log
+└── README.md                   # System documentation
+```
+
+---
+
+## 🏃 Running the Application
+
+### Method 1: Silent 1-Click Launch (Recommended for Users)
+Double-click `UFL_KPI_Launcher.vbs`. The system launches silently and opens `http://127.0.0.1:8000` in your web browser.
+
+### Method 2: Batch Launch
+Double-click `start-ufl-kpi.bat`.
+
+### Method 3: Desktop Window (Electron)
+```powershell
+cd 'D:\UFL KPI Performance Management\desktop'
+npm start
+```
+
+### Stopping the Server
+Double-click `stop-ufl-kpi.bat` or run:
+```powershell
+powershell -Command "Stop-Process -Name php -Force"
+```
+
+---
+
+## 🧪 Automated Test Suite Verification
+
+Run all 19 feature and unit tests:
+```powershell
+cd 'D:\UFL KPI Performance Management\server'
+php artisan test
+```
+*Current Status: 19 passed, 241 assertions, 0 failures.*

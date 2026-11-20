@@ -1,0 +1,17 @@
+{
+  "name": "ufl-kpi-desktop",
+  "version": "1.0.0",
+  "description": "Utah Fashion Ltd. KPI Performance Management & Presentation System",
+  "main": "main.cjs",
+  "author": "Utah Fashion Ltd. IE & Management Directorate",
+  "license": "UNLICENSED",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "electron": "^34.0.0"
+  }
+}
