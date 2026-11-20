@@ -5,7 +5,7 @@
 #define MyAppVersion "1.0.0"
 #define MyAppPublisher "Utah Fashion Ltd."
 #define MyAppURL "http://www.utahbd.com"
-#define MyAppExeName "UFL_KPI_Launcher.vbs"
+#define MyAppExeName "UFL_KPI_App.exe"
 
 [Setup]
 AppId={{6E8A91B4-37C2-4E51-8F0A-256218BAE92C}
@@ -33,11 +33,14 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: checkedonce
 
 [Files]
+; Bundled zero-install portable runtimes (PHP 8.4 + Node.js)
+Source: "..\runtime\*"; DestDir: "{app}\runtime"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; Server root files and folders
 Source: "..\server\*"; DestDir: "{app}\server"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: "vendor\phpunit\*,tests\*,storage\logs\*.log"
 ; Client built assets (inside server/public)
 Source: "..\server\public\*"; DestDir: "{app}\server\public"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; Desktop launchers
+Source: "..\UFL_KPI_App.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\start-ufl-kpi.bat"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\stop-ufl-kpi.bat"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\UFL_KPI_Launcher.vbs"; DestDir: "{app}"; Flags: ignoreversion

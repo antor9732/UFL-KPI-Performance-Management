@@ -6,13 +6,15 @@ The **UFL KPI Performance Management System** is an enterprise-grade, local-firs
 
 ## 🚀 Key Highlights & User Capabilities
 
-### 1. 🖥️ Standalone Desktop App & 1-Click Client Distribution
-- **Zero Terminal Commands for Clients**: Clients can install and run the system directly on their Windows PCs.
-- **Silent 1-Click Launcher**: `UFL_KPI_Launcher.vbs` starts the local engine and opens the dashboard with zero black command prompt windows.
-- **Interactive Launcher**: `start-ufl-kpi.bat` provides verbose status checking.
-- **Official Windows Installer**: Inno Setup script (`installer/setup.iss`) compiles an `.exe` setup wizard with Desktop and Start Menu shortcuts.
-- **Electron Desktop Wrapper**: `desktop/` provides a native desktop Chromium window with application menus and graceful process lifecycle management.
-- **Dual Database Architecture**: Works seamlessly with local Laragon MySQL on LAN host server and standalone portable SQLite (`database/database.sqlite`) for offline client PCs.
+### 1. 🖥️ Standalone Desktop App & Zero-Install Client Distribution
+- **Zero External Server Required**: Clients do NOT need Laragon, XAMPP, Apache, Node.js, or MySQL installed.
+- **Embedded Portable Runtimes**: Bundles a standalone portable PHP 8.4 runtime (`runtime/php/`) and Node.js (`runtime/node/node.exe`) directly inside the application folder!
+- **Native Windows GUI Executable (`UFL_KPI_App.exe`)**:
+  - Double-clicking `UFL_KPI_App.exe` launches the application instantly with zero black console windows.
+  - Automatically loads the local engine, connects to the portable pre-seeded database (`database.sqlite`), and opens the dashboard in the default browser.
+  - Adds a Utah Fashion Ltd. System Tray icon in the Windows taskbar for 1-click access and clean shutdown.
+- **Official Windows Installer**: Inno Setup script (`installer/setup.iss`) compiles an `.exe` setup wizard that installs the system and places a desktop shortcut.
+- **Alternative Launchers**: `UFL_KPI_Launcher.vbs` (silent script launcher) and `start-ufl-kpi.bat` (batch launcher).
 
 ### 2. 🔄 Monthly Roll-Forward / 1-Click Baseline Cloning
 > *"proti mas e jehetu same types er data bosiye kaj korte hoy tai chaile previous pptx er data gulo current mas e use kora jay sudhu jekhane change kora dorkar sekhane change korbe."*
@@ -40,6 +42,11 @@ The **UFL KPI Performance Management System** is an enterprise-grade, local-firs
   - **Slides 81-84**: Sample (Capacity, Lead Time, Buyer-wise RFT %, Rejection Root Cause)
   - **Slide 85**: Executive Conclusion & Corrective Roadmap
 - **Zero Screenshots**: Every slide contains true native PowerPoint shapes, tables, chart series, and photo cards editable in PowerPoint!
+- **Dynamic Presentation Background & Themes**:
+  - **Executive Navy (Dark)**: Official boardroom dark navy `#0B132B` theme with cyan and cobalt accents.
+  - **Corporate White (Light / Printable)**: Crisp white `#FFFFFF` background with slate/navy contrast, ideal for black-and-white printing and daylight projectors.
+  - **Industrial Slate (Dark)**: Charcoal `#0F172A` theme with emerald metrics.
+  - **Royal Blue & Gold**: Deep royal blue `#172554` with gold and amber accents.
 
 ### 5. 🧮 Weighted YTD Aggregation & Zero-Denominator Safety
 - Implements `App\Services\KpiCalculationEngine` with strict division-by-zero guards.

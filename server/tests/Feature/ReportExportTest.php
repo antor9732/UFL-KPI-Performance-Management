@@ -31,4 +31,12 @@ class ReportExportTest extends TestCase
         );
         $this->assertStringContainsString('UFL_KPI_Presentation', $response->headers->get('Content-Disposition'));
     }
+
+    public function test_can_export_presentation_with_custom_background_theme(): void
+    {
+        $response = $this->get('/api/v1/reports/export-pptx?theme=corporate-white');
+
+        $response->assertStatus(200);
+        $this->assertStringContainsString('corporate-white', $response->headers->get('Content-Disposition'));
+    }
 }
