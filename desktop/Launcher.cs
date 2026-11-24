@@ -1,5 +1,5 @@
-// Utah Fashion Ltd. - KPI Performance Management System
-// Desktop launcher (UFL_KPI_App.exe)
+// KPI Performance Management System
+// Desktop launcher (KPI_System.exe)
 //
 // Runs the whole app on the client PC with NO separately installed server:
 //   * uses the bundled portable PHP (runtime\php) and Node.js (runtime\node)
@@ -12,7 +12,7 @@
 //     when the launcher stops (no orphaned php.exe left behind)
 //
 // Build (Windows, no Visual Studio needed):
-//   C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe /target:winexe /out:UFL_KPI_App.exe ^
+//   C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe /target:winexe /out:KPI_System.exe ^
 //     /r:System.Windows.Forms.dll /r:System.Drawing.dll /r:System.IO.Compression.dll ^
 //     /r:System.IO.Compression.FileSystem.dll desktop\Launcher.cs
 
@@ -29,12 +29,12 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
-namespace UflKpiLauncher
+namespace KpiLauncher
 {
     static class Program
     {
-        private const string AppTitle = "Utah Fashion Ltd. KPI System";
-        private const string MutexName = "UFL_KPI_App_Mutex";
+        private const string AppTitle = "KPI Performance System";
+        private const string MutexName = "KPI_Performance_System_Mutex";
         private const int FirstPort = 8000;
         private const int LastPort = 8010;
 
@@ -75,7 +75,7 @@ namespace UflKpiLauncher
                     if (runningPort > 0 && IsOurServer(runningPort))
                     {
                         _port = runningPort;
-                        OpenBrowser();
+                        OpenAppWindow();
                     }
                     else
                     {
@@ -93,7 +93,7 @@ namespace UflKpiLauncher
         {
             if (!Directory.Exists(_serverDir))
             {
-                Fail("Application files are missing (server folder not found).\n\nPlease reinstall the UFL KPI System.");
+                Fail("Application files are missing (server folder not found).\n\nPlease reinstall the KPI Performance System.");
                 return;
             }
 
@@ -130,7 +130,7 @@ namespace UflKpiLauncher
                 return;
             }
 
-            OpenBrowser();
+            OpenAppWindow();
             ShowTray();
             Application.ApplicationExit += (s, e) => StopServer();
             Application.Run();
@@ -150,10 +150,12 @@ namespace UflKpiLauncher
             EnsureEnvFile();
             EnsureDatabase();
 
-            // Reuse an already running instance (e.g. started by start-ufl-kpi.bat)
+            // Reuse an already running instance (e.g. started by start-kpi.bat)
             for (int p = FirstPort; p <= LastPort; p++)
             {
-                if (IsOurServer(p))
+                // Only probe ports that are actually in use: an HTTP probe of a closed
+                // port on Windows waits ~1.5s, which made startup ~17s slower.
+                if (IsPortInUse(p) && IsOurServer(p))
                 {
                     _port = p;
                     Log("Reusing running server on port " + p);
@@ -232,7 +234,7 @@ namespace UflKpiLauncher
             string vendorDir = Path.Combine(_serverDir, "vendor");
             string autoload = Path.Combine(vendorDir, "autoload.php");
             string zip = Path.Combine(_serverDir, "vendor.zip");
-            string marker = Path.Combine(vendorDir, ".ufl_vendor_stamp");
+            string marker = Path.Combine(vendorDir, ".kpi_vendor_stamp");
 
             if (!File.Exists(zip))
             {
@@ -315,12 +317,12 @@ namespace UflKpiLauncher
             string db = Path.Combine(_serverDir, "database", "database.sqlite");
             if (File.Exists(db) && new FileInfo(db).Length > 0) return;
 
-            string seed = Path.Combine(_serverDir, "ufl_kpi_db");
+            string seed = Path.Combine(_serverDir, "database", "seed.sqlite");
             if (File.Exists(seed))
             {
                 File.Copy(seed, db, true);
                 File.SetAttributes(db, FileAttributes.Normal); // never inherit read-only
-                Log("database.sqlite created from seeded ufl_kpi_db");
+                Log("database.sqlite created from the seed database");
             }
             else
             {
@@ -336,7 +338,11 @@ namespace UflKpiLauncher
         {
             // extension_dir in php.ini is relative ("ext") and would resolve against the
             // working directory -> pdo_sqlite, mbstring, openssl... fail to load.
-            return "-c \"" + _phpIni + "\" -d extension_dir=\"" + _phpExtDir + "\"";
+            string args = "-c \"" + _phpIni + "\" -d extension_dir=\"" + _phpExtDir + "\"";
+            // Windows PHP has no system certificate store: needed for Google sign-in / Drive backup.
+            string ca = Path.Combine(_baseDir, "runtime", "php", "extras", "ssl", "cacert.pem");
+            if (File.Exists(ca)) args += " -d curl.cainfo=\"" + ca + "\" -d openssl.cafile=\"" + ca + "\"";
+            return args;
         }
 
         private static void RunArtisan(string args, int timeoutMs)
@@ -441,7 +447,7 @@ namespace UflKpiLauncher
                 using (HttpWebResponse res = (HttpWebResponse)req.GetResponse())
                 using (StreamReader sr = new StreamReader(res.GetResponseStream()))
                 {
-                    return res.StatusCode == HttpStatusCode.OK && sr.ReadToEnd().Contains("ufl-kpi");
+                    return res.StatusCode == HttpStatusCode.OK && sr.ReadToEnd().Contains("kpi-system");
                 }
             }
             catch
@@ -489,7 +495,7 @@ namespace UflKpiLauncher
                 TextAlign = ContentAlignment.MiddleCenter,
                 ForeColor = Color.White,
                 Font = new Font("Segoe UI", 10f),
-                Text = "Starting Utah Fashion Ltd. KPI System...",
+                Text = "Starting KPI Performance System...",
             };
             f.Controls.Add(l);
             return f;
@@ -504,7 +510,7 @@ namespace UflKpiLauncher
         private static void ShowTray()
         {
             ContextMenu menu = new ContextMenu();
-            menu.MenuItems.Add("Open KPI Dashboard", (s, e) => OpenBrowser());
+            menu.MenuItems.Add("Open KPI Dashboard", (s, e) => OpenAppWindow());
             menu.MenuItems.Add("Open Data Folder", (s, e) =>
             {
                 try { Process.Start("explorer.exe", "\"" + Path.Combine(_serverDir, "database") + "\""); } catch { }
@@ -515,13 +521,13 @@ namespace UflKpiLauncher
             _trayIcon = new NotifyIcon
             {
                 Icon = AppIcon(),
-                Text = "UFL KPI System (running on port " + _port + ")",
+                Text = "KPI Performance System (port " + _port + ")",
                 ContextMenu = menu,
                 Visible = true,
             };
-            _trayIcon.DoubleClick += (s, e) => OpenBrowser();
+            _trayIcon.DoubleClick += (s, e) => OpenAppWindow();
             _trayIcon.ShowBalloonTip(3000, AppTitle,
-                "System is running. Double-click this tray icon anytime to open the dashboard.",
+                "System is running. Closing the KPI window stops the system. Double-click this icon to reopen it.",
                 ToolTipIcon.Info);
 
             // Watch the server; if PHP dies, tell the user instead of silently failing.
@@ -539,6 +545,25 @@ namespace UflKpiLauncher
                 }
             };
             watchdog.Start();
+
+            // Closing the app window closes the whole system (like a normal program).
+            System.Windows.Forms.Timer windowWatch = new System.Windows.Forms.Timer { Interval = 2000 };
+            bool seenOpen = false;
+            windowWatch.Tick += (s, e) =>
+            {
+                if (_exiting || !_usingAppWindow) return;
+                bool open = IsAppWindowOpen();
+                if (open) { seenOpen = true; return; }
+                // Give the window time to appear before treating "closed" as final.
+                if (seenOpen || (DateTime.Now - _windowOpenedAt).TotalSeconds > 30)
+                {
+                    if (!seenOpen) { _usingAppWindow = false; return; } // could not track it: keep tray mode
+                    windowWatch.Stop();
+                    Log("App window closed by user - shutting down");
+                    CleanupAndExit();
+                }
+            };
+            windowWatch.Start();
         }
 
         private static Icon AppIcon()
@@ -554,10 +579,99 @@ namespace UflKpiLauncher
             return SystemIcons.Application;
         }
 
-        private static void OpenBrowser()
+        // ------------------------------------------------------------------
+        // App window: Microsoft Edge (built into Windows 10/11) or Chrome in
+        // "app mode" = its own window with no address bar / tabs, so the
+        // system looks and behaves like a normal desktop program.
+        // Falls back to the default browser only if neither is installed.
+        // ------------------------------------------------------------------
+        private static string _windowProfileDir;
+        private static bool _usingAppWindow;
+        private static DateTime _windowOpenedAt;
+
+        private static string WindowProfileDir
         {
+            get
+            {
+                if (_windowProfileDir == null)
+                {
+                    _windowProfileDir = Path.Combine(
+                        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                        "KPI Performance System", "AppWindow");
+                }
+                return _windowProfileDir;
+            }
+        }
+
+        private static string FindAppModeBrowser()
+        {
+            string pf86 = Environment.GetEnvironmentVariable("ProgramFiles(x86)") ?? "";
+            string pf = Environment.GetEnvironmentVariable("ProgramFiles") ?? "";
+            string local = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            string[] candidates =
+            {
+                Path.Combine(pf86, @"Microsoft\Edge\Application\msedge.exe"),
+                Path.Combine(pf, @"Microsoft\Edge\Application\msedge.exe"),
+                Path.Combine(local, @"Microsoft\Edge\Application\msedge.exe"),
+                Path.Combine(pf, @"Google\Chrome\Application\chrome.exe"),
+                Path.Combine(pf86, @"Google\Chrome\Application\chrome.exe"),
+                Path.Combine(local, @"Google\Chrome\Application\chrome.exe"),
+            };
+            foreach (string c in candidates)
+            {
+                try { if (c.Length > 0 && File.Exists(c)) return c; } catch { }
+            }
+            return null;
+        }
+
+        private static void OpenAppWindow()
+        {
+            string exe = FindAppModeBrowser();
+            if (exe != null)
+            {
+                try
+                {
+                    Directory.CreateDirectory(WindowProfileDir);
+                    string args =
+                        "--app=\"" + Url + "/\"" +
+                        " --user-data-dir=\"" + WindowProfileDir + "\"" +
+                        " --start-maximized --window-size=1440,900" +
+                        " --no-first-run --no-default-browser-check" +
+                        " --disable-features=Translate,msEdgeStartupBoost";
+                    Process.Start(new ProcessStartInfo(exe, args) { UseShellExecute = false });
+                    _usingAppWindow = true;
+                    _windowOpenedAt = DateTime.Now;
+                    Log("App window opened with " + Path.GetFileName(exe));
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    Log("App window failed (" + ex.Message + "), using default browser");
+                }
+            }
+
             try { Process.Start(new ProcessStartInfo(Url + "/") { UseShellExecute = true }); }
             catch (Exception ex) { Log("Browser open failed: " + ex.Message); }
+        }
+
+        // Chromium keeps <profile>\lockfile open while any window of that profile is open.
+        private static bool IsAppWindowOpen()
+        {
+            string lockFile = Path.Combine(WindowProfileDir, "lockfile");
+            if (!File.Exists(lockFile)) return false;
+            try
+            {
+                using (new FileStream(lockFile, FileMode.Open, FileAccess.Write, FileShare.ReadWrite)) { }
+                return false; // stale file, nobody holds it
+            }
+            catch (IOException)
+            {
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         private static void CleanupAndExit()

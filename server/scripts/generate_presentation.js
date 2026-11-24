@@ -1,1176 +1,679 @@
+// Monthly KPI presentation generator (native, editable PowerPoint).
+// Usage: node generate_presentation.js --input <payload.json> --output <deck.pptx>
+//
+// Layout follows the factory's classic monthly KPI deck (4:3):
+//   cover -> KPI goals -> per department: line-wise cost achievement, one slide per line
+//   (6 staff photo cards, YTD table, finishing DHU / profit-loss / sewing DHU charts), NPT
+//   -> units (cutting, print, ...) overall + supervisor-wise -> thank you.
 import fs from 'fs';
 import path from 'path';
+import zlib from 'zlib';
 import pptxgen from 'pptxgenjs';
 
-// Parse command line arguments
-// Usage: node generate_presentation.js --input <path_to_json> --output <path_to_pptx>
+// ---------------------------------------------------------------- args & data
 const args = process.argv.slice(2);
-let inputPath = null;
-let outputPath = null;
-
-for (let i = 0; i < args.length; i++) {
-  if (args[i] === '--input' && args[i + 1]) {
-    inputPath = args[i + 1];
-    i++;
-  } else if (args[i] === '--output' && args[i + 1]) {
-    outputPath = args[i + 1];
-    i++;
-  }
-}
-
+const arg = (name) => {
+  const i = args.indexOf(name);
+  return i >= 0 ? args[i + 1] : null;
+};
+const inputPath = arg('--input');
+const outputPath = arg('--output');
 if (!inputPath || !outputPath) {
   console.error('Usage: node generate_presentation.js --input <input_json> --output <output_pptx>');
   process.exit(1);
 }
-
-const rawData = fs.readFileSync(inputPath, 'utf8');
-const data = JSON.parse(rawData);
-
-const periodName = data.period?.name || 'October 2026';
-const companyName = data.company_name || 'Utah Fashion Ltd.';
-const departments = data.departments || [];
-
-const pres = new pptxgen();
-pres.layout = 'LAYOUT_16x9';
-pres.author = 'Utah Fashion Ltd. KPI System';
-pres.company = 'Utah Fashion Ltd.';
-pres.title = `KPI Performance Presentation - ${periodName}`;
-
-// Master Styling & Dynamic Themes
-const THEMES = {
-  'executive-navy': {
-    name: 'Executive Navy (Dark)',
-    isDark: true,
-    slideBg: '0B132B',
-    headerBg: '0B132B',
-    headerBorder: '1C2541',
-    headerBrandColor: '93C5FD',
-    headerTitleColor: 'FFFFFF',
-    tagBg: '1C2541',
-    tagBorder: '38BDF8',
-    tagText: '38BDF8',
-    cardBg: '1C2541',
-    cardBorder: '334155',
-    titleColor: 'FFFFFF',
-    textColor: 'CBD5E1',
-    mutedColor: '94A3B8',
-    tableHeaderBg: '1C2541',
-    tableHeaderColor: 'FFFFFF',
-    tableRowAltBg: '162238',
-    tableRowBg: '0B132B',
-    tableRowTextColor: 'F1F5F9',
-    tableBorder: '334155',
-    footerBorder: '334155',
-    footerText: '64748B',
-    chartLabelColor: 'CBD5E1',
-  },
-  'corporate-white': {
-    name: 'Corporate White (Clean / Printable)',
-    isDark: false,
-    slideBg: 'FFFFFF',
-    headerBg: '0F172A',
-    headerBorder: '0F172A',
-    headerBrandColor: '93C5FD',
-    headerTitleColor: 'FFFFFF',
-    tagBg: '1E293B',
-    tagBorder: '38BDF8',
-    tagText: '38BDF8',
-    cardBg: 'F8FAFC',
-    cardBorder: 'CBD5E1',
-    titleColor: '0F172A',
-    textColor: '334155',
-    mutedColor: '64748B',
-    tableHeaderBg: '0F172A',
-    tableHeaderColor: 'FFFFFF',
-    tableRowAltBg: 'F1F5F9',
-    tableRowBg: 'FFFFFF',
-    tableRowTextColor: '1E293B',
-    tableBorder: 'E2E8F0',
-    footerBorder: 'CBD5E1',
-    footerText: '64748B',
-    chartLabelColor: '334155',
-  },
-  'slate-dark': {
-    name: 'Industrial Slate (Dark)',
-    isDark: true,
-    slideBg: '0F172A',
-    headerBg: '020617',
-    headerBorder: '1E293B',
-    headerBrandColor: '6EE7B7',
-    headerTitleColor: 'FFFFFF',
-    tagBg: '1E293B',
-    tagBorder: '34D399',
-    tagText: '34D399',
-    cardBg: '1E293B',
-    cardBorder: '334155',
-    titleColor: 'F8FAFC',
-    textColor: 'CBD5E1',
-    mutedColor: '94A3B8',
-    tableHeaderBg: '020617',
-    tableHeaderColor: 'FFFFFF',
-    tableRowAltBg: '162032',
-    tableRowBg: '0F172A',
-    tableRowTextColor: 'F1F5F9',
-    tableBorder: '334155',
-    footerBorder: '334155',
-    footerText: '64748B',
-    chartLabelColor: 'CBD5E1',
-  },
-  'royal-gold': {
-    name: 'Royal Blue & Gold',
-    isDark: true,
-    slideBg: '172554',
-    headerBg: '1E3A8A',
-    headerBorder: '2563EB',
-    headerBrandColor: 'FCD34D',
-    headerTitleColor: 'FFFFFF',
-    tagBg: '1E40AF',
-    tagBorder: 'FBBF24',
-    tagText: 'FBBF24',
-    cardBg: '1E3A8A',
-    cardBorder: '2563EB',
-    titleColor: 'FFFFFF',
-    textColor: 'E0E7FF',
-    mutedColor: '93C5FD',
-    tableHeaderBg: '1E3A8A',
-    tableHeaderColor: 'FFFFFF',
-    tableRowAltBg: '1B3573',
-    tableRowBg: '172554',
-    tableRowTextColor: 'FFFFFF',
-    tableBorder: '2563EB',
-    footerBorder: '2563EB',
-    footerText: '93C5FD',
-    chartLabelColor: 'E0E7FF',
-  },
+const data = JSON.parse(fs.readFileSync(inputPath, 'utf8'));
+const SCRIPT_DIR = path.dirname(path.resolve(process.argv[1]));
+const ASSETS = path.join(SCRIPT_DIR, 'assets');
+const asset = (f) => {
+  const p = path.join(ASSETS, f);
+  return fs.existsSync(p) ? p : null;
 };
 
-const themeKey = data.theme || 'executive-navy';
-const theme = THEMES[themeKey] || THEMES['executive-navy'];
+const period = data.period || {};
+const YEAR = period.year;
+const PREV = period.prev_year ?? (YEAR - 1);
+const CUR = data.currency || '$';
+const COMPANY = data.company_name || '';
 
-const COLOR_ACCENT_BLUE = '3B82F6';
-const COLOR_EMERALD = '10B981';
-const COLOR_AMBER = 'F59E0B';
-const COLOR_ROSE = 'EF4444';
+// ---------------------------------------------------------------- style
+const C = {
+  red: 'C00000', brightRed: 'FF0000', green: '00B050', darkGreen: '00843D', navy: '1F2A5C', blue: '2E3192',
+  cyan: '00B0F0', gray: 'D9D9D9', grayDark: '7F7F7F', white: 'FFFFFF', black: '000000', text: '1A1A1A',
+  rowAvg: 'FCD5B4', rowTarget: 'C5D9F1', header: 'DCE6F1', headerDark: '1F3864', cellRed: 'FF5050', cellGreen: '33CC66',
+  yellow: 'FFFF00', bar: '2E3192',
+};
+const SERIF = 'Times New Roman';
+const SANS = 'Arial';
+const W = 10;
+const H = 7.5;
 
-let currentSlideNumber = 0;
+const pres = new pptxgen();
+pres.defineLayout({ name: 'KPI_4x3', width: W, height: H });
+pres.layout = 'KPI_4x3';
+pres.author = COMPANY || 'KPI Performance System';
+pres.company = (COMPANY || 'KPI').replace(/&/g, '&amp;');
+pres.title = `${data.report_title || 'KPI Performance'} - ${period.name || ''}`;
+pres.theme = { headFontFace: SERIF, bodyFontFace: SANS };
 
-// Helper: Add consistent header & footer to slide
-function applySlideChrome(slide, title, deptCode = null) {
-  currentSlideNumber++;
-  slide.background = { color: theme.slideBg };
+// ---------------------------------------------------------------- helpers
+const isNum = (v) => v !== null && v !== undefined && v !== '' && !Number.isNaN(Number(v));
+const pct = (v, dec = 0) => (isNum(v) ? `${Number(v).toFixed(dec)}%` : '');
+const fmtInt = (v) => Math.round(Math.abs(Number(v))).toLocaleString('en-US');
+const money = (v) => {
+  if (!isNum(v)) return '';
+  const n = Number(v);
+  return n < 0 ? `${CUR} (${fmtInt(n)})` : `${CUR} ${fmtInt(n)}`;
+};
+const moneyShort = (v) => {
+  if (!isNum(v)) return '-';
+  const n = Number(v);
+  return `${n < 0 ? '-' : ''}${CUR}${fmtInt(n)}`;
+};
+const num = (v) => (isNum(v) ? Math.round(Number(v)).toLocaleString('en-US') : '');
+const pad2 = (n) => String(n).padStart(2, '0');
 
-  // Top header bar
-  slide.addShape(pres.ShapeType.rect, {
-    x: 0,
-    y: 0,
-    w: '100%',
-    h: 0.8,
-    fill: { color: theme.headerBg },
-    line: { color: theme.headerBorder },
-  });
-
-  // Company Brand text
-  slide.addText(companyName.toUpperCase(), {
-    x: 0.5,
-    y: 0.15,
-    w: 3.5,
-    h: 0.3,
-    fontSize: 11,
-    bold: true,
-    color: theme.headerBrandColor,
-  });
-
-  // Slide Title
-  slide.addText(title, {
-    x: 0.5,
-    y: 0.38,
-    w: 8.5,
-    h: 0.35,
-    fontSize: 16,
-    bold: true,
-    color: theme.headerTitleColor,
-  });
-
-  // Period / Dept Tag pill
-  const tagText = deptCode ? `${deptCode} | ${periodName}` : periodName;
-  slide.addShape(pres.ShapeType.roundRect, {
-    x: 10.2,
-    y: 0.2,
-    w: 2.6,
-    h: 0.4,
-    fill: { color: theme.tagBg },
-    line: { color: theme.tagBorder, width: 1 },
-    rectRadius: 0.1,
-  });
-
-  slide.addText(tagText, {
-    x: 10.2,
-    y: 0.2,
-    w: 2.6,
-    h: 0.4,
-    fontSize: 10,
-    bold: true,
-    align: 'center',
-    color: theme.tagText,
-  });
-
-  // Bottom footer bar
-  slide.addShape(pres.ShapeType.line, {
-    x: 0.5,
-    y: 7.0,
-    w: 12.33,
-    h: 0,
-    line: { color: theme.footerBorder, width: 1 },
-  });
-
-  slide.addText(`Utah Fashion Ltd. - KPI Performance Review | Theme: ${theme.name} | Confidential`, {
-    x: 0.5,
-    y: 7.05,
-    w: 8.0,
-    h: 0.3,
-    fontSize: 9,
-    color: theme.footerText,
-  });
-
-  slide.addText(`Slide ${currentSlideNumber} of 85`, {
-    x: 9.5,
-    y: 7.05,
-    w: 3.3,
-    h: 0.3,
-    fontSize: 9,
-    bold: true,
-    align: 'right',
-    color: theme.footerText,
-  });
-}
-
-// -------------------------------------------------------------
-// SLIDE 1: Cover Slide
-// -------------------------------------------------------------
-function buildCoverSlide() {
-  currentSlideNumber++;
-  const slide = pres.addSlide();
-  slide.background = { color: theme.slideBg };
-
-  // Decorative accent rectangles
-  slide.addShape(pres.ShapeType.rect, {
-    x: 0,
-    y: 0,
-    w: 0.4,
-    h: '100%',
-    fill: { color: theme.isDark ? '38BDF8' : '2563EB' },
-    line: { color: theme.isDark ? '38BDF8' : '2563EB' },
-  });
-
-  slide.addShape(pres.ShapeType.roundRect, {
-    x: 1.5,
-    y: 1.8,
-    w: 2.8,
-    h: 0.4,
-    fill: { color: theme.tagBg },
-    line: { color: theme.tagBorder, width: 1 },
-    rectRadius: 0.08,
-  });
-
-  slide.addText('OFFICIAL MANAGEMENT REVIEW', {
-    x: 1.5,
-    y: 1.8,
-    w: 2.8,
-    h: 0.4,
-    fontSize: 10,
-    bold: true,
-    color: theme.tagText,
-    align: 'center',
-  });
-
-  slide.addText('UTAH FASHION LTD.', {
-    x: 1.5,
-    y: 2.4,
-    w: 10.0,
-    h: 0.8,
-    fontSize: 36,
-    bold: true,
-    color: theme.titleColor,
-  });
-
-  slide.addText(`Monthly Key Performance Indicators (KPI) Presentation\nReview Period: ${periodName} | Theme: ${theme.name}`, {
-    x: 1.5,
-    y: 3.3,
-    w: 10.0,
-    h: 1.0,
-    fontSize: 20,
-    color: theme.mutedColor,
-  });
-
-  // 4 Core Pillar Badges
-  const pillars = [
-    { title: 'PRODUCTION & EFFICIENCY', desc: 'Hour vs Plan & SMV Performance' },
-    { title: 'QUALITY EXCELLENCE', desc: 'DHU Trend & First Time Through %' },
-    { title: 'LINE COST & PRODUCTIVITY', desc: 'Cost Per Piece & Minute Rate' },
-    { title: 'DELIVERY & DISCIPLINE', desc: 'On-Time Shipment & NPT Control' },
-  ];
-
-  pillars.forEach((p, idx) => {
-    const xPos = 1.5 + idx * 2.6;
-    slide.addShape(pres.ShapeType.roundRect, {
-      x: xPos,
-      y: 4.8,
-      w: 2.4,
-      h: 1.3,
-      fill: { color: theme.cardBg },
-      line: { color: theme.cardBorder, width: 1 },
-      rectRadius: 0.1,
-    });
-
-    slide.addText(p.title, {
-      x: xPos + 0.15,
-      y: 4.95,
-      w: 2.1,
-      h: 0.5,
-      fontSize: 10,
-      bold: true,
-      color: theme.isDark ? '60A5FA' : '2563EB',
-    });
-
-    slide.addText(p.desc, {
-      x: xPos + 0.15,
-      y: 5.45,
-      w: 2.1,
-      h: 0.5,
-      fontSize: 9,
-      color: theme.textColor,
-    });
-  });
-
-  // Footer notes
-  slide.addText(`Automated Presentation Engine | Generated from Live Production Ledger | ${theme.name}`, {
-    x: 1.5,
-    y: 6.6,
-    w: 8.0,
-    h: 0.3,
-    fontSize: 9,
-    color: theme.footerText,
-  });
-}
-
-// -------------------------------------------------------------
-// SLIDE 2: Factory Executive KPI Scorecard
-// -------------------------------------------------------------
-function buildExecutiveScorecardSlide() {
-  const slide = pres.addSlide();
-  applySlideChrome(slide, 'Executive KPI Scorecard - Factory Operational Units');
-
-  // KPI Summary Table Headers
-  const tableRows = [
-    [
-      { text: 'Department / Unit', options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: 'left' } },
-      { text: 'In-Charge / Head', options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: 'left' } },
-      { text: 'Active Lines', options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: 'center' } },
-      { text: 'Plan (Pcs)', options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: 'right' } },
-      { text: 'Produce (Pcs)', options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: 'right' } },
-      { text: 'Pcs Ach %', options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: 'center' } },
-      { text: 'Avg DHU %', options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: 'center' } },
-      { text: 'Status', options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: 'center' } },
-    ],
-  ];
-
-  departments.forEach((dept, i) => {
-    const isAlt = i % 2 === 1;
-    const rowBg = isAlt ? theme.tableRowAltBg : theme.tableRowBg;
-    const ach = dept.totals.achievement_pct;
-    const achColor = ach >= 95 ? COLOR_EMERALD : ach >= 85 ? COLOR_AMBER : COLOR_ROSE;
-    const statusText = ach >= 95 ? 'ON TRACK' : ach >= 85 ? 'MONITOR' : 'ATTENTION';
-
-    tableRows.push([
-      { text: dept.name, options: { fill: { color: rowBg }, color: theme.tableRowTextColor, bold: true } },
-      { text: dept.head_name || 'Assigned', options: { fill: { color: rowBg }, color: theme.tableRowTextColor } },
-      { text: String(dept.totals.lines_count || 1), options: { fill: { color: rowBg }, color: theme.tableRowTextColor, align: 'center' } },
-      { text: dept.totals.total_plan_pcs.toLocaleString(), options: { fill: { color: rowBg }, color: theme.tableRowTextColor, align: 'right' } },
-      { text: dept.totals.total_produce_pcs.toLocaleString(), options: { fill: { color: rowBg }, color: theme.tableRowTextColor, align: 'right' } },
-      { text: `${ach}%`, options: { fill: { color: rowBg }, align: 'center', bold: true, color: achColor } },
-      { text: `${dept.totals.avg_dhu}%`, options: { fill: { color: rowBg }, color: theme.tableRowTextColor, align: 'center' } },
-      { text: statusText, options: { fill: { color: rowBg }, align: 'center', bold: true, color: achColor } },
-    ]);
-  });
-
-  slide.addTable(tableRows, {
-    x: 0.5,
-    y: 1.2,
-    w: 12.33,
-    fontSize: 10,
-    rowH: 0.45,
-    border: { pt: 1, color: theme.tableBorder },
-  });
-
-  // Key Highlights Box
-  slide.addShape(pres.ShapeType.roundRect, {
-    x: 0.5,
-    y: 5.7,
-    w: 12.33,
-    h: 1.1,
-    fill: { color: theme.cardBg },
-    line: { color: theme.cardBorder, width: 1 },
-    rectRadius: 0.08,
-  });
-
-  slide.addText('Executive Summary & Operating Observations:', {
-    x: 0.7,
-    y: 5.8,
-    w: 6.0,
-    h: 0.3,
-    fontSize: 11,
-    bold: true,
-    color: theme.titleColor,
-  });
-
-  slide.addText(
-    `• Knit divisions maintained stable performance with Knit-01 achieving strong line output and low DHU.\n` +
-    `• Cutting and specialized units (Printing, Embroidery, Schiffli) aligned with customer loading requirements.\n` +
-    `• Continuous focus on NPT minimization and line changeover speed planned across sewing floors.`,
-    {
-      x: 0.7,
-      y: 6.1,
-      w: 11.8,
-      h: 0.6,
-      fontSize: 9.5,
-      color: theme.textColor,
-    }
-  );
-}
-
-// -------------------------------------------------------------
-// Helper: Department Overview Slide
-// -------------------------------------------------------------
-function buildDepartmentOverviewSlide(dept, title) {
-  const slide = pres.addSlide();
-  applySlideChrome(slide, `${title} - Department Overview`, dept.code);
-
-  // Left Column: Department In-Charge Card with Avatar
-  slide.addShape(pres.ShapeType.roundRect, {
-    x: 0.5,
-    y: 1.2,
-    w: 4.2,
-    h: 5.5,
-    fill: { color: theme.cardBg },
-    line: { color: theme.cardBorder, width: 1 },
-    rectRadius: 0.1,
-  });
-
-  // Avatar / Profile Box
-  if (dept.head_avatar_path && fs.existsSync(dept.head_avatar_path)) {
-    slide.addImage({
-      path: dept.head_avatar_path,
-      x: 1.6,
-      y: 1.6,
-      w: 2.0,
-      h: 2.0,
-      round: true,
-    });
-  } else {
-    // Styled Avatar Placeholder
-    slide.addShape(pres.ShapeType.roundRect, {
-      x: 1.6,
-      y: 1.6,
-      w: 2.0,
-      h: 2.0,
-      fill: { color: theme.tagBg },
-      line: { color: theme.tagBorder, width: 2 },
-      rectRadius: 0.2,
-    });
-    slide.addText((dept.head_name || 'DH').substring(0, 2).toUpperCase(), {
-      x: 1.6,
-      y: 2.2,
-      w: 2.0,
-      h: 0.8,
-      fontSize: 28,
-      bold: true,
-      align: 'center',
-      color: theme.titleColor,
-    });
-  }
-
-  // Head details
-  slide.addText(dept.head_name || 'In-Charge Unassigned', {
-    x: 0.7,
-    y: 3.8,
-    w: 3.8,
-    h: 0.4,
-    fontSize: 16,
-    bold: true,
-    align: 'center',
-    color: theme.titleColor,
-  });
-
-  slide.addText(`Head of Department | ${dept.name}`, {
-    x: 0.7,
-    y: 4.2,
-    w: 3.8,
-    h: 0.3,
-    fontSize: 11,
-    align: 'center',
-    color: theme.mutedColor,
-  });
-
-  // Key KPI Cards in Left Column
-  const metrics = [
-    { label: 'Total Planned Pcs', val: dept.totals.total_plan_pcs.toLocaleString() },
-    { label: 'Total Produced Pcs', val: dept.totals.total_produce_pcs.toLocaleString() },
-    { label: 'Achievement Rate', val: `${dept.totals.achievement_pct}%` },
-    { label: 'Average DHU', val: `${dept.totals.avg_dhu}%` },
-  ];
-
-  metrics.forEach((m, idx) => {
-    const yP = 4.6 + idx * 0.5;
-    slide.addText(m.label, { x: 0.8, y: yP, w: 2.0, h: 0.3, fontSize: 9.5, color: theme.mutedColor });
-    slide.addText(m.val, { x: 2.8, y: yP, w: 1.7, h: 0.3, fontSize: 10, bold: true, align: 'right', color: theme.titleColor });
-  });
-
-  // Right Column: Line Summary Table
-  const tableRows = [
-    [
-      { text: 'Line', options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: 'center' } },
-      { text: 'Plan (Pcs)', options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: 'right' } },
-      { text: 'Produce (Pcs)', options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: 'right' } },
-      { text: 'Ach %', options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: 'center' } },
-      { text: 'DHU %', options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: 'center' } },
-      { text: 'Cost/Pc', options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: 'right' } },
-    ],
-  ];
-
-  const previewLines = dept.lines.slice(0, 10);
-  previewLines.forEach((ln, i) => {
-    const isAlt = i % 2 === 1;
-    const rowBg = isAlt ? theme.tableRowAltBg : theme.tableRowBg;
-    tableRows.push([
-      { text: ln.line_number, options: { fill: { color: rowBg }, color: theme.tableRowTextColor, align: 'center', bold: true } },
-      { text: ln.production.plan_pcs.toLocaleString(), options: { fill: { color: rowBg }, color: theme.tableRowTextColor, align: 'right' } },
-      { text: ln.production.produce_pcs.toLocaleString(), options: { fill: { color: rowBg }, color: theme.tableRowTextColor, align: 'right' } },
-      { text: `${ln.production.pcs_ach_pct}%`, options: { fill: { color: rowBg }, align: 'center', bold: true, color: ln.production.pcs_ach_pct >= 95 ? COLOR_EMERALD : COLOR_AMBER } },
-      { text: `${ln.quality.dhu}%`, options: { fill: { color: rowBg }, color: theme.tableRowTextColor, align: 'center' } },
-      { text: `${ln.cost.cost_per_piece} ${ln.cost.currency}`, options: { fill: { color: rowBg }, color: theme.tableRowTextColor, align: 'right' } },
-    ]);
-  });
-
-  slide.addTable(tableRows, {
-    x: 5.0,
-    y: 1.2,
-    w: 7.8,
-    fontSize: 9.5,
-    rowH: 0.38,
-    border: { pt: 1, color: theme.tableBorder },
-  });
-}
-
-// -------------------------------------------------------------
-// Helper: Individual Line Performance Slide (Native Chart + Table)
-// -------------------------------------------------------------
-function buildLineDetailSlide(dept, line) {
-  const slide = pres.addSlide();
-  applySlideChrome(slide, `${dept.name} - Line ${line.line_number} Performance Analysis`, dept.code);
-
-  // Top summary banner for the line
-  slide.addShape(pres.ShapeType.roundRect, {
-    x: 0.5,
-    y: 1.1,
-    w: 12.33,
-    h: 0.7,
-    fill: { color: theme.cardBg },
-    line: { color: theme.cardBorder, width: 1 },
-    rectRadius: 0.08,
-  });
-
-  const cards = [
-    { label: 'Line Name', val: line.line_name },
-    { label: 'Plan Pcs', val: line.production.plan_pcs.toLocaleString() },
-    { label: 'Produce Pcs', val: line.production.produce_pcs.toLocaleString() },
-    { label: 'Pcs Ach %', val: `${line.production.pcs_ach_pct}%`, color: line.production.pcs_ach_pct >= 95 ? COLOR_EMERALD : COLOR_AMBER },
-    { label: 'DHU %', val: `${line.quality.dhu}%` },
-    { label: 'Operators / Helpers', val: `${line.production.operators_count} / ${line.production.helpers_count}` },
-  ];
-
-  cards.forEach((c, idx) => {
-    const xP = 0.7 + idx * 2.0;
-    slide.addText(c.label, { x: xP, y: 1.18, w: 1.9, h: 0.22, fontSize: 8.5, color: theme.mutedColor });
-    slide.addText(c.val, { x: xP, y: 1.4, w: 1.9, h: 0.32, fontSize: 11, bold: true, color: c.color || theme.titleColor });
-  });
-
-  // Left Side: Native Chart (Plan vs Produce)
-  const chartData = [
-    {
-      name: 'Plan Pcs',
-      labels: ['Target', 'Actual', 'Checked'],
-      values: [line.production.plan_pcs, 0, 0],
-    },
-    {
-      name: 'Produce Pcs',
-      labels: ['Target', 'Actual', 'Checked'],
-      values: [0, line.production.produce_pcs, line.quality.checked_units],
-    },
-  ];
-
-  slide.addChart(pres.ChartType.bar, chartData, {
-    x: 0.5,
-    y: 2.1,
-    w: 6.0,
-    h: 4.6,
-    barDir: 'col',
-    chartColors: [COLOR_ACCENT_BLUE, COLOR_EMERALD],
-    showTitle: true,
-    title: 'Production Units vs Inspection Volume',
-    titleColor: theme.titleColor,
-    titleFontSize: 11,
-    showLegend: true,
-    legendPos: 'b',
-    catAxisLabelColor: theme.chartLabelColor,
-    valAxisLabelColor: theme.chartLabelColor,
-  });
-
-  // Right Side: Quality Defect Breakdown Table
-  const defectRows = [
-    [
-      { text: 'Inspection Category', options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor } },
-      { text: 'Units / Metric', options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: 'right' } },
-    ],
-    [
-      { text: 'Total Checked Units', options: { fill: { color: theme.tableRowAltBg }, color: theme.tableRowTextColor } },
-      { text: line.quality.checked_units.toLocaleString(), options: { fill: { color: theme.tableRowAltBg }, color: theme.tableRowTextColor, align: 'right', bold: true } },
-    ],
-    [
-      { text: 'Defective Garments', options: { fill: { color: theme.tableRowBg }, color: theme.tableRowTextColor } },
-      { text: line.quality.defect_units.toLocaleString(), options: { fill: { color: theme.tableRowBg }, color: theme.tableRowTextColor, align: 'right' } },
-    ],
-    [
-      { text: 'Total Defect Points', options: { fill: { color: theme.tableRowAltBg }, color: theme.tableRowTextColor } },
-      { text: line.quality.total_defects.toLocaleString(), options: { fill: { color: theme.tableRowAltBg }, color: theme.tableRowTextColor, align: 'right' } },
-    ],
-    [
-      { text: 'DHU (Defects / Hundred Units)', options: { fill: { color: theme.tableRowBg } } },
-      { text: `${line.quality.dhu}%`, options: { fill: { color: theme.tableRowBg }, align: 'right', bold: true, color: COLOR_ROSE } },
-    ],
-    [
-      { text: 'First Time Through (FTT %)', options: { fill: { color: theme.tableRowAltBg } } },
-      { text: `${line.quality.ftt_pct}%`, options: { fill: { color: theme.tableRowAltBg }, align: 'right', bold: true, color: COLOR_EMERALD } },
-    ],
-    [
-      { text: 'Cost Per Piece', options: { fill: { color: theme.tableRowBg }, color: theme.tableRowTextColor } },
-      { text: `${line.cost.cost_per_piece} ${line.cost.currency}`, options: { fill: { color: theme.tableRowBg }, color: theme.tableRowTextColor, align: 'right', bold: true } },
-    ],
-    [
-      { text: 'Minute Cost Rate', options: { fill: { color: theme.tableRowAltBg }, color: theme.tableRowTextColor } },
-      { text: `${line.cost.per_minute_cost} ${line.cost.currency}/min`, options: { fill: { color: theme.tableRowAltBg }, color: theme.tableRowTextColor, align: 'right' } },
-    ],
-  ];
-
-  slide.addTable(defectRows, {
-    x: 6.8,
-    y: 2.1,
-    w: 6.0,
-    fontSize: 10,
-    rowH: 0.45,
-    border: { pt: 1, color: theme.tableBorder },
-  });
-}
-
-// -------------------------------------------------------------
-// Helper: Department Special Topic Slide (Shipment, NPT, Cost, Leftovers)
-// -------------------------------------------------------------
-function buildSpecialTopicSlide(dept, title, topicType) {
-  const slide = pres.addSlide();
-  applySlideChrome(slide, `${dept.name} - ${title}`, dept.code);
-
-  if (topicType === 'shipment') {
-    const tableRows = [
-      [
-        { text: 'Buyer / Customer', options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor } },
-        { text: 'Order Qty (Pcs)', options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: 'right' } },
-        { text: 'Shipped Qty (Pcs)', options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: 'right' } },
-        { text: 'Variance', options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: 'right' } },
-        { text: 'On-Time Delivery %', options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: 'center' } },
-      ],
-      [
-        { text: 'H&M Hennes & Mauritz', options: { fill: { color: theme.tableRowAltBg }, color: theme.tableRowTextColor, bold: true } },
-        { text: '120,000', options: { fill: { color: theme.tableRowAltBg }, color: theme.tableRowTextColor, align: 'right' } },
-        { text: '120,000', options: { fill: { color: theme.tableRowAltBg }, color: theme.tableRowTextColor, align: 'right' } },
-        { text: '0', options: { fill: { color: theme.tableRowAltBg }, color: theme.tableRowTextColor, align: 'right' } },
-        { text: '100%', options: { fill: { color: theme.tableRowAltBg }, align: 'center', bold: true, color: COLOR_EMERALD } },
-      ],
-      [
-        { text: 'Zara / Inditex', options: { fill: { color: theme.tableRowBg }, color: theme.tableRowTextColor, bold: true } },
-        { text: '85,000', options: { fill: { color: theme.tableRowBg }, color: theme.tableRowTextColor, align: 'right' } },
-        { text: '84,600', options: { fill: { color: theme.tableRowBg }, color: theme.tableRowTextColor, align: 'right' } },
-        { text: '-400', options: { fill: { color: theme.tableRowBg }, color: theme.tableRowTextColor, align: 'right' } },
-        { text: '99.5%', options: { fill: { color: theme.tableRowBg }, align: 'center', bold: true, color: COLOR_EMERALD } },
-      ],
-      [
-        { text: 'C&A Buying', options: { fill: { color: theme.tableRowAltBg }, color: theme.tableRowTextColor, bold: true } },
-        { text: '60,000', options: { fill: { color: theme.tableRowAltBg }, color: theme.tableRowTextColor, align: 'right' } },
-        { text: '60,000', options: { fill: { color: theme.tableRowAltBg }, color: theme.tableRowTextColor, align: 'right' } },
-        { text: '0', options: { fill: { color: theme.tableRowAltBg }, color: theme.tableRowTextColor, align: 'right' } },
-        { text: '100%', options: { fill: { color: theme.tableRowAltBg }, align: 'center', bold: true, color: COLOR_EMERALD } },
-      ],
-    ];
-
-    slide.addTable(tableRows, {
-      x: 0.5,
-      y: 1.5,
-      w: 12.33,
-      fontSize: 11,
-      rowH: 0.5,
-      border: { pt: 1, color: theme.tableBorder },
-    });
-  } else if (topicType === 'npt') {
-    const nptRows = [
-      [
-        { text: 'NPT Category / Reason', options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor } },
-        { text: 'Minutes Lost', options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: 'right' } },
-        { text: '% of Total NPT', options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: 'center' } },
-        { text: 'Root Cause & Immediate Action Plan', options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor } },
-      ],
-      [
-        { text: 'Machine Breakdown', options: { fill: { color: theme.tableRowAltBg }, color: theme.tableRowTextColor, bold: true } },
-        { text: '420', options: { fill: { color: theme.tableRowAltBg }, color: theme.tableRowTextColor, align: 'right' } },
-        { text: '35%', options: { fill: { color: theme.tableRowAltBg }, color: theme.tableRowTextColor, align: 'center', bold: true } },
-        { text: 'Preventive maintenance schedule revised; critical motor spares restocked', options: { fill: { color: theme.tableRowAltBg }, color: theme.tableRowTextColor } },
-      ],
-      [
-        { text: 'Line Changeover Delay', options: { fill: { color: theme.tableRowBg }, color: theme.tableRowTextColor, bold: true } },
-        { text: '360', options: { fill: { color: theme.tableRowBg }, color: theme.tableRowTextColor, align: 'right' } },
-        { text: '30%', options: { fill: { color: theme.tableRowBg }, color: theme.tableRowTextColor, align: 'center', bold: true } },
-        { text: 'Pre-setting mock-ups 24 hours in advance by IE department', options: { fill: { color: theme.tableRowBg }, color: theme.tableRowTextColor } },
-      ],
-      [
-        { text: 'Input / Trims Waiting', options: { fill: { color: theme.tableRowAltBg }, color: theme.tableRowTextColor, bold: true } },
-        { text: '240', options: { fill: { color: theme.tableRowAltBg }, color: theme.tableRowTextColor, align: 'right' } },
-        { text: '20%', options: { fill: { color: theme.tableRowAltBg }, color: theme.tableRowTextColor, align: 'center', bold: true } },
-        { text: 'Cutting store kit dispatch synchronized with floor supervisors', options: { fill: { color: theme.tableRowAltBg }, color: theme.tableRowTextColor } },
-      ],
-      [
-        { text: 'Operator Absenteeism', options: { fill: { color: theme.tableRowBg }, color: theme.tableRowTextColor, bold: true } },
-        { text: '180', options: { fill: { color: theme.tableRowBg }, color: theme.tableRowTextColor, align: 'right' } },
-        { text: '15%', options: { fill: { color: theme.tableRowBg }, color: theme.tableRowTextColor, align: 'center', bold: true } },
-        { text: 'Multi-skilled reliever pool deployed during morning roll-call', options: { fill: { color: theme.tableRowBg }, color: theme.tableRowTextColor } },
-      ],
-    ];
-
-    slide.addTable(nptRows, {
-      x: 0.5,
-      y: 1.5,
-      w: 12.33,
-      fontSize: 10.5,
-      rowH: 0.5,
-      border: { pt: 1, color: theme.tableBorder },
-    });
-  } else {
-    // Leftovers or General Summary
-    slide.addShape(pres.ShapeType.roundRect, {
-      x: 0.5,
-      y: 1.5,
-      w: 12.33,
-      h: 5.0,
-      fill: { color: theme.cardBg },
-      line: { color: theme.cardBorder, width: 1 },
-      rectRadius: 0.1,
-    });
-
-    slide.addText(`${title} - Operating Findings & Control Measures:`, {
-      x: 0.8,
-      y: 1.8,
-      w: 11.5,
-      h: 0.4,
-      fontSize: 14,
-      bold: true,
-      color: theme.titleColor,
-    });
-
-    slide.addText(
-      `1. End-of-line leftover audits completed with store reconciliation.\n` +
-      `2. Finished goods clearance within 48 hours of shipment audit sign-off.\n` +
-      `3. Floor scrap and cutting remnant sorting maintained at 98.5% discipline standard.\n` +
-      `4. Line supervisors accountable for zero unaccounted balance at style close.`,
-      {
-        x: 0.8,
-        y: 2.4,
-        w: 11.5,
-        h: 3.5,
-        fontSize: 12,
-        color: theme.textColor,
+/** Reads width/height from PNG / JPEG / GIF / BMP / WEBP headers (no native deps). */
+function imageSize(file) {
+  try {
+    const b = fs.readFileSync(file);
+    if (b.length > 24 && b.readUInt32BE(0) === 0x89504e47) return { w: b.readUInt32BE(16), h: b.readUInt32BE(20) };
+    if (b[0] === 0x47 && b[1] === 0x49) return { w: b.readUInt16LE(6), h: b.readUInt16LE(8) };
+    if (b[0] === 0x42 && b[1] === 0x4d) return { w: b.readInt32LE(18), h: Math.abs(b.readInt32LE(22)) };
+    if (b.toString('ascii', 0, 4) === 'RIFF' && b.toString('ascii', 8, 12) === 'WEBP') {
+      const chunk = b.toString('ascii', 12, 16);
+      if (chunk === 'VP8X') return { w: 1 + b.readUIntLE(24, 3), h: 1 + b.readUIntLE(27, 3) };
+      if (chunk === 'VP8L') {
+        const bits = b.readUInt32LE(21);
+        return { w: (bits & 0x3fff) + 1, h: ((bits >> 14) & 0x3fff) + 1 };
       }
-    );
+      return { w: b.readUInt16LE(26) & 0x3fff, h: b.readUInt16LE(28) & 0x3fff };
+    }
+    if (b[0] === 0xff && b[1] === 0xd8) {
+      let i = 2;
+      while (i < b.length) {
+        if (b[i] !== 0xff) { i++; continue; }
+        const marker = b[i + 1];
+        const len = b.readUInt16BE(i + 2);
+        if ([0xc0, 0xc1, 0xc2, 0xc3, 0xc5, 0xc6, 0xc7, 0xc9, 0xca, 0xcb, 0xcd, 0xce, 0xcf].includes(marker)) {
+          return { w: b.readUInt16BE(i + 7), h: b.readUInt16BE(i + 5) };
+        }
+        i += 2 + len;
+      }
+    }
+  } catch {
+    /* fall through */
+  }
+  return null;
+}
+
+function imageData(file) {
+  const ext = path.extname(file).slice(1).toLowerCase().replace('jpg', 'jpeg');
+  const mime = ext === 'svg' ? 'image/svg+xml' : `image/${ext || 'png'}`;
+  return `${mime};base64,${fs.readFileSync(file).toString('base64')}`;
+}
+
+/** Photo cropped to fill the box (like PowerPoint "Fill"), or a placeholder silhouette. */
+function addPhoto(slide, file, x, y, w, h, name = 'Photo') {
+  slide.addShape(pres.shapes.RECTANGLE, { x, y, w, h, fill: { color: 'F2F2F2' }, line: { color: '595959', width: 0.75 } });
+  if (file && fs.existsSync(file)) {
+    const size = imageSize(file);
+    const opts = { data: imageData(file), x, y, w, h, altText: name, objectName: name };
+    if (size && size.w > 0 && size.h > 0) {
+      // pptxgenjs "cover" needs the natural ratio in w/h and the box in sizing
+      opts.w = w;
+      opts.h = (w * size.h) / size.w;
+      opts.sizing = { type: 'cover', w, h };
+    }
+    slide.addImage(opts);
+    slide.addShape(pres.shapes.RECTANGLE, { x, y, w, h, fill: { type: 'none' }, line: { color: '404040', width: 0.75 } });
+    return;
+  }
+  // silhouette placeholder
+  const cx = x + w / 2;
+  slide.addShape(pres.shapes.OVAL, { x: cx - w * 0.2, y: y + h * 0.16, w: w * 0.4, h: w * 0.4, fill: { color: 'BFBFBF' }, line: { type: 'none' } });
+  slide.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: x + w * 0.16, y: y + h * 0.58, w: w * 0.68, h: h * 0.36, rectRadius: 0.2, fill: { color: 'BFBFBF' }, line: { type: 'none' } });
+}
+
+function vacantBox(slide, x, y, w, h) {
+  slide.addText('Vacant', {
+    x, y, w, h, isTextBox: true, align: 'center', valign: 'middle', fontFace: SANS, fontSize: 12, color: C.brightRed,
+    fill: { color: 'DDEBF7' }, line: { color: '404040', width: 0.75 }, margin: 0,
+  });
+}
+
+function labelBox(slide, text, x, y, w, h = 0.3, fontSize = 9) {
+  slide.addText(text || '', {
+    x, y, w, h, isTextBox: true, align: 'center', valign: 'middle', fontFace: SANS, fontSize, bold: true,
+    color: C.white, fill: { color: C.cyan }, line: { color: '1F4E79', width: 0.75 }, margin: 0, fit: 'shrink',
+  });
+}
+
+/** Department tab (top-left) + big title band, as in the classic deck. */
+function header(slide, tab, title, { titleSize = 26 } = {}) {
+  slide.addShape(pres.shapes.ROUNDED_RECTANGLE, {
+    x: 0.12, y: 0.12, w: 2.15, h: 0.5, rectRadius: 0.08, fill: { color: 'E7E6E6' }, line: { color: 'A6A6A6', width: 0.75 },
+    shadow: { type: 'outer', color: '7F7F7F', opacity: 0.35, blur: 3, offset: 2, angle: 90 },
+  });
+  slide.addText(tab || '', {
+    x: 0.12, y: 0.12, w: 2.15, h: 0.5, isTextBox: true, align: 'center', valign: 'middle', fontFace: SERIF, fontSize: 16, color: C.red, margin: 0, fit: 'shrink',
+  });
+  slide.addShape(pres.shapes.RECTANGLE, {
+    x: 2.35, y: 0.06, w: 7.35, h: 0.6, fill: { color: 'E7E6E6' }, line: { color: 'BFBFBF', width: 0.5 },
+    shadow: { type: 'outer', color: '7F7F7F', opacity: 0.3, blur: 3, offset: 2, angle: 90 },
+  });
+  slide.addText(title, {
+    x: 2.45, y: 0.06, w: 7.2, h: 0.6, isTextBox: true, align: 'left', valign: 'middle', fontFace: SERIF, fontSize: titleSize, bold: true, color: C.red, margin: 0, fit: 'shrink',
+  });
+}
+
+/** Plain title band for table-style slides. */
+function plainTitle(slide, title, size = 20) {
+  slide.addText(title, {
+    x: 0.2, y: 0.05, w: 9.6, h: 0.55, isTextBox: true, fontFace: SERIF, fontSize: size, bold: true, color: C.navy, valign: 'middle', margin: 0, fit: 'shrink',
+  });
+}
+
+function footerText(slide) {
+  slide.addText(`${COMPANY}  |  ${period.name || ''}`, {
+    x: 0.15, y: 7.37, w: 6, h: 0.13, isTextBox: true, fontFace: SANS, fontSize: 7, color: C.white, margin: 0,
+  });
+}
+
+// Backgrounds live on layouts so each image is stored once in the file.
+const LAYOUTS = {};
+for (const bg of ['bg_band.png', 'bg_plain.png', 'bg_cover.png']) {
+  const file = asset(bg);
+  const title = `KPI_${bg.replace(/\W/g, '_')}`;
+  pres.defineSlideMaster({ title, background: file ? { path: file } : { color: 'FFFFFF' } });
+  LAYOUTS[bg] = title;
+}
+
+function newSlide(bg) {
+  return pres.addSlide({ masterName: LAYOUTS[bg] || LAYOUTS['bg_plain.png'] });
+}
+
+function arrow(slide, up, x, y, color) {
+  slide.addShape(up ? pres.shapes.UP_ARROW : pres.shapes.DOWN_ARROW, {
+    x, y, w: 0.34, h: 0.52, fill: { color }, line: { color: '262626', width: 0.5 },
+  });
+}
+
+/** Column chart with the classic dark-blue bars and value labels. */
+function barChart(slide, title, labels, values, box, { percent = false, money: isMoney = false, decimals = 2, color = C.bar, horizontal = false } = {}) {
+  const clean = values.map((v) => (isNum(v) ? Number(v) : null));
+  if (!labels.length) return;
+  const fmt = percent ? `0.${'0'.repeat(decimals)}"%"` : isMoney ? '#,##0;-#,##0' : '#,##0';
+  slide.addShape(pres.shapes.RECTANGLE, { ...box, fill: { color: C.white }, line: { color: '1F3864', width: 1.25 } });
+  slide.addChart(pres.charts.BAR, [{ name: title, labels, values: clean }], {
+    x: box.x + 0.03, y: box.y + 0.03, w: box.w - 0.06, h: box.h - 0.06,
+    barDir: horizontal ? 'bar' : 'col',
+    chartColors: [color],
+    invertIfNegative: false,
+    showTitle: true, title, titleFontFace: SANS, titleFontSize: 9, titleColor: '262626',
+    showLegend: false,
+    showValue: true, dataLabelFontSize: 6, dataLabelColor: '262626', dataLabelFormatCode: fmt, dataLabelPosition: 'outEnd',
+    valAxisLabelFormatCode: fmt, valAxisLabelFontSize: 6, catAxisLabelFontSize: 6,
+    catAxisLabelRotate: horizontal ? 0 : -45,
+    valGridLine: { color: 'E7E6E6', size: 0.5 }, catGridLine: { style: 'none' },
+    barGapWidthPct: 60,
+    catAxisLabelColor: '404040', valAxisLabelColor: '404040',
+  });
+}
+
+// conditional cell colors
+const goodBad = (ach, target, higherIsBetter = true) => {
+  if (!isNum(ach) || !isNum(target)) return null;
+  return higherIsBetter ? (Number(ach) >= Number(target) ? C.cellGreen : C.cellRed) : (Number(ach) <= Number(target) ? C.cellGreen : C.cellRed);
+};
+const signColor = (v) => (isNum(v) ? (Number(v) >= 0 ? C.cellGreen : C.cellRed) : null);
+
+function cell(text, opts = {}) {
+  return { text: text ?? '', options: { fontFace: SANS, fontSize: 6.5, align: 'center', valign: 'middle', color: C.text, margin: 0.01, ...opts } };
+}
+
+// ---------------------------------------------------------------- slides
+function coverSlide() {
+  const s = newSlide('bg_cover.png');
+  s.addText([
+    { text: data.report_title || 'KPI Performance', options: { breakLine: true } },
+    { text: `Year to date-${period.month_name || ''} ${YEAR}` },
+  ], { x: 0.4, y: 0.35, w: 6.6, h: 1.5, isTextBox: true, fontFace: SERIF, fontSize: 32, bold: true, color: C.red, valign: 'top', margin: 0, fit: 'shrink' });
+  s.addText(COMPANY, { x: 0.4, y: 1.9, w: 6.6, h: 0.5, isTextBox: true, fontFace: SERIF, fontSize: 22, bold: true, color: C.navy, margin: 0, fit: 'shrink' });
+  const quotes = [data.cover_quote, data.cover_quote_2].filter(Boolean);
+  if (quotes.length) {
+    s.addText(quotes.map((q, i) => ({ text: q, options: { breakLine: i < quotes.length - 1, paraSpaceAfter: 8 } })), {
+      x: 0.4, y: 2.6, w: 5.4, h: 2.2, isTextBox: true, fontFace: SANS, fontSize: 16, bold: true, color: C.black, valign: 'top', margin: 0, fit: 'shrink',
+    });
+  }
+  if (data.cover_tagline) {
+    s.addText(data.cover_tagline, { x: 5.0, y: 5.75, w: 3.0, h: 0.8, isTextBox: true, fontFace: SANS, fontSize: 18, bold: true, color: C.red, margin: 0, align: 'right', fit: 'shrink' });
+  }
+  // rising bars motif
+  const bars = [0.35, 0.55, 0.8, 1.05, 1.35, 1.7];
+  bars.forEach((bh, i) => {
+    s.addShape(pres.shapes.RECTANGLE, { x: 8.15 + i * 0.25, y: 7.25 - bh, w: 0.18, h: bh, fill: { color: i === bars.length - 1 ? 'E46C0A' : '2F75D6' }, line: { type: 'none' } });
+  });
+  if (data.logo && fs.existsSync(data.logo)) {
+    const sz = imageSize(data.logo);
+    const boxW = 1.4;
+    const boxH = 0.9;
+    let w = boxW;
+    let h = sz ? (boxW * sz.h) / sz.w : boxH;
+    if (h > boxH) { h = boxH; w = sz ? (boxH * sz.w) / sz.h : boxW; }
+    s.addImage({ data: imageData(data.logo), x: 0.4, y: 6.3, w, h, altText: 'Company logo' });
   }
 }
 
-// -------------------------------------------------------------
-// Helper: Specialized Unit Slides (Cutting, Printing, Embroidery, Schiffli, Sample)
-// -------------------------------------------------------------
-function buildSpecializedDepartmentSlide(dept, slideTitle, subtitle, records) {
-  const slide = pres.addSlide();
-  applySlideChrome(slide, `${dept.name} - ${slideTitle}`, dept.code);
-
-  // In-charge card
-  slide.addShape(pres.ShapeType.roundRect, {
-    x: 0.5,
-    y: 1.2,
-    w: 3.8,
-    h: 5.4,
-    fill: { color: theme.cardBg },
-    line: { color: theme.cardBorder, width: 1 },
-    rectRadius: 0.1,
-  });
-
-  if (dept.head_avatar_path && fs.existsSync(dept.head_avatar_path)) {
-    slide.addImage({
-      path: dept.head_avatar_path,
-      x: 1.4,
-      y: 1.6,
-      w: 2.0,
-      h: 2.0,
-      round: true,
-    });
-  } else {
-    slide.addShape(pres.ShapeType.roundRect, {
-      x: 1.4,
-      y: 1.6,
-      w: 2.0,
-      h: 2.0,
-      fill: { color: theme.tagBg },
-      line: { color: theme.tagBorder, width: 2 },
-      rectRadius: 0.2,
-    });
-    slide.addText((dept.head_name || 'SP').substring(0, 2).toUpperCase(), {
-      x: 1.4,
-      y: 2.2,
-      w: 2.0,
-      h: 0.8,
-      fontSize: 28,
-      bold: true,
-      align: 'center',
-      color: theme.titleColor,
-    });
-  }
-
-  slide.addText(dept.head_name || 'Section In-Charge', {
-    x: 0.7,
-    y: 3.8,
-    w: 3.4,
-    h: 0.4,
-    fontSize: 15,
-    bold: true,
-    align: 'center',
-    color: theme.titleColor,
-  });
-
-  slide.addText(subtitle, {
-    x: 0.7,
-    y: 4.2,
-    w: 3.4,
-    h: 0.3,
-    fontSize: 10,
-    align: 'center',
-    color: theme.mutedColor,
-  });
-
-  // Table of unit metrics
-  const tableRows = [
-    [
-      { text: 'Operational Metric', options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor } },
-      { text: 'Performance / Output', options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: 'right' } },
-      { text: 'Evaluation', options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: 'center' } },
-    ],
-  ];
-
-  records.forEach((r, idx) => {
-    const isAlt = idx % 2 === 1;
-    const rowBg = isAlt ? theme.tableRowAltBg : theme.tableRowBg;
-    tableRows.push([
-      { text: r.metric, options: { fill: { color: rowBg }, color: theme.tableRowTextColor, bold: true } },
-      { text: r.val, options: { fill: { color: rowBg }, color: theme.tableRowTextColor, align: 'right' } },
-      { text: r.eval, options: { fill: { color: rowBg }, align: 'center', bold: true, color: r.color || COLOR_EMERALD } },
-    ]);
-  });
-
-  slide.addTable(tableRows, {
-    x: 4.6,
-    y: 1.2,
-    w: 8.2,
-    fontSize: 11,
-    rowH: 0.55,
-    border: { pt: 1, color: theme.tableBorder },
-  });
-}
-
-// -------------------------------------------------------------
-// SLIDE 85: Conclusion & Action Roadmap Slide
-// -------------------------------------------------------------
-function buildConclusionSlide() {
-  const slide = pres.addSlide();
-  applySlideChrome(slide, 'Utah Fashion Ltd. - Executive Conclusion & Corrective Roadmap');
-
-  const actionCards = [
-    {
-      title: '1. Production & Throughput Optimization',
-      items: [
-        'Enforce 15-minute morning bottleneck audits across Knit and Woven floors.',
-        'Implement standardized SMV pre-validation before style loading.',
-        'Target factory-wide monthly production achievement >= 98.5%.',
-      ],
-    },
-    {
-      title: '2. Quality & Defect (DHU) Reduction',
-      items: [
-        'Maintain sewing line DHU strictly below 2.5% threshold.',
-        'Daily end-of-line traffic light alerts for any line exceeding 3.0% DHU.',
-        'Enhance Sample Section RFT (Right First Time) to >= 96% buyer approval.',
-      ],
-    },
-    {
-      title: '3. Cost Discipline & NPT Containment',
-      items: [
-        'Cap total monthly machine breakdown NPT below 250 total minutes factory-wide.',
-        'Synchronize cutting kit releases with line changeovers to eliminate idle wait.',
-        'Weekly review of cost per piece variance against planned departmental budgets.',
-      ],
-    },
-  ];
-
-  actionCards.forEach((c, idx) => {
-    const yP = 1.3 + idx * 1.7;
-    slide.addShape(pres.ShapeType.roundRect, {
-      x: 0.5,
-      y: yP,
-      w: 12.33,
-      h: 1.5,
-      fill: { color: theme.cardBg },
-      line: { color: theme.cardBorder, width: 1 },
-      rectRadius: 0.08,
-    });
-
-    slide.addText(c.title, {
-      x: 0.8,
-      y: yP + 0.1,
-      w: 11.5,
-      h: 0.35,
-      fontSize: 12,
-      bold: true,
-      color: theme.titleColor,
-    });
-
-    const bodyText = c.items.map((it) => `• ${it}`).join('\n');
-    slide.addText(bodyText, {
-      x: 0.8,
-      y: yP + 0.45,
-      w: 11.5,
-      h: 0.95,
-      fontSize: 10,
-      color: theme.textColor,
-    });
-  });
-
-  // Sign-off footer
-  slide.addText('Prepared By: Industrial Engineering & Quality Directorate | Utah Fashion Ltd.', {
-    x: 0.5,
-    y: 6.55,
-    w: 12.33,
-    h: 0.35,
-    fontSize: 9.5,
-    italic: true,
-    align: 'center',
-    color: theme.footerText,
-  });
-}
-
-// -------------------------------------------------------------
-// GENERATE ALL 85 SLIDES IN EXACT ORIGINAL ORDER
-// -------------------------------------------------------------
-console.log(`Generating presentation for ${periodName} (Scope: ${data.scope})...`);
-
-// Map departments by code for targeted generation
-const deptMap = {};
-departments.forEach((d) => {
-  deptMap[d.code] = d;
-});
-
-// SLIDE 1: Cover
-buildCoverSlide();
-
-// SLIDE 2: Executive Scorecard
-buildExecutiveScorecardSlide();
-
-// SLIDES 3-17: Knit-01 (15 slides)
-const knit01 = deptMap['KNIT-01'] || { name: 'Knit-01 Department', code: 'KNIT-01', head_name: 'PM-Hafizur Rahman', lines: [], totals: { total_plan_pcs: 0, total_produce_pcs: 0, achievement_pct: 0, avg_dhu: 0 } };
-buildDepartmentOverviewSlide(knit01, 'Knit-01 Department'); // Slide 3
-buildSpecialTopicSlide(knit01, 'Monthly Production & Efficiency Trend', 'summary'); // Slide 4
-
-// Lines 1 through 9 (Slides 5-13)
-for (let i = 1; i <= 9; i++) {
-  const ln = knit01.lines.find((l) => l.line_number === String(i)) || {
-    line_number: String(i),
-    line_name: `Line ${i}`,
-    production: { plan_pcs: 24000, produce_pcs: 23600, pcs_ach_pct: 98.3, operators_count: 38, helpers_count: 12 },
-    quality: { checked_units: 23600, defect_units: 520, total_defects: 580, dhu: 2.45, ftt_pct: 97.5 },
-    cost: { cost_per_piece: 23.5, currency: 'BDT', per_minute_cost: 38.0 },
-  };
-  buildLineDetailSlide(knit01, ln);
-}
-buildSpecialTopicSlide(knit01, 'Costing Productivity & Line Cost Analysis', 'cost'); // Slide 14
-buildSpecialTopicSlide(knit01, 'Shipment Performance & Buyer Compliance', 'shipment'); // Slide 15
-buildSpecialTopicSlide(knit01, 'Non-Productive Time (NPT) Root Cause Analysis', 'npt'); // Slide 16
-buildSpecialTopicSlide(knit01, 'Leftovers & Style Close-Out Summary', 'leftovers'); // Slide 17
-
-// SLIDES 18-40: Knit-02 (23 slides)
-const knit02 = deptMap['KNIT-02'] || { name: 'Knit-02 Department', code: 'KNIT-02', head_name: 'FM-Mohibul Islam / IE-Touhid', lines: [], totals: { total_plan_pcs: 0, total_produce_pcs: 0, achievement_pct: 0, avg_dhu: 0 } };
-buildDepartmentOverviewSlide(knit02, 'Knit-02 Department'); // Slide 18
-buildSpecialTopicSlide(knit02, 'Line Cost & Factory Floor Efficiency', 'cost'); // Slide 19
-
-// Lines 1 through 18 (Slides 20-37)
-for (let i = 1; i <= 18; i++) {
-  const ln = knit02.lines.find((l) => l.line_number === String(i)) || {
-    line_number: String(i),
-    line_name: `Line ${i}`,
-    production: { plan_pcs: 22000, produce_pcs: 21500, pcs_ach_pct: 97.7, operators_count: 36, helpers_count: 10 },
-    quality: { checked_units: 21500, defect_units: 480, total_defects: 540, dhu: 2.51, ftt_pct: 97.8 },
-    cost: { cost_per_piece: 24.1, currency: 'BDT', per_minute_cost: 37.5 },
-  };
-  buildLineDetailSlide(knit02, ln);
-}
-buildSpecialTopicSlide(knit02, 'Leftovers & Remnant Analysis', 'leftovers'); // Slide 38
-buildSpecialTopicSlide(knit02, 'Non-Productive Time (NPT) Floor Breakdown', 'npt'); // Slide 39
-buildSpecialTopicSlide(knit02, 'Monthly Operations Review & Action Items', 'summary'); // Slide 40
-
-// SLIDES 41-55: Knit-03 (15 slides)
-const knit03 = deptMap['KNIT-03'] || { name: 'Knit-03 Department', code: 'KNIT-03', head_name: 'AGM-Rafiq / IEM-Rakib', lines: [], totals: { total_plan_pcs: 0, total_produce_pcs: 0, achievement_pct: 0, avg_dhu: 0 } };
-buildDepartmentOverviewSlide(knit03, 'Knit-03 Department'); // Slide 41
-buildSpecialTopicSlide(knit03, 'Monthly Production Throughput', 'summary'); // Slide 42
-
-// Lines 1 through 9 (Slides 43-51)
-for (let i = 1; i <= 9; i++) {
-  const ln = knit03.lines.find((l) => l.line_number === String(i)) || {
-    line_number: String(i),
-    line_name: `Line ${i}`,
-    production: { plan_pcs: 21000, produce_pcs: 20400, pcs_ach_pct: 97.1, operators_count: 38, helpers_count: 12 },
-    quality: { checked_units: 20400, defect_units: 510, total_defects: 570, dhu: 2.79, ftt_pct: 97.2 },
-    cost: { cost_per_piece: 25.0, currency: 'BDT', per_minute_cost: 39.0 },
-  };
-  buildLineDetailSlide(knit03, ln);
-}
-buildSpecialTopicSlide(knit03, 'Line Cost vs Standard Budget', 'cost'); // Slide 52
-buildSpecialTopicSlide(knit03, 'Shipment & On-Time Performance', 'shipment'); // Slide 53
-buildSpecialTopicSlide(knit03, 'NPT Loss Distribution & Technical Stoppages', 'npt'); // Slide 54
-buildSpecialTopicSlide(knit03, 'Section Review & Preventive Protocol', 'summary'); // Slide 55
-
-// SLIDES 56-71: Woven (16 slides)
-const woven = deptMap['WOVEN'] || { name: 'Woven Department', code: 'WOVEN', head_name: 'PM-Mr. Suhag / IEM-Habib', lines: [], totals: { total_plan_pcs: 0, total_produce_pcs: 0, achievement_pct: 0, avg_dhu: 0 } };
-buildDepartmentOverviewSlide(woven, 'Woven Department'); // Slide 56
-buildSpecialTopicSlide(woven, 'Production & SMV Realization', 'summary'); // Slide 57
-
-// Lines 1 through 9 (Slides 58-66)
-for (let i = 1; i <= 9; i++) {
-  const ln = woven.lines.find((l) => l.line_number === String(i)) || {
-    line_number: String(i),
-    line_name: `Line ${i}`,
-    production: { plan_pcs: 18000, produce_pcs: 17500, pcs_ach_pct: 97.2, operators_count: 42, helpers_count: 14 },
-    quality: { checked_units: 17500, defect_units: 490, total_defects: 550, dhu: 3.14, ftt_pct: 96.8 },
-    cost: { cost_per_piece: 28.5, currency: 'BDT', per_minute_cost: 41.2 },
-  };
-  buildLineDetailSlide(woven, ln);
-}
-buildSpecialTopicSlide(woven, 'Woven Costing Productivity & Margin Protection', 'cost'); // Slide 67
-buildSpecialTopicSlide(woven, 'Fabric Wastage & Leftover Tracking', 'leftovers'); // Slide 68
-buildSpecialTopicSlide(woven, 'NPT Interruption Log', 'npt'); // Slide 69
-buildSpecialTopicSlide(woven, 'Shipment Reconciliation', 'shipment'); // Slide 70
-buildSpecialTopicSlide(woven, 'Woven Corrective Plan', 'summary'); // Slide 71
-
-// SLIDES 72-76: Cutting (5 slides)
-const cutting = deptMap['CUTTING'] || { name: 'Cutting Department', code: 'CUTTING', head_name: 'AGM-Mr. Jahangir', lines: [], totals: { total_plan_pcs: 0, total_produce_pcs: 0, achievement_pct: 0, avg_dhu: 0 } };
-buildSpecializedDepartmentSlide(cutting, 'Section Overview & Capacity', 'Cutting Floor Head | AGM-Mr. Jahangir', [
-  { metric: 'Planned Monthly Lay (Pcs)', val: '850,000 Pcs', eval: 'CAPACITY OK' },
-  { metric: 'Actual Cut Output (Pcs)', val: '838,500 Pcs', eval: '98.6% ACH', color: COLOR_EMERALD },
-  { metric: 'Fabric Utilization %', val: '87.4%', eval: 'BENCHMARK MET', color: COLOR_EMERALD },
-  { metric: 'End Loss & Remnant %', val: '1.85%', eval: 'CONTROLLED', color: COLOR_EMERALD },
-]); // Slide 72
-
-// Cutting Supervisors (Slides 73-75)
-const cuttingSupervisors = [
-  { name: 'Supervisor: Fozlu', title: 'Table 1-3 In-Charge', lay: '210,000 Pcs', ach: '99.1%' },
-  { name: 'Supervisor: Salam', title: 'Table 4-6 In-Charge', lay: '208,000 Pcs', ach: '98.5%' },
-  { name: 'Supervisor: Sumon & Delower', title: 'Table 7-9 & Bundling', lay: '420,500 Pcs', ach: '98.4%' },
-];
-
-cuttingSupervisors.forEach((sup) => {
-  buildSpecializedDepartmentSlide(cutting, sup.name, sup.title, [
-    { metric: 'Assigned Cutting Volume', val: sup.lay, eval: 'TARGET MET' },
-    { metric: 'Lay Achievement %', val: sup.ach, eval: 'ON TRACK', color: COLOR_EMERALD },
-    { metric: 'Bundle Accuracy Audit', val: '99.8%', eval: 'EXCELLENT', color: COLOR_EMERALD },
-    { metric: 'Numbering & Shade Rejection', val: '0.04%', eval: 'MINIMAL', color: COLOR_EMERALD },
+function goalsSlide(group) {
+  const s = newSlide('bg_plain.png');
+  header(s, "Main KPI's", `Our Main KPI's Goal (${group.group})`, { titleSize: 22 });
+  const rows = group.rows || [];
+  const fs_ = rows.length > 12 ? 12 : rows.length > 9 ? 14 : 16;
+  const rowH = Math.min(0.42, 5.9 / (rows.length + 1));
+  const head = ['Categories', String(YEAR), 'Responsible'].map((t) => cell(t, { bold: true, color: C.white, fill: { color: '4F81BD' }, fontSize: fs_ + 1, fontFace: 'Calibri' }));
+  const body = rows.map((r) => [
+    cell(`➢  ${r.category}`, { align: 'left', fontSize: fs_, bold: true, fontFace: 'Calibri', margin: [0, 0, 0, 0.1] }),
+    cell(r.target || '', { fontSize: fs_, bold: true, fontFace: 'Calibri' }),
+    cell(r.responsible || '', { align: 'left', fontSize: fs_, fontFace: 'Calibri', margin: [0, 0, 0, 0.1] }),
   ]);
-}); // Slides 73, 74, 75
+  s.addTable([head, ...body], {
+    x: 0.5, y: 1.0, w: 9.0, colW: [4.4, 1.6, 3.0], rowH, border: { type: 'solid', pt: 0.75, color: '4F81BD' },
+    fill: { color: 'F2F7FC' },
+  });
+  footerText(s);
+}
 
-buildSpecialTopicSlide(cutting, 'Cutting Fabric Wastage & Remnant Efficiency', 'leftovers'); // Slide 76
+function costSlide(dept) {
+  const s = newSlide('bg_band.png');
+  header(s, dept.code, 'Line wise Cost Achievement');
+  const total = dept.cost_total;
+  s.addText(`Line Cost\nAchievement ${YEAR}`, { x: 0.05, y: 0.8, w: 3.1, h: 0.95, isTextBox: true, fontFace: SERIF, fontSize: 22, bold: true, color: C.navy, align: 'center', valign: 'middle', margin: 0 });
+  s.addText(moneyShort(total), { x: 0.05, y: 1.75, w: 3.1, h: 0.6, isTextBox: true, fontFace: SERIF, fontSize: 30, bold: true, color: isNum(total) && total >= 0 ? C.darkGreen : C.red, align: 'center', margin: 0, fit: 'shrink' });
 
-// SLIDES 77-80: Printing, Embroidery & Schiffli (4 slides)
-const printing = deptMap['PRINTING'] || { name: 'Printing Department', code: 'PRINTING', head_name: 'AGM-Mr. Azam', lines: [], totals: { total_plan_pcs: 0, total_produce_pcs: 0, achievement_pct: 0, avg_dhu: 0 } };
-buildSpecializedDepartmentSlide(printing, 'Printing Production & Revenue', 'Head: AGM-Mr. Azam | Daily Earning Target $2,500', [
-  { metric: 'Daily Earning Target ($USD)', val: '$2,500 / Day', eval: 'STANDARD' },
-  { metric: 'Actual Average Realization', val: '$2,480 / Day', eval: '99.2% ACH', color: COLOR_EMERALD },
-  { metric: 'Total Monthly Output', val: '185,000 Pcs', eval: 'ON SCHEDULE', color: COLOR_EMERALD },
-  { metric: 'Print Rejection / Strike-Off %', val: '0.62%', eval: 'LOW', color: COLOR_EMERALD },
-]); // Slide 77
+  addPhoto(s, dept.head_photo, 3.3, 0.78, 1.15, 1.3, dept.head_label || 'Head');
+  labelBox(s, dept.head_label, 3.2, 2.1, 1.35, 0.28);
 
-const embroidery = deptMap['EMBROIDERY'] || { name: 'Embroidery Department', code: 'EMBROIDERY', head_name: 'EMBM-Mr. Zulfiker', lines: [], totals: { total_plan_pcs: 0, total_produce_pcs: 0, achievement_pct: 0, avg_dhu: 0 } };
-buildSpecializedDepartmentSlide(embroidery, 'Embroidery Capacity & Stitches', 'Head: EMBM-Mr. Zulfiker', [
-  { metric: 'Total Monthly Stitches', val: '48.5 Million', eval: 'CAPACITY MET' },
-  { metric: 'Garments Embroidered', val: '92,400 Pcs', eval: '98.8% ACH', color: COLOR_EMERALD },
-  { metric: 'Thread Break Rate / Head', val: '1.4 / Shift', eval: 'NORMAL', color: COLOR_EMERALD },
-  { metric: 'Needle Breakage Rejection', val: '0.02%', eval: 'NEGLIGIBLE', color: COLOR_EMERALD },
-]); // Slide 78
+  const labels = dept.line_labels || [];
+  const ytd = (dept.lines || []).map((l) => l.ytd?.cost_total ?? null);
+  barChart(s, `${dept.code} Line Cost Achievement (${YEAR} total)`, labels, ytd, { x: 4.65, y: 0.72, w: 5.25, h: 1.68 }, { money: true });
 
-const schiffli = deptMap['SCHIFFLI'] || { name: 'Schiffli Department', code: 'SCHIFFLI', head_name: 'SFM-Mr. Kamal', lines: [], totals: { total_plan_pcs: 0, total_produce_pcs: 0, achievement_pct: 0, avg_dhu: 0 } };
-buildSpecializedDepartmentSlide(schiffli, 'Schiffli Lace & Motif Production', 'Head: SFM-Mr. Kamal', [
-  { metric: 'Monthly Yards Produced', val: '38,200 Yards', eval: 'HIGH RUN' },
-  { metric: 'Machine Utilization', val: '91.4%', eval: 'GOOD', color: COLOR_EMERALD },
-  { metric: 'Yarn Tension Faults', val: '0.8%', eval: 'ACCEPTABLE', color: COLOR_EMERALD },
-  { metric: 'On-Time Supply to Sewing', val: '100%', eval: 'EXCELLENT', color: COLOR_EMERALD },
-]); // Slide 79
+  // Table A: productivity achievement % per line
+  const nLines = labels.length;
+  const firstColW = 0.95;
+  const avgColW = 0.55;
+  const lineColW = Math.max(0.36, (9.8 - firstColW - avgColW) / Math.max(1, nLines));
+  const tableW = firstColW + avgColW + lineColW * nLines;
+  const fsz = nLines > 14 ? 5.5 : 6.5;
+  const headRow = [cell('Month', { bold: true, fill: { color: C.header }, fontSize: fsz }), cell('Avg', { bold: true, fill: { color: C.header }, fontSize: fsz }),
+    ...labels.map((l) => cell(l, { bold: true, fill: { color: C.header }, fontSize: fsz }))];
+  const targets = dept.prod_rows?.[0]?.values || [];
+  const prodBody = (dept.prod_rows || []).map((r, idx) => {
+    const isTarget = idx === 0;
+    const isAvg = idx === 1 || idx === 2;
+    const base = { fontSize: fsz, bold: isTarget || isAvg };
+    const rowFill = isTarget ? C.rowTarget : idx === 1 ? C.yellow : null;
+    return [
+      cell(r.label, { ...base, align: 'left', fill: rowFill ? { color: rowFill } : undefined }),
+      cell(pct(r.avg), { ...base, fill: isTarget ? { color: C.rowTarget } : (goodBad(r.avg, avgOf(targets)) ? { color: goodBad(r.avg, avgOf(targets)) } : undefined) }),
+      ...r.values.map((v, i) => cell(pct(v), { ...base, fill: isTarget ? { color: C.rowTarget } : (goodBad(v, targets[i]) ? { color: goodBad(v, targets[i]) } : undefined) })),
+    ];
+  });
+  const costHead = [cell('Month', { bold: true, fill: { color: C.header }, fontSize: fsz }), cell('Total', { bold: true, fill: { color: C.header }, fontSize: fsz }),
+    ...labels.map((l) => cell(l, { bold: true, fill: { color: C.header }, fontSize: fsz }))];
+  const costBody = (dept.cost_rows || []).map((r, idx) => [
+    cell(r.label, { fontSize: fsz, bold: idx === 0, align: 'left', fill: idx === 0 ? { color: C.yellow } : undefined }),
+    cell(moneyShort(r.total), { fontSize: fsz, bold: true, fill: signColor(r.total) ? { color: signColor(r.total) } : undefined }),
+    ...r.values.map((v) => cell(isNum(v) ? moneyShort(v) : '', { fontSize: fsz, fill: signColor(v) ? { color: signColor(v) } : undefined })),
+  ]);
 
-buildSpecialTopicSlide(printing, 'Specialized Units Capacity & Floor Synchronization', 'summary'); // Slide 80
+  const top = 2.55;
+  const bottom = 7.25;
+  const gap = 0.1;
+  const totalRows = prodBody.length + 1 + (costBody.length ? costBody.length + 1 : 0);
+  const rowH = Math.min(0.2, (bottom - top - gap) / Math.max(1, totalRows));
+  const colW = [firstColW, avgColW, ...labels.map(() => lineColW)];
+  const x = Math.max(0.1, (W - tableW) / 2);
+  s.addTable([headRow, ...prodBody], { x, y: top, w: tableW, colW, rowH, border: { type: 'solid', pt: 0.5, color: '7F7F7F' }, fill: { color: C.white } });
+  if (costBody.length) {
+    s.addTable([costHead, ...costBody], { x, y: top + rowH * (prodBody.length + 1) + gap, w: tableW, colW, rowH, border: { type: 'solid', pt: 0.5, color: '7F7F7F' }, fill: { color: C.white } });
+  }
+  footerText(s);
+}
 
-// SLIDES 81-84: Sample Section (4 slides)
-const sample = deptMap['SAMPLE'] || { name: 'Sample Department', code: 'SAMPLE', head_name: 'AGM-Mr. Hafiz Al Asad', lines: [], totals: { total_plan_pcs: 0, total_produce_pcs: 0, achievement_pct: 0, avg_dhu: 0 } };
-buildSpecializedDepartmentSlide(sample, 'Sample Development Overview', 'Head: AGM-Mr. Hafiz Al Asad | Delowar, Rafiq, Tuhin, Shalam', [
-  { metric: 'Total Sample Requests', val: '1,420 Styles', eval: 'HIGH VOLUME' },
-  { metric: 'Samples Executed & Dispatched', val: '1,398 Styles', eval: '98.5% ACH', color: COLOR_EMERALD },
-  { metric: 'Average Lead Time', val: '3.2 Days', eval: 'FASTER THAN SLA', color: COLOR_EMERALD },
-  { metric: 'Right First Time (RFT %)', val: '95.8%', eval: 'STRONG', color: COLOR_EMERALD },
-]); // Slide 81
+function scaleTo(widths, total) {
+  const sum = widths.reduce((a, b) => a + b, 0);
+  return widths.map((w) => Math.round((w * total * 1000) / sum) / 1000);
+}
 
-buildSpecializedDepartmentSlide(sample, 'Sample Capacity vs Monthly Requests', 'Sample Room Loading & Resource Allocation', [
-  { metric: 'Dedicated Sample Machines', val: '45 Machines', eval: 'ACTIVE' },
-  { metric: 'Sample Pattern Makers', val: '8 Specialists', eval: 'FULL STAFF' },
-  { metric: 'Capacity Utilization %', val: '94.2%', eval: 'OPTIMAL', color: COLOR_EMERALD },
-  { metric: 'Urgent Fit Approval Turnaround', val: '< 24 Hours', eval: '100% MET', color: COLOR_EMERALD },
-]); // Slide 82
+function avgOf(values) {
+  const v = (values || []).filter(isNum).map(Number);
+  return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null;
+}
 
-buildSpecializedDepartmentSlide(sample, 'Buyer-wise Sample RFT Performance', 'Approval Rate by International Brand', [
-  { metric: 'H&M Hennes & Mauritz RFT %', val: '97.2%', eval: 'APPROVED', color: COLOR_EMERALD },
-  { metric: 'Zara / Inditex RFT %', val: '96.5%', eval: 'APPROVED', color: COLOR_EMERALD },
-  { metric: 'C&A Buying RFT %', val: '95.0%', eval: 'APPROVED', color: COLOR_EMERALD },
-  { metric: 'Target & Next Sourcing RFT %', val: '94.8%', eval: 'APPROVED', color: COLOR_EMERALD },
-]); // Slide 83
+function lineSlide(dept, line) {
+  const s = newSlide('bg_band.png');
+  header(s, dept.code, line.label || `Line No ${pad2(line.number)}`, { titleSize: 30 });
 
-buildSpecialTopicSlide(sample, 'Sample Rejection & Rework Root Cause Log', 'summary'); // Slide 84
+  // Left: line cost achievement (year to date)
+  const cost = line.ytd?.cost_total;
+  s.addText(`Line Cost\nAchievement ${YEAR}`, { x: 0.0, y: 0.82, w: 2.0, h: 1.0, isTextBox: true, fontFace: SERIF, fontSize: 17, color: C.black, align: 'center', valign: 'middle', margin: 0 });
+  s.addText(isNum(cost) ? moneyShort(cost) : '-', { x: 0.0, y: 1.86, w: 1.45, h: 0.5, isTextBox: true, fontFace: SERIF, fontSize: 20, bold: true, color: isNum(cost) && cost >= 0 ? C.darkGreen : C.red, align: 'center', margin: 0, fit: 'shrink' });
+  if (isNum(cost)) arrow(s, cost >= 0, 1.5, 1.84, cost >= 0 ? C.darkGreen : C.red);
 
-// SLIDE 85: Conclusion
-buildConclusionSlide(); // Slide 85
+  // Right: average sewing DHU (year to date)
+  const dhu = line.ytd?.sew_dhu;
+  const dhuTarget = line.latest_target?.sew_dhu_target ?? line.current?.sew_dhu_target;
+  const dhuBad = isNum(dhu) && isNum(dhuTarget) ? Number(dhu) > Number(dhuTarget) : false;
+  s.addText(`Average Sew\nDHU (${YEAR})`, { x: 8.15, y: 0.78, w: 1.8, h: 0.75, isTextBox: true, fontFace: SERIF, fontSize: 16, color: C.black, align: 'center', valign: 'middle', margin: 0 });
+  s.addText(pct(dhu, 2) || '-', { x: 8.62, y: 1.55, w: 1.33, h: 0.48, isTextBox: true, fontFace: SERIF, fontSize: 20, bold: true, color: dhuBad ? C.red : C.darkGreen, align: 'center', margin: 0, fit: 'shrink' });
+  if (isNum(dhu)) arrow(s, dhuBad, 8.25, 1.82, dhuBad ? C.red : C.darkGreen);
 
-console.log(`Total slides generated: ${currentSlideNumber}`);
+  // Staff photo cards (up to 6)
+  const staff = (line.staff || []).slice(0, 6);
+  const slotW = 0.94;
+  const pitch = 1.015;
+  const startX = 2.08 + (6 - staff.length) * pitch / 2;
+  staff.forEach((p, i) => {
+    const x = startX + i * pitch;
+    if (p.vacant) vacantBox(s, x, 0.78, slotW, 1.24);
+    else addPhoto(s, p.photo, x, 0.78, slotW, 1.24, p.label);
+    labelBox(s, p.label || '', x - 0.02, 2.07, slotW + 0.04, 0.3, 8.5);
+  });
 
-// Write presentation to output file
+  // Monthly table
+  const rows = line.rows || [];
+  const H1 = (t, span) => cell(t, { bold: true, fill: { color: C.header }, colspan: span, fontSize: 6.5 });
+  const head1 = [cell('', { fill: { color: C.header } }), H1('Efficiency', 2), H1('Productivity Achievement', 2), H1('Line Cost Achievement', 3), H1('Sewing DHU', 2), H1('Finishing DHU', 2)];
+  const head2 = ['Month', 'Target', 'Ach :', 'Target', 'Ach :', 'Total profit/Loss', 'Total Idle hour loss', 'Total Diff from actual cost', 'Target', 'Ach :', 'Target', 'Ach :']
+    .map((t) => cell(t, { bold: true, fill: { color: C.header }, fontSize: 6 }));
+  const body = rows.map((r) => {
+    const rowFill = r.is_avg ? { color: C.rowAvg } : undefined;
+    const fillFor = (c) => (c ? { color: c } : rowFill);
+    return [
+      cell(r.label, { align: 'left', bold: r.is_avg, fill: rowFill }),
+      cell(pct(r.eff_target), { fill: rowFill }),
+      cell(pct(r.eff_ach), { fill: fillFor(goodBad(r.eff_ach, r.eff_target)) }),
+      cell(pct(r.prod_target), { fill: rowFill }),
+      cell(pct(r.prod_ach), { fill: fillFor(goodBad(r.prod_ach, r.prod_target)) }),
+      cell(money(r.profit_loss), { fill: fillFor(signColor(r.profit_loss)), align: 'right' }),
+      cell(money(r.idle_loss), { fill: fillFor(signColor(r.idle_loss)), align: 'right' }),
+      cell(money(r.cost_diff), { fill: fillFor(signColor(r.cost_diff)), align: 'right', bold: true }),
+      cell(pct(r.sew_dhu_target), { fill: rowFill }),
+      cell(pct(r.sew_dhu, 2), { fill: fillFor(goodBad(r.sew_dhu, r.sew_dhu_target, false)) }),
+      cell(pct(r.fin_dhu_target), { fill: rowFill }),
+      cell(pct(r.fin_dhu, 2), { fill: fillFor(goodBad(r.fin_dhu, r.fin_dhu_target, false)) }),
+    ];
+  });
+  const tableRows = [head1, head2, ...body];
+  const rowH = Math.min(0.2, 2.62 / tableRows.length);
+  s.addTable(tableRows, {
+    x: 0.05, y: 2.47, w: 6.98, colW: scaleTo([0.86, 0.42, 0.44, 0.42, 0.44, 0.76, 0.76, 0.84, 0.42, 0.48, 0.42, 0.48], 6.98),
+    rowH, border: { type: 'solid', pt: 0.5, color: '7F7F7F' }, fill: { color: C.white },
+  });
+
+  const labels = rows.map((r) => r.label);
+  barChart(s, `Finishing DHU-${line.label} - ${dept.code}`, labels, rows.map((r) => r.fin_dhu), { x: 7.1, y: 2.47, w: 2.85, h: 2.62 }, { percent: true });
+  barChart(s, `Profit/Loss-${line.label} - ${dept.code}`, labels, rows.map((r) => r.cost_diff), { x: 0.05, y: 5.15, w: 4.93, h: 2.12 }, { money: true });
+  barChart(s, `Sewing DHU-${line.label} - ${dept.code}`, labels, rows.map((r) => r.sew_dhu), { x: 5.06, y: 5.15, w: 4.89, h: 2.12 }, { percent: true });
+  footerText(s);
+}
+
+function nptSlide(dept) {
+  const reasons = (dept.npt?.reasons || []).filter((r) => isNum(r.hours));
+  if (!reasons.length) return;
+  const s = newSlide('bg_plain.png');
+  plainTitle(s, `${dept.name} Major Reason For NPT - ${YEAR}`);
+  const sorted = [...reasons].sort((a, b) => Number(a.hours) - Number(b.hours));
+  const total = dept.npt.total;
+  const rows = [
+    [cell(`${dept.code} (${period.month_name})`, { bold: true, align: 'left', fill: { color: 'FFF2CC' }, fontSize: 10 }), cell('Hour', { bold: true, fill: { color: 'DDEBF7' }, fontSize: 10 })],
+    ...sorted.map((r) => [cell(r.reason, { align: 'left', fontSize: 9 }), cell(num(r.hours), { bold: true, fontSize: 10, align: 'right' })]),
+    [cell('Total Loss Time', { bold: true, align: 'left', fontSize: 10, fill: { color: 'DDEBF7' } }), cell(num(total), { bold: true, fontSize: 10, align: 'right', fill: { color: 'DDEBF7' } })],
+  ];
+  const rowH = Math.min(0.45, 4.8 / rows.length);
+  s.addTable(rows, { x: 0.15, y: 1.0, w: 4.4, colW: [3.6, 0.8], rowH, border: { type: 'solid', pt: 0.5, color: '9BC2E6' }, fill: { color: C.white } });
+  barChart(s, `${dept.code} NPT Total - ${num(total)} Hours`, sorted.map((r) => r.reason), sorted.map((r) => r.hours), { x: 4.75, y: 1.0, w: 5.1, h: Math.max(2.6, rowH * rows.length) }, { horizontal: true });
+  footerText(s);
+}
+
+function unitSlide(dept) {
+  const rows = dept.rows || [];
+  const has = (f) => rows.some((r) => isNum(r[f]));
+  if (!rows.some((r) => ['plan', 'produce', 'eff_ach', 'earning', 'dhu'].some((f) => isNum(r[f])))) return;
+  const s = newSlide('bg_plain.png');
+  plainTitle(s, `${dept.name} KPI`, 22);
+  addPhoto(s, dept.head_photo, 8.75, 0.7, 1.05, 1.2, dept.head_label || 'Head');
+  labelBox(s, dept.head_label, 8.6, 1.92, 1.35, 0.28, 8);
+
+  const cols = [{ h: 'Month', f: (r) => r.label, w: 0.95, left: true }];
+  if (has('plan')) cols.push({ h: 'Plan', f: (r) => num(r.plan), w: 0.95 });
+  if (has('produce')) cols.push({ h: 'Produce', f: (r) => num(r.produce), w: 0.95 });
+  if (has('plan') && has('produce')) cols.push({ h: 'Ach%', f: (r) => pct(r.prod_ach), w: 0.6, c: (r) => goodBad(r.prod_ach, 100) });
+  if (has('eff_ach')) {
+    if (has('eff_target')) cols.push({ h: 'Eff. Target', f: (r) => pct(r.eff_target), w: 0.65 });
+    cols.push({ h: 'Efficiency', f: (r) => pct(r.eff_ach), w: 0.7, c: (r) => goodBad(r.eff_ach, r.eff_target) });
+  }
+  if (has('earning')) {
+    cols.push({ h: 'Earning Target', f: (r) => num(r.earning_target), w: 0.8 });
+    cols.push({ h: 'Earning', f: (r) => num(r.earning), w: 0.8 });
+    cols.push({ h: 'Earn. Ach%', f: (r) => pct(r.earning_ach), w: 0.6, c: (r) => goodBad(r.earning_ach, 100) });
+  }
+  if (has('dhu')) {
+    if (has('dhu_target')) cols.push({ h: 'DHU Target', f: (r) => pct(r.dhu_target, 2), w: 0.62 });
+    cols.push({ h: 'DHU', f: (r) => pct(r.dhu, 2), w: 0.62, c: (r) => goodBad(r.dhu, r.dhu_target, false) });
+  }
+  const totalW = cols.reduce((a, c) => a + c.w, 0);
+  const scale = Math.min(1, 8.3 / totalW);
+  const colW = cols.map((c) => c.w * scale);
+  const head = cols.map((c) => cell(c.h, { bold: true, fill: { color: C.headerDark }, color: C.white, fontSize: 7.5 }));
+  const body = rows.map((r) => cols.map((c) => {
+    const color = c.c ? c.c(r) : null;
+    return cell(c.f(r), { fontSize: 7.5, align: c.left ? 'left' : 'center', bold: r.is_avg, fill: color ? { color } : r.is_avg ? { color: C.rowAvg } : undefined });
+  }));
+  s.addText(`KPI Achievement Summary - ${YEAR} ${dept.name}`, { x: 0.2, y: 0.72, w: colW.reduce((a, b) => a + b, 0), h: 0.28, isTextBox: true, align: 'center', fontFace: SANS, fontSize: 10, bold: true, color: C.white, fill: { color: '000000' }, margin: 0 });
+  const rowH = Math.min(0.24, 3.4 / (body.length + 1));
+  s.addTable([head, ...body], { x: 0.2, y: 1.0, w: colW.reduce((a, b) => a + b, 0), colW, rowH, border: { type: 'solid', pt: 0.5, color: '7F7F7F' }, fill: { color: C.white } });
+
+  const labels = rows.map((r) => r.label);
+  const chartTop = 1.0 + rowH * (body.length + 1) + 0.15;
+  const chartH = Math.max(1.8, 7.25 - chartTop);
+  const first = has('plan') && has('produce') ? ['Productivity Ach%', rows.map((r) => r.prod_ach)] : ['Efficiency %', rows.map((r) => r.eff_ach)];
+  const second = has('dhu') ? ['DHU %', rows.map((r) => r.dhu)] : ['Efficiency %', rows.map((r) => r.eff_ach)];
+  barChart(s, first[0], labels, first[1], { x: 0.2, y: chartTop, w: 4.75, h: chartH }, { percent: true, decimals: 0 });
+  barChart(s, second[0], labels, second[1], { x: 5.05, y: chartTop, w: 4.75, h: chartH }, { percent: true, decimals: 2 });
+  footerText(s);
+}
+
+function supervisorSlides(dept) {
+  const people = (dept.people || []).filter((p) => (p.rows || []).some((r) => isNum(r.eff_ach) || isNum(r.produce)));
+  for (let i = 0; i < people.length; i += 2) {
+    const s = newSlide('bg_plain.png');
+    plainTitle(s, `Supervisor wise ${dept.name} KPI`, 20);
+    people.slice(i, i + 2).forEach((p, k) => {
+      const top = 0.72 + k * 3.28;
+      const rows = p.rows || [];
+      const head = ['Month', 'Eff. Target', 'Ach :', 'Plan', 'Produce', 'Ach%'].map((t) => cell(t, { bold: true, fill: { color: C.header }, fontSize: 6.5 }));
+      const body = rows.map((r) => [
+        cell(r.label, { align: 'left', bold: r.is_avg, fill: r.is_avg ? { color: C.rowAvg } : undefined }),
+        cell(pct(r.eff_target)),
+        cell(pct(r.eff_ach), { fill: goodBad(r.eff_ach, r.eff_target) ? { color: goodBad(r.eff_ach, r.eff_target) } : undefined }),
+        cell(num(r.plan)), cell(num(r.produce)),
+        cell(pct(r.prod_ach), { fill: goodBad(r.prod_ach, 100) ? { color: goodBad(r.prod_ach, 100) } : undefined }),
+      ]);
+      const rowH = Math.min(0.2, 3.1 / (body.length + 1));
+      s.addTable([head, ...body], { x: 0.15, y: top, w: 4.1, colW: [0.9, 0.6, 0.55, 0.75, 0.75, 0.55], rowH, border: { type: 'solid', pt: 0.5, color: '7F7F7F' }, fill: { color: C.white } });
+      barChart(s, `Efficiency - ${p.label}`, rows.map((r) => r.label), rows.map((r) => r.eff_ach), { x: 4.35, y: top, w: 4.1, h: 3.1 }, { percent: true, decimals: 0, color: C.red });
+      addPhoto(s, p.photo, 8.6, top + 0.5, 1.15, 1.35, p.label);
+      labelBox(s, p.label, 8.5, top + 1.9, 1.35, 0.3, 8);
+    });
+    footerText(s);
+  }
+}
+
+function thankYouSlide() {
+  const s = newSlide('bg_plain.png');
+  s.addText(COMPANY, { x: 0.5, y: 0.05, w: 9, h: 0.55, isTextBox: true, align: 'center', valign: 'middle', fontFace: SERIF, fontSize: 24, bold: true, color: '2E3192', margin: 0, fit: 'shrink' });
+  s.addText('Thank You', { x: 0.5, y: 2.4, w: 9, h: 1.6, isTextBox: true, align: 'center', valign: 'middle', fontFace: SERIF, fontSize: 66, italic: true, color: C.navy, margin: 0 });
+  s.addText(`${data.report_title || 'KPI Performance'} · ${period.name || ''}`, { x: 0.5, y: 4.1, w: 9, h: 0.5, isTextBox: true, align: 'center', fontFace: SANS, fontSize: 16, color: C.grayDark, margin: 0 });
+}
+
+// ---------------------------------------------------------------- build
+coverSlide();
+const shownGoals = new Set();
+const goalsByName = Object.fromEntries((data.goals || []).map((g) => [g.group, g]));
+for (const dept of data.departments || []) {
+  if (dept.goal_group && goalsByName[dept.goal_group] && !shownGoals.has(dept.goal_group)) {
+    goalsSlide(goalsByName[dept.goal_group]);
+    shownGoals.add(dept.goal_group);
+  }
+  if (dept.kind === 'lines') {
+    if ((dept.lines || []).length) costSlide(dept);
+    for (const line of dept.lines || []) lineSlide(dept, line);
+    nptSlide(dept);
+  } else {
+    unitSlide(dept);
+    supervisorSlides(dept);
+  }
+}
+// goal groups not attached to any department still get their slide
+for (const g of data.goals || []) {
+  if (!shownGoals.has(g.group) && (data.departments || []).length > 1) goalsSlide(g);
+}
+thankYouSlide();
+
+const CRC_TABLE = (() => {
+  const t = new Uint32Array(256);
+  for (let n = 0; n < 256; n++) {
+    let c = n;
+    for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+    t[n] = c >>> 0;
+  }
+  return t;
+})();
+function crc32(buf) {
+  let c = 0xffffffff;
+  for (let i = 0; i < buf.length; i++) c = CRC_TABLE[(c ^ buf[i]) & 0xff] ^ (c >>> 8);
+  return (c ^ 0xffffffff) >>> 0;
+}
+
+/**
+ * Post-processes the .pptx zip:
+ *  - drops directory entries ("ppt/", ...) that JSZip adds (OneDrive/SharePoint can refuse them)
+ *  - stores each distinct picture once: pptxgenjs embeds a photo again on every slide that uses it
+ *    (a supervisor on 9 line slides = 9 copies), so duplicates are removed and the slide
+ *    relationships are pointed at the single copy.
+ */
+function cleanZip(buf) {
+  const eocd = buf.lastIndexOf(Buffer.from([0x50, 0x4b, 0x05, 0x06]));
+  if (eocd < 0) return buf;
+  const count = buf.readUInt16LE(eocd + 10);
+  let cd = buf.readUInt32LE(eocd + 16);
+  const entries = [];
+  for (let i = 0; i < count; i++) {
+    const nameLen = buf.readUInt16LE(cd + 28);
+    const extraLen = buf.readUInt16LE(cd + 30);
+    const commentLen = buf.readUInt16LE(cd + 32);
+    const localOff = buf.readUInt32LE(cd + 42);
+    const name = buf.toString('utf8', cd + 46, cd + 46 + nameLen);
+    const central = Buffer.from(buf.subarray(cd, cd + 46 + nameLen + extraLen + commentLen));
+    cd += 46 + nameLen + extraLen + commentLen;
+    const lNameLen = buf.readUInt16LE(localOff + 26);
+    const lExtraLen = buf.readUInt16LE(localOff + 28);
+    const method = buf.readUInt16LE(localOff + 8);
+    const compSize = central.readUInt32LE(20);
+    const dataStart = localOff + 30 + lNameLen + lExtraLen;
+    entries.push({ name, central, method, data: buf.subarray(dataStart, dataStart + compSize), crc: central.readUInt32LE(16), size: central.readUInt32LE(24) });
+  }
+
+  // duplicate media -> canonical name
+  const canonical = {};
+  const seen = new Map();
+  for (const e of entries) {
+    if (!e.name.startsWith('ppt/media/')) continue;
+    const key = `${e.crc}:${e.size}`;
+    const first = seen.get(key);
+    if (first && first.data.equals(e.data)) canonical[e.name] = first.name;
+    else if (!first) seen.set(key, e);
+  }
+  const renames = Object.entries(canonical).map(([dup, keep]) => [path.posix.basename(dup), path.posix.basename(keep)]);
+
+  const out = [];
+  const centrals = [];
+  let offset = 0;
+  for (const e of entries) {
+    if (e.name.endsWith('/') || canonical[e.name]) continue;
+    let { data, crc, size, method } = e;
+    if (renames.length && e.name.endsWith('.rels') && e.name.includes('/_rels/')) {
+      let xml = (method === 8 ? zlib.inflateRawSync(data) : data).toString('utf8');
+      let changed = false;
+      for (const [dup, keep] of renames) {
+        const needle = `media/${dup}"`;
+        if (xml.includes(needle)) {
+          xml = xml.split(needle).join(`media/${keep}"`);
+          changed = true;
+        }
+      }
+      if (changed) {
+        const raw = Buffer.from(xml, 'utf8');
+        crc = crc32(raw);
+        size = raw.length;
+        data = zlib.deflateRawSync(raw);
+        method = 8;
+      }
+    }
+    const nameBuf = Buffer.from(e.name, 'utf8');
+    const local = Buffer.alloc(30);
+    local.writeUInt32LE(0x04034b50, 0);
+    local.writeUInt16LE(20, 4);
+    local.writeUInt16LE(0x0800, 6); // UTF-8 names, no data descriptor
+    local.writeUInt16LE(method, 8);
+    local.writeUInt32LE(e.central.readUInt32LE(12), 10); // time/date
+    local.writeUInt32LE(crc, 14);
+    local.writeUInt32LE(data.length, 18);
+    local.writeUInt32LE(size, 22);
+    local.writeUInt16LE(nameBuf.length, 26);
+    local.writeUInt16LE(0, 28);
+    const central = Buffer.alloc(46);
+    central.writeUInt32LE(0x02014b50, 0);
+    central.writeUInt16LE(20, 4);
+    central.writeUInt16LE(20, 6);
+    central.writeUInt16LE(0x0800, 8);
+    central.writeUInt16LE(method, 10);
+    central.writeUInt32LE(e.central.readUInt32LE(12), 12);
+    central.writeUInt32LE(crc, 16);
+    central.writeUInt32LE(data.length, 20);
+    central.writeUInt32LE(size, 24);
+    central.writeUInt16LE(nameBuf.length, 28);
+    central.writeUInt32LE(offset, 42);
+    out.push(local, nameBuf, data);
+    centrals.push(central, nameBuf);
+    offset += 30 + nameBuf.length + data.length;
+  }
+  const cdBuf = Buffer.concat(centrals);
+  const end = Buffer.alloc(22);
+  end.writeUInt32LE(0x06054b50, 0);
+  end.writeUInt16LE(centrals.length / 2, 8);
+  end.writeUInt16LE(centrals.length / 2, 10);
+  end.writeUInt32LE(cdBuf.length, 12);
+  end.writeUInt32LE(offset, 16);
+  return Buffer.concat([...out, cdBuf, end]);
+}
+
+// 'STREAM' is the only node output type for which pptxgenjs honours compression.
 pres
-  .writeFile({ fileName: outputPath })
-  .then(() => {
-    console.log(`Successfully written presentation to ${outputPath}`);
-    process.exit(0);
+  .write({ outputType: 'STREAM', compression: true })
+  .then((buffer) => {
+    let out = buffer;
+    try {
+      out = cleanZip(buffer);
+    } catch (e) {
+      console.warn('Zip clean-up skipped:', e.message);
+    }
+    fs.writeFileSync(outputPath, out);
+    console.log(`Presentation generated: ${outputPath}`);
   })
   .catch((err) => {
-    console.error('Failed to write presentation:', err);
+    console.error('Error writing presentation:', err);
     process.exit(1);
   });

@@ -3,169 +3,73 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Department;
-use App\Models\KpiSubmission;
-use App\Models\ProductionRecord;
-use App\Models\LineCostRecord;
-use App\Models\ReportingPeriod;
-use App\Models\SpecializedRecord;
-use App\Services\KpiCalculationEngine;
+use App\Services\ReportDataService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function __construct(private KpiCalculationEngine $calcEngine)
+    public function __construct(protected ReportDataService $data) {}
+
+    public function overview(Request $request): JsonResponse
     {
-    }
+        $v = $request->validate(['year' => 'required|integer', 'month' => 'required|integer|min:1|max:12']);
+        $payload = $this->data->payload((int) $v['year'], (int) $v['month']);
 
-    /**
-     * Executive company overview for a given period
-     */
-    public function companyOverview(Request $request): JsonResponse
-    {
-        $periodId = $request->query('period_id');
-        $period = $periodId 
-            ? ReportingPeriod::find($periodId) 
-            : ReportingPeriod::where('year', 2026)->where('month', 10)->first();
-
-        if (!$period) {
-            return response()->json(['error' => 'Reporting period not found'], 404);
-        }
-
-        $departments = Department::where('is_active', true)->orderBy('sort_order')->get();
-        $submissions = KpiSubmission::with(['department', 'productionRecords', 'lineCostRecords', 'specializedRecords'])
-            ->where('reporting_period_id', $period->id)
-            ->get();
-
-        $deptCards = [];
-        $totalPlanPcs = 0;
-        $totalProducePcs = 0;
-        $totalProfitLoss = 0.0;
-
-        foreach ($departments as $dept) {
-            $sub = $submissions->firstWhere('department_id', $dept->id);
-            $planPcs = 0;
-            $producePcs = 0;
-            $achPct = 0.0;
-            $status = $sub ? $sub->status : 'pending';
-
-            if ($sub) {
-                if ($sub->productionRecords->isNotEmpty()) {
-                    $pRec = $sub->productionRecords->first();
-                    $planPcs = $pRec->plan_pcs;
-                    $producePcs = $pRec->produce_pcs;
-                    $achPct = $pRec->pcs_ach_pct;
-                    $totalPlanPcs += $planPcs;
-                    $totalProducePcs += $producePcs;
-                }
-
-                if ($sub->lineCostRecords->isNotEmpty()) {
-                    $cRec = $sub->lineCostRecords->first();
-                    $totalProfitLoss += (float) $cRec->total_profit_loss;
-                }
-
-                if ($sub->specializedRecords->isNotEmpty()) {
-                    $sRec = $sub->specializedRecords->first();
-                    $achPct = $sRec->achievement_pct;
-                }
+        $depts = array_map(function ($d) {
+            $base = [
+                'id' => $d['id'], 'code' => $d['code'], 'name' => $d['name'], 'kind' => $d['kind'],
+                'head_label' => $d['head_label'], 'summary' => $d['summary'],
+            ];
+            if ($d['kind'] === 'lines') {
+                $base['line_count'] = count($d['lines']);
+                $base['cost_total'] = $d['cost_total'];
+                $base['npt_total'] = $d['npt']['total'];
             }
 
-            $deptCards[] = [
-                'department_id' => $dept->id,
-                'code' => $dept->code,
-                'name' => $dept->name,
-                'type' => $dept->department_type,
-                'head_name' => $dept->head_name,
-                'status' => $status,
-                'plan_pcs' => $planPcs,
-                'produce_pcs' => $producePcs,
-                'achievement_pct' => $achPct,
-                'status_color' => $this->calcEngine->evaluateStatus($achPct, 100.0, 95.0),
-            ];
-        }
+            return $base;
+        }, $payload['departments']);
 
-        $overallAchPct = $totalPlanPcs > 0 ? round(($totalProducePcs / $totalPlanPcs) * 100, 2) : 0.0;
+        $lineDepts = array_filter($payload['departments'], fn ($d) => $d['kind'] === 'lines');
+        $avg = fn (array $vals) => ($v = array_values(array_filter($vals, fn ($x) => $x !== null))) ? round(array_sum($v) / count($v), 2) : null;
 
         return response()->json([
-            'period' => [
-                'id' => $period->id,
-                'name' => $period->name,
-                'year' => $period->year,
-                'month' => $period->month,
-                'is_closed' => $period->is_closed,
+            'company_name' => $payload['company_name'],
+            'period' => $payload['period'],
+            'totals' => [
+                'cost_ytd' => array_sum(array_map(fn ($d) => $d['cost_total'] ?? 0, $lineDepts)),
+                'cost_month' => array_sum(array_map(fn ($d) => $d['summary']['cost_month'] ?? 0, $lineDepts)),
+                'eff_ach' => $avg(array_map(fn ($d) => $d['summary']['eff_ach'], $lineDepts)),
+                'prod_ach' => $avg(array_map(fn ($d) => $d['summary']['prod_ach'], $lineDepts)),
+                'sew_dhu' => $avg(array_map(fn ($d) => $d['summary']['sew_dhu'], $lineDepts)),
+                'fin_dhu' => $avg(array_map(fn ($d) => $d['summary']['fin_dhu'], $lineDepts)),
             ],
-            'summary' => [
-                'total_plan_pcs' => $totalPlanPcs,
-                'total_produce_pcs' => $totalProducePcs,
-                'overall_plan_achievement_pct' => $overallAchPct,
-                'total_profit_loss' => $totalProfitLoss,
-                'total_departments' => $departments->count(),
-                'approved_departments' => $submissions->where('status', 'approved')->count(),
-            ],
-            'departments' => $deptCards,
+            'departments' => array_values($depts),
         ]);
     }
 
-    /**
-     * Department detailed historical drill-down
-     */
-    public function departmentDetails(string $deptId, Request $request): JsonResponse
+    public function department(int $id, Request $request): JsonResponse
     {
-        $department = Department::with('lines.supervisor')->find($deptId);
-        if (!$department) {
-            return response()->json(['error' => 'Department not found'], 404);
+        $v = $request->validate(['year' => 'required|integer', 'month' => 'required|integer|min:1|max:12']);
+        $payload = $this->data->payload((int) $v['year'], (int) $v['month'], $id);
+        abort_if(empty($payload['departments']), 404);
+        $d = $payload['departments'][0];
+
+        // Photos are absolute paths for the generator; the UI does not need them.
+        unset($d['head_photo']);
+        if (isset($d['lines'])) {
+            foreach ($d['lines'] as &$l) {
+                foreach ($l['staff'] as &$s) {
+                    unset($s['photo']);
+                }
+            }
+        }
+        if (isset($d['people'])) {
+            foreach ($d['people'] as &$p) {
+                unset($p['photo']);
+            }
         }
 
-        $submissions = KpiSubmission::with(['reportingPeriod', 'productionRecords', 'lineCostRecords', 'specializedRecords', 'qualityRecords'])
-            ->where('department_id', $deptId)
-            ->get();
-
-        $monthlyTrends = [];
-        foreach ($submissions as $sub) {
-            $period = $sub->reportingPeriod;
-            if (!$period) continue;
-
-            $trendItem = [
-                'period_name' => $period->name,
-                'month' => $period->month,
-                'status' => $sub->status,
-                'plan_pcs' => 0,
-                'produce_pcs' => 0,
-                'achievement_pct' => 0.0,
-                'profit_loss' => 0.0,
-            ];
-
-            if ($sub->productionRecords->isNotEmpty()) {
-                $pRec = $sub->productionRecords->first();
-                $trendItem['plan_pcs'] = $pRec->plan_pcs;
-                $trendItem['produce_pcs'] = $pRec->produce_pcs;
-                $trendItem['achievement_pct'] = (float) $pRec->pcs_ach_pct;
-            }
-
-            if ($sub->lineCostRecords->isNotEmpty()) {
-                $cRec = $sub->lineCostRecords->first();
-                $trendItem['profit_loss'] = (float) $cRec->total_profit_loss;
-            }
-
-            if ($sub->specializedRecords->isNotEmpty()) {
-                $sRec = $sub->specializedRecords->first();
-                $trendItem['metric_name'] = $sRec->metric_name;
-                $trendItem['target_value'] = (float) $sRec->target_value;
-                $trendItem['actual_value'] = (float) $sRec->actual_value;
-                $trendItem['achievement_pct'] = (float) $sRec->achievement_pct;
-            }
-
-            $monthlyTrends[] = $trendItem;
-        }
-
-        // Sort by month
-        usort($monthlyTrends, fn($a, $b) => $a['month'] <=> $b['month']);
-
-        return response()->json([
-            'department' => $department,
-            'lines' => $department->lines,
-            'monthly_trends' => $monthlyTrends,
-        ]);
+        return response()->json(['period' => $payload['period'], 'department' => $d]);
     }
 }

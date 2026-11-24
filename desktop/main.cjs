@@ -59,7 +59,7 @@ function checkServerReady(timeoutMs = 15000) {
 async function startBackendServer() {
   const isAlreadyRunning = await checkServerReady(800);
   if (isAlreadyRunning) {
-    console.log(`UFL KPI backend already active on ${SERVER_URL}`);
+    console.log(`KPI backend already active on ${SERVER_URL}`);
     return true;
   }
 
@@ -67,7 +67,7 @@ async function startBackendServer() {
   const publicDir = path.resolve(__dirname, '..', 'server', 'public');
   const serverDir = path.resolve(__dirname, '..', 'server');
 
-  console.log(`Starting UFL KPI server with ${phpBin}...`);
+  console.log(`Starting KPI server with ${phpBin}...`);
   console.log(`Document Root: ${publicDir}`);
 
   // Bundled php.ini uses a relative extension_dir ("ext") which would resolve
@@ -101,7 +101,7 @@ async function startBackendServer() {
   if (!ready) {
     dialog.showErrorBox(
       'Startup Warning',
-      `Could not establish connection to UFL KPI Server at ${SERVER_URL}.\nPlease ensure PHP is available on your computer.`
+      `Could not establish connection to the KPI server at ${SERVER_URL}.\nPlease ensure PHP is available on your computer.`
     );
   }
   return ready;
@@ -113,7 +113,7 @@ function createMainWindow() {
     height: 900,
     minWidth: 1100,
     minHeight: 700,
-    title: 'Utah Fashion Ltd. - KPI Performance Management System',
+    title: 'KPI Performance Management System',
     backgroundColor: '#0f172a',
     webPreferences: {
       nodeIntegration: false,
@@ -176,17 +176,17 @@ function createMainWindow() {
       label: 'Help',
       submenu: [
         {
-          label: 'About UFL KPI Performance System',
+          label: 'About KPI Performance System',
           click: () => {
             dialog.showMessageBox(mainWindow, {
               type: 'info',
-              title: 'Utah Fashion Ltd.',
-              message: 'Utah Fashion Ltd. - KPI Performance Management & Automated Presentation System',
+              title: 'KPI Performance System',
+              message: 'KPI Performance Management & Automated Presentation System',
               detail:
                 'Version: 1.0.0 (Windows Desktop Release)\n' +
                 'Features: 85-Slide Native PowerPoint Generator, Roll-Forward Cloning, Personnel Photo Management, Weighted YTD Engine.\n' +
                 'Architecture: Local-First LAN Server with Tailscale Secure Mesh.\n' +
-                'Confidential - Utah Fashion Ltd.',
+                '',
             });
           },
         },

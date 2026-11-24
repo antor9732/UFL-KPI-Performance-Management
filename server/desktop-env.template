@@ -1,6 +1,6 @@
-# desktop-env.template - used by UFL_KPI_App.exe on first run on a client PC.
+# desktop-env.template - used by KPI_System.exe on first run on a client PC.
 # The launcher copies this to .env and fills in a unique APP_KEY.
-APP_NAME="UFL KPI System"
+APP_NAME="KPI Performance System"
 APP_ENV=production
 APP_KEY=
 APP_DEBUG=false

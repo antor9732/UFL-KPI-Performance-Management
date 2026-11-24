@@ -39,23 +39,60 @@ export const PresentationGenerator: React.FC = () => {
     }
   };
 
-  const handleExportPPTX = () => {
+  const [savedFileName, setSavedFileName] = useState<string>('');
+
+  const handleExportPPTX = async () => {
+    if (!selectedPeriodId) {
+      setErrorMessage('Please select a reporting period first.');
+      return;
+    }
     setIsExporting(true);
     setExportComplete(false);
     setErrorMessage(null);
 
-    const downloadUrl = `/api/v1/reports/export-pptx?period_id=${selectedPeriodId}&scope=${selectedScope}&theme=${selectedTheme}`;
-    const link = document.createElement('a');
-    link.href = downloadUrl;
-    link.setAttribute('download', `UFL_KPI_Presentation_${selectedPeriod?.name || 'Period'}_${selectedTheme}.pptx`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const params = new URLSearchParams({ period_id: selectedPeriodId, scope: selectedScope, theme: selectedTheme });
+    try {
+      // Fetch the file first so real server errors are shown instead of a silent failed download.
+      const res = await fetch(`/api/v1/reports/export-pptx?${params.toString()}`, {
+        headers: { Accept: 'application/vnd.openxmlformats-officedocument.presentationml.presentation, application/json' },
+      });
 
-    setTimeout(() => {
-      setIsExporting(false);
+      if (!res.ok) {
+        let msg = `Export failed (HTTP ${res.status}).`;
+        try {
+          const data = await res.json();
+          msg = [data.error || data.message, data.details].filter(Boolean).join(' - ') || msg;
+        } catch {
+          /* not JSON */
+        }
+        throw new Error(msg);
+      }
+
+      const blob = await res.blob();
+      if (blob.size === 0) throw new Error('The generated presentation file is empty.');
+
+      const disposition = res.headers.get('Content-Disposition') || '';
+      const match = /filename\*?=(?:UTF-8'')?"?([^";]+)"?/i.exec(disposition);
+      const fileName = match
+        ? decodeURIComponent(match[1])
+        : `UFL_KPI_Presentation_${(selectedPeriod?.name || 'Period').replace(/\s+/g, '_')}_${selectedTheme}.pptx`;
+
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+
+      setSavedFileName(fileName);
       setExportComplete(true);
-    }, 1500);
+    } catch (err) {
+      setErrorMessage(err instanceof Error ? err.message : 'Presentation export failed.');
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   const selectedPeriod = periods.find((p) => p.id === selectedPeriodId);
@@ -196,12 +233,12 @@ export const PresentationGenerator: React.FC = () => {
             <div>
               <p className="text-sm font-bold">Presentation Export Ready!</p>
               <p className="text-xs text-emerald-400/80">
-                UFL_KPI_Performance_{selectedPeriod?.name.replace(' ', '_')}.pptx has been successfully assembled.
+                {savedFileName} has been saved to your <strong>Downloads</strong> folder.
               </p>
             </div>
           </div>
           <span className="text-xs bg-emerald-500/20 text-emerald-300 px-3 py-1 rounded-lg font-semibold">
-            Ready to Open
+            Saved
           </span>
         </div>
       )}

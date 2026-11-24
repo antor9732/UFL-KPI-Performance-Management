@@ -106,15 +106,15 @@ var require_safe_buffer = __commonJS({
       copyProps(buffer, exports2);
       exports2.Buffer = SafeBuffer;
     }
-    function SafeBuffer(arg, encodingOrOffset, length) {
-      return Buffer2(arg, encodingOrOffset, length);
+    function SafeBuffer(arg2, encodingOrOffset, length) {
+      return Buffer2(arg2, encodingOrOffset, length);
     }
     copyProps(Buffer2, SafeBuffer);
-    SafeBuffer.from = function(arg, encodingOrOffset, length) {
-      if (typeof arg === "number") {
+    SafeBuffer.from = function(arg2, encodingOrOffset, length) {
+      if (typeof arg2 === "number") {
         throw new TypeError("Argument must not be a number");
       }
-      return Buffer2(arg, encodingOrOffset, length);
+      return Buffer2(arg2, encodingOrOffset, length);
     };
     SafeBuffer.alloc = function(size, fill, encoding) {
       if (typeof size !== "number") {
@@ -150,47 +150,47 @@ var require_safe_buffer = __commonJS({
 // node_modules/core-util-is/lib/util.js
 var require_util = __commonJS({
   "node_modules/core-util-is/lib/util.js"(exports2) {
-    function isArray(arg) {
+    function isArray(arg2) {
       if (Array.isArray) {
-        return Array.isArray(arg);
+        return Array.isArray(arg2);
       }
-      return objectToString(arg) === "[object Array]";
+      return objectToString(arg2) === "[object Array]";
     }
     exports2.isArray = isArray;
-    function isBoolean(arg) {
-      return typeof arg === "boolean";
+    function isBoolean(arg2) {
+      return typeof arg2 === "boolean";
     }
     exports2.isBoolean = isBoolean;
-    function isNull(arg) {
-      return arg === null;
+    function isNull(arg2) {
+      return arg2 === null;
     }
     exports2.isNull = isNull;
-    function isNullOrUndefined(arg) {
-      return arg == null;
+    function isNullOrUndefined(arg2) {
+      return arg2 == null;
     }
     exports2.isNullOrUndefined = isNullOrUndefined;
-    function isNumber(arg) {
-      return typeof arg === "number";
+    function isNumber(arg2) {
+      return typeof arg2 === "number";
     }
     exports2.isNumber = isNumber;
-    function isString(arg) {
-      return typeof arg === "string";
+    function isString(arg2) {
+      return typeof arg2 === "string";
     }
     exports2.isString = isString;
-    function isSymbol(arg) {
-      return typeof arg === "symbol";
+    function isSymbol(arg2) {
+      return typeof arg2 === "symbol";
     }
     exports2.isSymbol = isSymbol;
-    function isUndefined(arg) {
-      return arg === void 0;
+    function isUndefined(arg2) {
+      return arg2 === void 0;
     }
     exports2.isUndefined = isUndefined;
     function isRegExp(re) {
       return objectToString(re) === "[object RegExp]";
     }
     exports2.isRegExp = isRegExp;
-    function isObject(arg) {
-      return typeof arg === "object" && arg !== null;
+    function isObject(arg2) {
+      return typeof arg2 === "object" && arg2 !== null;
     }
     exports2.isObject = isObject;
     function isDate(d) {
@@ -201,13 +201,13 @@ var require_util = __commonJS({
       return objectToString(e) === "[object Error]" || e instanceof Error;
     }
     exports2.isError = isError;
-    function isFunction(arg) {
-      return typeof arg === "function";
+    function isFunction(arg2) {
+      return typeof arg2 === "function";
     }
     exports2.isFunction = isFunction;
-    function isPrimitive(arg) {
-      return arg === null || typeof arg === "boolean" || typeof arg === "number" || typeof arg === "string" || typeof arg === "symbol" || // ES6 symbol
-      typeof arg === "undefined";
+    function isPrimitive(arg2) {
+      return arg2 === null || typeof arg2 === "boolean" || typeof arg2 === "number" || typeof arg2 === "string" || typeof arg2 === "symbol" || // ES6 symbol
+      typeof arg2 === "undefined";
     }
     exports2.isPrimitive = isPrimitive;
     exports2.isBuffer = require("buffer").Buffer.isBuffer;
@@ -2896,8 +2896,8 @@ var require_utils = __commonJS({
       var result = transform[inputType][outputType](input);
       return result;
     };
-    exports2.resolve = function(path) {
-      var parts = path.split("/");
+    exports2.resolve = function(path2) {
+      var parts = path2.split("/");
       var result = [];
       for (var index = 0; index < parts.length; index++) {
         var part = parts[index];
@@ -3104,10 +3104,10 @@ var require_GenericWorker = __commonJS({
        * @param {String} name the name of the event (data, end, error)
        * @param {Object} arg the argument to call the callback with.
        */
-      emit: function(name, arg) {
+      emit: function(name, arg2) {
         if (this._listeners[name]) {
           for (var i = 0; i < this._listeners[name].length; i++) {
-            this._listeners[name][i].call(this, arg);
+            this._listeners[name][i].call(this, arg2);
           }
         }
       },
@@ -3767,7 +3767,7 @@ var require_crc32 = __commonJS({
       return table;
     }
     var crcTable = makeTable();
-    function crc32(crc, buf, len, pos) {
+    function crc322(crc, buf, len, pos) {
       var t = crcTable, end = pos + len;
       crc = crc ^ -1;
       for (var i = pos; i < end; i++) {
@@ -3789,7 +3789,7 @@ var require_crc32 = __commonJS({
       }
       var isArray = utils.getTypeOf(input) !== "string";
       if (isArray) {
-        return crc32(crc | 0, input, input.length, 0);
+        return crc322(crc | 0, input, input.length, 0);
       } else {
         return crc32str(crc | 0, input, input.length, 0);
       }
@@ -3802,7 +3802,7 @@ var require_Crc32Probe = __commonJS({
   "node_modules/jszip/lib/stream/Crc32Probe.js"(exports2, module2) {
     "use strict";
     var GenericWorker = require_GenericWorker();
-    var crc32 = require_crc32();
+    var crc322 = require_crc32();
     var utils = require_utils();
     function Crc32Probe() {
       GenericWorker.call(this, "Crc32Probe");
@@ -3810,7 +3810,7 @@ var require_Crc32Probe = __commonJS({
     }
     utils.inherits(Crc32Probe, GenericWorker);
     Crc32Probe.prototype.processChunk = function(chunk) {
-      this.streamInfo.crc32 = crc32(chunk.data, this.streamInfo.crc32 || 0);
+      this.streamInfo.crc32 = crc322(chunk.data, this.streamInfo.crc32 || 0);
       this.push(chunk);
     };
     module2.exports = Crc32Probe;
@@ -3848,10 +3848,10 @@ var require_compressedObject = __commonJS({
     var DataWorker = require_DataWorker();
     var Crc32Probe = require_Crc32Probe();
     var DataLengthProbe = require_DataLengthProbe();
-    function CompressedObject(compressedSize, uncompressedSize, crc32, compression, data2) {
+    function CompressedObject(compressedSize, uncompressedSize, crc322, compression, data2) {
       this.compressedSize = compressedSize;
       this.uncompressedSize = uncompressedSize;
-      this.crc32 = crc32;
+      this.crc32 = crc322;
       this.compression = compression;
       this.compressedContent = data2;
     }
@@ -4384,9 +4384,9 @@ var require_trees = __commonJS({
       s.bi_buf = 0;
       s.bi_valid = 0;
     }
-    function copy_block(s, buf, len, header) {
+    function copy_block(s, buf, len, header2) {
       bi_windup(s);
-      if (header) {
+      if (header2) {
         put_short(s, len);
         put_short(s, ~len);
       }
@@ -4773,7 +4773,7 @@ var require_crc322 = __commonJS({
       return table;
     }
     var crcTable = makeTable();
-    function crc32(crc, buf, len, pos) {
+    function crc322(crc, buf, len, pos) {
       var t = crcTable, end = pos + len;
       crc ^= -1;
       for (var i = pos; i < end; i++) {
@@ -4781,7 +4781,7 @@ var require_crc322 = __commonJS({
       }
       return crc ^ -1;
     }
-    module2.exports = crc32;
+    module2.exports = crc322;
   }
 });
 
@@ -4819,7 +4819,7 @@ var require_deflate = __commonJS({
     var utils = require_common();
     var trees = require_trees();
     var adler32 = require_adler32();
-    var crc32 = require_crc322();
+    var crc322 = require_crc322();
     var msg = require_messages();
     var Z_NO_FLUSH = 0;
     var Z_PARTIAL_FLUSH = 1;
@@ -4922,7 +4922,7 @@ var require_deflate = __commonJS({
       if (strm.state.wrap === 1) {
         strm.adler = adler32(strm.adler, buf, len, start);
       } else if (strm.state.wrap === 2) {
-        strm.adler = crc32(strm.adler, buf, len, start);
+        strm.adler = crc322(strm.adler, buf, len, start);
       }
       strm.next_in += len;
       strm.total_in += len;
@@ -5564,13 +5564,13 @@ var require_deflate = __commonJS({
               put_byte(s, s.gzhead.extra.length >> 8 & 255);
             }
             if (s.gzhead.hcrc) {
-              strm.adler = crc32(strm.adler, s.pending_buf, s.pending, 0);
+              strm.adler = crc322(strm.adler, s.pending_buf, s.pending, 0);
             }
             s.gzindex = 0;
             s.status = EXTRA_STATE;
           }
         } else {
-          var header = Z_DEFLATED + (s.w_bits - 8 << 4) << 8;
+          var header2 = Z_DEFLATED + (s.w_bits - 8 << 4) << 8;
           var level_flags = -1;
           if (s.strategy >= Z_HUFFMAN_ONLY || s.level < 2) {
             level_flags = 0;
@@ -5581,13 +5581,13 @@ var require_deflate = __commonJS({
           } else {
             level_flags = 3;
           }
-          header |= level_flags << 6;
+          header2 |= level_flags << 6;
           if (s.strstart !== 0) {
-            header |= PRESET_DICT;
+            header2 |= PRESET_DICT;
           }
-          header += 31 - header % 31;
+          header2 += 31 - header2 % 31;
           s.status = BUSY_STATE;
-          putShortMSB(s, header);
+          putShortMSB(s, header2);
           if (s.strstart !== 0) {
             putShortMSB(s, strm.adler >>> 16);
             putShortMSB(s, strm.adler & 65535);
@@ -5601,7 +5601,7 @@ var require_deflate = __commonJS({
           while (s.gzindex < (s.gzhead.extra.length & 65535)) {
             if (s.pending === s.pending_buf_size) {
               if (s.gzhead.hcrc && s.pending > beg) {
-                strm.adler = crc32(strm.adler, s.pending_buf, s.pending - beg, beg);
+                strm.adler = crc322(strm.adler, s.pending_buf, s.pending - beg, beg);
               }
               flush_pending(strm);
               beg = s.pending;
@@ -5613,7 +5613,7 @@ var require_deflate = __commonJS({
             s.gzindex++;
           }
           if (s.gzhead.hcrc && s.pending > beg) {
-            strm.adler = crc32(strm.adler, s.pending_buf, s.pending - beg, beg);
+            strm.adler = crc322(strm.adler, s.pending_buf, s.pending - beg, beg);
           }
           if (s.gzindex === s.gzhead.extra.length) {
             s.gzindex = 0;
@@ -5629,7 +5629,7 @@ var require_deflate = __commonJS({
           do {
             if (s.pending === s.pending_buf_size) {
               if (s.gzhead.hcrc && s.pending > beg) {
-                strm.adler = crc32(strm.adler, s.pending_buf, s.pending - beg, beg);
+                strm.adler = crc322(strm.adler, s.pending_buf, s.pending - beg, beg);
               }
               flush_pending(strm);
               beg = s.pending;
@@ -5646,7 +5646,7 @@ var require_deflate = __commonJS({
             put_byte(s, val);
           } while (val !== 0);
           if (s.gzhead.hcrc && s.pending > beg) {
-            strm.adler = crc32(strm.adler, s.pending_buf, s.pending - beg, beg);
+            strm.adler = crc322(strm.adler, s.pending_buf, s.pending - beg, beg);
           }
           if (val === 0) {
             s.gzindex = 0;
@@ -5662,7 +5662,7 @@ var require_deflate = __commonJS({
           do {
             if (s.pending === s.pending_buf_size) {
               if (s.gzhead.hcrc && s.pending > beg) {
-                strm.adler = crc32(strm.adler, s.pending_buf, s.pending - beg, beg);
+                strm.adler = crc322(strm.adler, s.pending_buf, s.pending - beg, beg);
               }
               flush_pending(strm);
               beg = s.pending;
@@ -5679,7 +5679,7 @@ var require_deflate = __commonJS({
             put_byte(s, val);
           } while (val !== 0);
           if (s.gzhead.hcrc && s.pending > beg) {
-            strm.adler = crc32(strm.adler, s.pending_buf, s.pending - beg, beg);
+            strm.adler = crc322(strm.adler, s.pending_buf, s.pending - beg, beg);
           }
           if (val === 0) {
             s.status = HCRC_STATE;
@@ -6737,7 +6737,7 @@ var require_inflate = __commonJS({
     "use strict";
     var utils = require_common();
     var adler32 = require_adler32();
-    var crc32 = require_crc322();
+    var crc322 = require_crc322();
     var inflate_fast = require_inffast();
     var inflate_table = require_inftrees();
     var CODES = 0;
@@ -7041,7 +7041,7 @@ var require_inflate = __commonJS({
                 state.check = 0;
                 hbuf[0] = hold & 255;
                 hbuf[1] = hold >>> 8 & 255;
-                state.check = crc32(state.check, hbuf, 2, 0);
+                state.check = crc322(state.check, hbuf, 2, 0);
                 hold = 0;
                 bits = 0;
                 state.mode = FLAGS;
@@ -7104,7 +7104,7 @@ var require_inflate = __commonJS({
               if (state.flags & 512) {
                 hbuf[0] = hold & 255;
                 hbuf[1] = hold >>> 8 & 255;
-                state.check = crc32(state.check, hbuf, 2, 0);
+                state.check = crc322(state.check, hbuf, 2, 0);
               }
               hold = 0;
               bits = 0;
@@ -7127,7 +7127,7 @@ var require_inflate = __commonJS({
                 hbuf[1] = hold >>> 8 & 255;
                 hbuf[2] = hold >>> 16 & 255;
                 hbuf[3] = hold >>> 24 & 255;
-                state.check = crc32(state.check, hbuf, 4, 0);
+                state.check = crc322(state.check, hbuf, 4, 0);
               }
               hold = 0;
               bits = 0;
@@ -7149,7 +7149,7 @@ var require_inflate = __commonJS({
               if (state.flags & 512) {
                 hbuf[0] = hold & 255;
                 hbuf[1] = hold >>> 8 & 255;
-                state.check = crc32(state.check, hbuf, 2, 0);
+                state.check = crc322(state.check, hbuf, 2, 0);
               }
               hold = 0;
               bits = 0;
@@ -7172,7 +7172,7 @@ var require_inflate = __commonJS({
                 if (state.flags & 512) {
                   hbuf[0] = hold & 255;
                   hbuf[1] = hold >>> 8 & 255;
-                  state.check = crc32(state.check, hbuf, 2, 0);
+                  state.check = crc322(state.check, hbuf, 2, 0);
                 }
                 hold = 0;
                 bits = 0;
@@ -7205,7 +7205,7 @@ var require_inflate = __commonJS({
                     );
                   }
                   if (state.flags & 512) {
-                    state.check = crc32(state.check, input, copy, next);
+                    state.check = crc322(state.check, input, copy, next);
                   }
                   have -= copy;
                   next += copy;
@@ -7231,7 +7231,7 @@ var require_inflate = __commonJS({
                   }
                 } while (len && copy < have);
                 if (state.flags & 512) {
-                  state.check = crc32(state.check, input, copy, next);
+                  state.check = crc322(state.check, input, copy, next);
                 }
                 have -= copy;
                 next += copy;
@@ -7257,7 +7257,7 @@ var require_inflate = __commonJS({
                   }
                 } while (len && copy < have);
                 if (state.flags & 512) {
-                  state.check = crc32(state.check, input, copy, next);
+                  state.check = crc322(state.check, input, copy, next);
                 }
                 have -= copy;
                 next += copy;
@@ -7832,7 +7832,7 @@ var require_inflate = __commonJS({
                 state.total += _out;
                 if (_out) {
                   strm.adler = state.check = /*UPDATE(state.check, put - _out, _out);*/
-                  state.flags ? crc32(state.check, output, _out, put - _out) : adler32(state.check, output, _out, put - _out);
+                  state.flags ? crc322(state.check, output, _out, put - _out) : adler32(state.check, output, _out, put - _out);
                 }
                 _out = left;
                 if ((state.flags ? hold : zswap32(hold)) !== state.check) {
@@ -7898,7 +7898,7 @@ var require_inflate = __commonJS({
       state.total += _out;
       if (state.wrap && _out) {
         strm.adler = state.check = /*UPDATE(state.check, strm.next_out - _out, _out);*/
-        state.flags ? crc32(state.check, output, _out, strm.next_out - _out) : adler32(state.check, output, _out, strm.next_out - _out);
+        state.flags ? crc322(state.check, output, _out, strm.next_out - _out) : adler32(state.check, output, _out, strm.next_out - _out);
       }
       strm.data_type = state.bits + (state.last ? 64 : 0) + (state.mode === TYPE ? 128 : 0) + (state.mode === LEN_ || state.mode === COPY_ ? 256 : 0);
       if ((_in === 0 && _out === 0 || flush === Z_FINISH) && ret === Z_OK) {
@@ -8322,7 +8322,7 @@ var require_ZipFileWorker = __commonJS({
     var utils = require_utils();
     var GenericWorker = require_GenericWorker();
     var utf8 = require_utf8();
-    var crc32 = require_crc32();
+    var crc322 = require_crc32();
     var signature = require_signature();
     var decToHex = function(dec, bytes) {
       var hex = "", i;
@@ -8386,7 +8386,7 @@ var require_ZipFileWorker = __commonJS({
       if (useUTF8ForFileName) {
         unicodePathExtraField = // Version
         decToHex(1, 1) + // NameCRC32
-        decToHex(crc32(encodedFileName), 4) + // UnicodeName
+        decToHex(crc322(encodedFileName), 4) + // UnicodeName
         utfEncodedFileName;
         extraFields += // Info-ZIP Unicode Path Extra Field
         "up" + // size
@@ -8396,28 +8396,28 @@ var require_ZipFileWorker = __commonJS({
       if (useUTF8ForComment) {
         unicodeCommentExtraField = // Version
         decToHex(1, 1) + // CommentCRC32
-        decToHex(crc32(encodedComment), 4) + // UnicodeName
+        decToHex(crc322(encodedComment), 4) + // UnicodeName
         utfEncodedComment;
         extraFields += // Info-ZIP Unicode Path Extra Field
         "uc" + // size
         decToHex(unicodeCommentExtraField.length, 2) + // content
         unicodeCommentExtraField;
       }
-      var header = "";
-      header += "\n\0";
-      header += decToHex(bitflag, 2);
-      header += compression.magic;
-      header += decToHex(dosTime, 2);
-      header += decToHex(dosDate, 2);
-      header += decToHex(dataInfo.crc32, 4);
-      header += decToHex(dataInfo.compressedSize, 4);
-      header += decToHex(dataInfo.uncompressedSize, 4);
-      header += decToHex(encodedFileName.length, 2);
-      header += decToHex(extraFields.length, 2);
-      var fileRecord = signature.LOCAL_FILE_HEADER + header + encodedFileName + extraFields;
+      var header2 = "";
+      header2 += "\n\0";
+      header2 += decToHex(bitflag, 2);
+      header2 += compression.magic;
+      header2 += decToHex(dosTime, 2);
+      header2 += decToHex(dosDate, 2);
+      header2 += decToHex(dataInfo.crc32, 4);
+      header2 += decToHex(dataInfo.compressedSize, 4);
+      header2 += decToHex(dataInfo.uncompressedSize, 4);
+      header2 += decToHex(encodedFileName.length, 2);
+      header2 += decToHex(extraFields.length, 2);
+      var fileRecord = signature.LOCAL_FILE_HEADER + header2 + encodedFileName + extraFields;
       var dirRecord = signature.CENTRAL_FILE_HEADER + // version made by (00: DOS)
       decToHex(versionMadeBy, 2) + // file header (common to file and central directory)
-      header + // file comment length
+      header2 + // file comment length
       decToHex(encodedComment.length, 2) + // disk number start
       "\0\0\0\0" + // external file attributes
       decToHex(extFileAttr, 4) + // relative offset of local header
@@ -8758,18 +8758,18 @@ var require_object = __commonJS({
       var object = new ZipObject(name, zipObjectContent, o);
       this.files[name] = object;
     };
-    var parentFolder = function(path) {
-      if (path.slice(-1) === "/") {
-        path = path.substring(0, path.length - 1);
+    var parentFolder = function(path2) {
+      if (path2.slice(-1) === "/") {
+        path2 = path2.substring(0, path2.length - 1);
       }
-      var lastSlash = path.lastIndexOf("/");
-      return lastSlash > 0 ? path.substring(0, lastSlash) : "";
+      var lastSlash = path2.lastIndexOf("/");
+      return lastSlash > 0 ? path2.substring(0, lastSlash) : "";
     };
-    var forceTrailingSlash = function(path) {
-      if (path.slice(-1) !== "/") {
-        path += "/";
+    var forceTrailingSlash = function(path2) {
+      if (path2.slice(-1) !== "/") {
+        path2 += "/";
       }
-      return path;
+      return path2;
     };
     var folderAdd = function(name, createFolders) {
       createFolders = typeof createFolders !== "undefined" ? createFolders : defaults.createFolders;
@@ -8859,16 +8859,16 @@ var require_object = __commonJS({
        * @param   {String|RegExp} arg The name of the directory to add, or a regex to search folders.
        * @return  {JSZip} an object with the new directory as the root, or an array containing matching folders.
        */
-      folder: function(arg) {
-        if (!arg) {
+      folder: function(arg2) {
+        if (!arg2) {
           return this;
         }
-        if (isRegExp(arg)) {
+        if (isRegExp(arg2)) {
           return this.filter(function(relativePath, file) {
-            return file.dir && arg.test(relativePath);
+            return file.dir && arg2.test(relativePath);
           });
         }
-        var name = this.root + arg;
+        var name = this.root + arg2;
         var newFolder = folderAdd.call(this, name);
         var ret = this.clone();
         ret.root = newFolder.name;
@@ -9770,6 +9770,8 @@ var require_lib3 = __commonJS({
 
 // gp.mjs
 var import_fs = __toESM(require("fs"), 1);
+var import_path = __toESM(require("path"), 1);
+var import_zlib = __toESM(require("zlib"), 1);
 
 // node_modules/pptxgenjs/dist/pptxgen.es.js
 var import_jszip = __toESM(require_lib3());
@@ -10495,41 +10497,41 @@ function correctShadowOptions(ShadowProps) {
   }
   return ShadowProps;
 }
-function parseTextToLines(cell, colWidth, verbose) {
+function parseTextToLines(cell2, colWidth, verbose) {
   var _a, _b;
-  const FOCO = 2.3 + (((_a = cell.options) === null || _a === void 0 ? void 0 : _a.autoPageCharWeight) ? cell.options.autoPageCharWeight : 0);
-  const CPL = Math.floor(colWidth / ONEPT * EMU) / ((((_b = cell.options) === null || _b === void 0 ? void 0 : _b.fontSize) ? cell.options.fontSize : DEF_FONT_SIZE) / FOCO);
+  const FOCO = 2.3 + (((_a = cell2.options) === null || _a === void 0 ? void 0 : _a.autoPageCharWeight) ? cell2.options.autoPageCharWeight : 0);
+  const CPL = Math.floor(colWidth / ONEPT * EMU) / ((((_b = cell2.options) === null || _b === void 0 ? void 0 : _b.fontSize) ? cell2.options.fontSize : DEF_FONT_SIZE) / FOCO);
   const parsedLines = [];
   let inputCells = [];
   const inputLines1 = [];
   const inputLines2 = [];
-  if (cell.text && cell.text.toString().trim().length === 0) {
+  if (cell2.text && cell2.text.toString().trim().length === 0) {
     inputCells.push({ _type: SLIDE_OBJECT_TYPES.tablecell, text: " " });
-  } else if (typeof cell.text === "number" || typeof cell.text === "string") {
-    inputCells.push({ _type: SLIDE_OBJECT_TYPES.tablecell, text: (cell.text || "").toString().trim() });
-  } else if (Array.isArray(cell.text)) {
-    inputCells = cell.text;
+  } else if (typeof cell2.text === "number" || typeof cell2.text === "string") {
+    inputCells.push({ _type: SLIDE_OBJECT_TYPES.tablecell, text: (cell2.text || "").toString().trim() });
+  } else if (Array.isArray(cell2.text)) {
+    inputCells = cell2.text;
   }
   let newLine = [];
-  inputCells.forEach((cell2) => {
+  inputCells.forEach((cell3) => {
     var _a2;
-    if (typeof cell2.text === "string") {
-      if (cell2.text.split("\n").length > 1) {
-        cell2.text.split("\n").forEach((textLine) => {
+    if (typeof cell3.text === "string") {
+      if (cell3.text.split("\n").length > 1) {
+        cell3.text.split("\n").forEach((textLine) => {
           newLine.push({
             _type: SLIDE_OBJECT_TYPES.tablecell,
             text: textLine,
-            options: Object.assign(Object.assign({}, cell2.options), { breakLine: true })
+            options: Object.assign(Object.assign({}, cell3.options), { breakLine: true })
           });
         });
       } else {
         newLine.push({
           _type: SLIDE_OBJECT_TYPES.tablecell,
-          text: cell2.text.trim(),
-          options: cell2.options
+          text: cell3.text.trim(),
+          options: cell3.options
         });
       }
-      if ((_a2 = cell2.options) === null || _a2 === void 0 ? void 0 : _a2.breakLine) {
+      if ((_a2 = cell3.options) === null || _a2 === void 0 ? void 0 : _a2.breakLine) {
         inputLines1.push(newLine);
         newLine = [];
       }
@@ -10540,12 +10542,12 @@ function parseTextToLines(cell, colWidth, verbose) {
     }
   });
   inputLines1.forEach((line) => {
-    line.forEach((cell2) => {
+    line.forEach((cell3) => {
       const lineCells = [];
-      const cellTextStr = String(cell2.text);
+      const cellTextStr = String(cell3.text);
       const lineWords = cellTextStr.split(" ");
       lineWords.forEach((word, idx) => {
-        const cellProps = Object.assign({}, cell2.options);
+        const cellProps = Object.assign({}, cell3.options);
         if (cellProps === null || cellProps === void 0 ? void 0 : cellProps.breakLine)
           cellProps.breakLine = idx + 1 === lineWords.length;
         lineCells.push({ _type: SLIDE_OBJECT_TYPES.tablecell, text: word + (idx + 1 < lineWords.length ? " " : ""), options: cellProps });
@@ -10642,10 +10644,10 @@ function getSlidesForTableRows(tableRows = [], tableProps = {}, presLayout, mast
   }
   {
     const firstRow = tableRows[0] || [];
-    firstRow.forEach((cell) => {
-      if (!cell)
-        cell = { _type: SLIDE_OBJECT_TYPES.tablecell };
-      const cellOpts = cell.options || null;
+    firstRow.forEach((cell2) => {
+      if (!cell2)
+        cell2 = { _type: SLIDE_OBJECT_TYPES.tablecell };
+      const cellOpts = cell2.options || null;
       numCols += Number((cellOpts === null || cellOpts === void 0 ? void 0 : cellOpts.colspan) ? cellOpts.colspan : 1);
     });
     if (tableProps.verbose)
@@ -10684,29 +10686,29 @@ function getSlidesForTableRows(tableRows = [], tableProps = {}, presLayout, mast
     let maxCellMarTopEmu = 0;
     let maxCellMarBtmEmu = 0;
     let currTableRow = [];
-    row.forEach((cell) => {
+    row.forEach((cell2) => {
       var _a, _b, _c, _d;
       currTableRow.push({
         _type: SLIDE_OBJECT_TYPES.tablecell,
         text: [],
-        options: cell.options
+        options: cell2.options
       });
-      if (cell.options.margin && cell.options.margin[0] >= 1) {
-        if (((_a = cell.options) === null || _a === void 0 ? void 0 : _a.margin) && cell.options.margin[0] && valToPts(cell.options.margin[0]) > maxCellMarTopEmu)
-          maxCellMarTopEmu = valToPts(cell.options.margin[0]);
+      if (cell2.options.margin && cell2.options.margin[0] >= 1) {
+        if (((_a = cell2.options) === null || _a === void 0 ? void 0 : _a.margin) && cell2.options.margin[0] && valToPts(cell2.options.margin[0]) > maxCellMarTopEmu)
+          maxCellMarTopEmu = valToPts(cell2.options.margin[0]);
         else if ((tableProps === null || tableProps === void 0 ? void 0 : tableProps.margin) && tableProps.margin[0] && valToPts(tableProps.margin[0]) > maxCellMarTopEmu)
           maxCellMarTopEmu = valToPts(tableProps.margin[0]);
-        if (((_b = cell.options) === null || _b === void 0 ? void 0 : _b.margin) && cell.options.margin[2] && valToPts(cell.options.margin[2]) > maxCellMarBtmEmu)
-          maxCellMarBtmEmu = valToPts(cell.options.margin[2]);
+        if (((_b = cell2.options) === null || _b === void 0 ? void 0 : _b.margin) && cell2.options.margin[2] && valToPts(cell2.options.margin[2]) > maxCellMarBtmEmu)
+          maxCellMarBtmEmu = valToPts(cell2.options.margin[2]);
         else if ((tableProps === null || tableProps === void 0 ? void 0 : tableProps.margin) && tableProps.margin[2] && valToPts(tableProps.margin[2]) > maxCellMarBtmEmu)
           maxCellMarBtmEmu = valToPts(tableProps.margin[2]);
       } else {
-        if (((_c = cell.options) === null || _c === void 0 ? void 0 : _c.margin) && cell.options.margin[0] && inch2Emu(cell.options.margin[0]) > maxCellMarTopEmu)
-          maxCellMarTopEmu = inch2Emu(cell.options.margin[0]);
+        if (((_c = cell2.options) === null || _c === void 0 ? void 0 : _c.margin) && cell2.options.margin[0] && inch2Emu(cell2.options.margin[0]) > maxCellMarTopEmu)
+          maxCellMarTopEmu = inch2Emu(cell2.options.margin[0]);
         else if ((tableProps === null || tableProps === void 0 ? void 0 : tableProps.margin) && tableProps.margin[0] && inch2Emu(tableProps.margin[0]) > maxCellMarTopEmu)
           maxCellMarTopEmu = inch2Emu(tableProps.margin[0]);
-        if (((_d = cell.options) === null || _d === void 0 ? void 0 : _d.margin) && cell.options.margin[2] && inch2Emu(cell.options.margin[2]) > maxCellMarBtmEmu)
-          maxCellMarBtmEmu = inch2Emu(cell.options.margin[2]);
+        if (((_d = cell2.options) === null || _d === void 0 ? void 0 : _d.margin) && cell2.options.margin[2] && inch2Emu(cell2.options.margin[2]) > maxCellMarBtmEmu)
+          maxCellMarBtmEmu = inch2Emu(cell2.options.margin[2]);
         else if ((tableProps === null || tableProps === void 0 ? void 0 : tableProps.margin) && tableProps.margin[2] && inch2Emu(tableProps.margin[2]) > maxCellMarBtmEmu)
           maxCellMarBtmEmu = inch2Emu(tableProps.margin[2]);
       }
@@ -10715,23 +10717,23 @@ function getSlidesForTableRows(tableRows = [], tableProps = {}, presLayout, mast
     emuTabCurrH += maxCellMarTopEmu + maxCellMarBtmEmu;
     if (tableProps.verbose && iRow === 0)
       console.log(`| SLIDE [${tableRowSlides.length}]: emuSlideTabH ...... = ${(emuSlideTabH / EMU).toFixed(1)} `);
-    row.forEach((cell, iCell) => {
+    row.forEach((cell2, iCell) => {
       var _a;
       const newCell = {
         _type: SLIDE_OBJECT_TYPES.tablecell,
         _lines: null,
-        _lineHeight: inch2Emu((((_a = cell.options) === null || _a === void 0 ? void 0 : _a.fontSize) ? cell.options.fontSize : tableProps.fontSize ? tableProps.fontSize : DEF_FONT_SIZE) * (LINEH_MODIFIER + (tableProps.autoPageLineWeight ? tableProps.autoPageLineWeight : 0)) / 100),
+        _lineHeight: inch2Emu((((_a = cell2.options) === null || _a === void 0 ? void 0 : _a.fontSize) ? cell2.options.fontSize : tableProps.fontSize ? tableProps.fontSize : DEF_FONT_SIZE) * (LINEH_MODIFIER + (tableProps.autoPageLineWeight ? tableProps.autoPageLineWeight : 0)) / 100),
         text: [],
-        options: cell.options
+        options: cell2.options
       };
       if (newCell.options.rowspan)
         newCell._lineHeight = 0;
       newCell.options.autoPageCharWeight = tableProps.autoPageCharWeight ? tableProps.autoPageCharWeight : null;
       let totalColW = tableProps.colW[iCell];
-      if (cell.options.colspan && Array.isArray(tableProps.colW)) {
-        totalColW = tableProps.colW.filter((_cell, idx) => idx >= iCell && idx < idx + cell.options.colspan).reduce((prev, curr) => prev + curr);
+      if (cell2.options.colspan && Array.isArray(tableProps.colW)) {
+        totalColW = tableProps.colW.filter((_cell, idx) => idx >= iCell && idx < idx + cell2.options.colspan).reduce((prev, curr) => prev + curr);
       }
-      newCell._lines = parseTextToLines(cell, totalColW);
+      newCell._lines = parseTextToLines(cell2, totalColW);
       rowCellLines.push(newCell);
     });
     if (tableProps.verbose)
@@ -10743,9 +10745,9 @@ function getSlidesForTableRows(tableRows = [], tableProps = {}, presLayout, mast
     while (!isDone) {
       const srcCell = rowCellLines[currCellIdx];
       let tgtCell = currTableRow[currCellIdx];
-      rowCellLines.forEach((cell) => {
-        if (cell._lineHeight >= emuLineMaxH)
-          emuLineMaxH = cell._lineHeight;
+      rowCellLines.forEach((cell2) => {
+        if (cell2._lineHeight >= emuLineMaxH)
+          emuLineMaxH = cell2._lineHeight;
       });
       if (emuTabCurrH + emuLineMaxH > emuSlideTabH) {
         if (tableProps.verbose) {
@@ -10753,13 +10755,13 @@ function getSlidesForTableRows(tableRows = [], tableProps = {}, presLayout, mast
           console.log(`|-- NEW SLIDE CREATED (currTabH+currLineH > maxH) => ${(emuTabCurrH / EMU).toFixed(2)} + ${(srcCell._lineHeight / EMU).toFixed(2)} > ${emuSlideTabH / EMU}`);
           console.log("|-----------------------------------------------------------------------|\n\n");
         }
-        if (currTableRow.length > 0 && currTableRow.map((cell) => cell.text.length).reduce((p, n) => p + n) > 0)
+        if (currTableRow.length > 0 && currTableRow.map((cell2) => cell2.text.length).reduce((p, n) => p + n) > 0)
           newTableRowSlide.rows.push(currTableRow);
         tableRowSlides.push(newTableRowSlide);
         const newRows = [];
         newTableRowSlide = { rows: newRows };
         currTableRow = [];
-        row.forEach((cell) => currTableRow.push({ _type: SLIDE_OBJECT_TYPES.tablecell, text: [], options: cell.options }));
+        row.forEach((cell2) => currTableRow.push({ _type: SLIDE_OBJECT_TYPES.tablecell, text: [], options: cell2.options }));
         calcSlideTabH();
         emuTabCurrH += maxCellMarTopEmu + maxCellMarBtmEmu;
         if (tableProps.verbose)
@@ -10769,10 +10771,10 @@ function getSlidesForTableRows(tableRows = [], tableProps = {}, presLayout, mast
           tableProps._arrObjTabHeadRows.forEach((row2) => {
             const newHeadRow = [];
             let maxLineHeight = 0;
-            row2.forEach((cell) => {
-              newHeadRow.push(cell);
-              if (cell._lineHeight > maxLineHeight)
-                maxLineHeight = cell._lineHeight;
+            row2.forEach((cell2) => {
+              newHeadRow.push(cell2);
+              if (cell2._lineHeight > maxLineHeight)
+                maxLineHeight = cell2._lineHeight;
             });
             newTableRowSlide.rows.push(newHeadRow);
             emuTabCurrH += maxLineHeight;
@@ -10790,7 +10792,7 @@ function getSlidesForTableRows(tableRows = [], tableProps = {}, presLayout, mast
       if (currCellIdx === rowCellLines.length - 1)
         emuTabCurrH += emuLineMaxH;
       currCellIdx = currCellIdx < rowCellLines.length - 1 ? currCellIdx + 1 : 0;
-      const brent = rowCellLines.map((cell) => cell._lines.length).reduce((prev, next) => prev + next);
+      const brent = rowCellLines.map((cell2) => cell2._lines.length).reduce((prev, next) => prev + next);
       if (brent === 0)
         isDone = true;
     }
@@ -10848,13 +10850,13 @@ function genTableToSlides(pptx, tabEleId, options = {}, masterSlide) {
   if (firstRowCells.length === 0)
     firstRowCells = document.querySelectorAll(`#${tabEleId} tr:first-child td`);
   firstRowCells.forEach((cellEle) => {
-    const cell = cellEle;
-    if (cell.getAttribute("colspan")) {
-      for (let idxc = 0; idxc < Number(cell.getAttribute("colspan")); idxc++) {
-        arrTabColW.push(Math.round(cell.offsetWidth / Number(cell.getAttribute("colspan"))));
+    const cell2 = cellEle;
+    if (cell2.getAttribute("colspan")) {
+      for (let idxc = 0; idxc < Number(cell2.getAttribute("colspan")); idxc++) {
+        arrTabColW.push(Math.round(cell2.offsetWidth / Number(cell2.getAttribute("colspan"))));
       }
     } else {
-      arrTabColW.push(cell.offsetWidth);
+      arrTabColW.push(cell2.offsetWidth);
     }
   });
   arrTabColW.forEach((colW) => {
@@ -10879,57 +10881,57 @@ function genTableToSlides(pptx, tabEleId, options = {}, masterSlide) {
     document.querySelectorAll(`#${tabEleId} ${part} tr`).forEach((row) => {
       const htmlRow = row;
       const arrObjTabCells = [];
-      Array.from(htmlRow.cells).forEach((cell) => {
-        const arrRGB1 = window.getComputedStyle(cell).getPropertyValue("color").replace(/\s+/gi, "").replace("rgba(", "").replace("rgb(", "").replace(")", "").split(",");
-        let arrRGB2 = window.getComputedStyle(cell).getPropertyValue("background-color").replace(/\s+/gi, "").replace("rgba(", "").replace("rgb(", "").replace(")", "").split(",");
+      Array.from(htmlRow.cells).forEach((cell2) => {
+        const arrRGB1 = window.getComputedStyle(cell2).getPropertyValue("color").replace(/\s+/gi, "").replace("rgba(", "").replace("rgb(", "").replace(")", "").split(",");
+        let arrRGB2 = window.getComputedStyle(cell2).getPropertyValue("background-color").replace(/\s+/gi, "").replace("rgba(", "").replace("rgb(", "").replace(")", "").split(",");
         if (
           // NOTE: (ISSUE#57): Default for unstyled tables is black bkgd, so use white instead
-          window.getComputedStyle(cell).getPropertyValue("background-color") === "rgba(0, 0, 0, 0)" || window.getComputedStyle(cell).getPropertyValue("transparent")
+          window.getComputedStyle(cell2).getPropertyValue("background-color") === "rgba(0, 0, 0, 0)" || window.getComputedStyle(cell2).getPropertyValue("transparent")
         ) {
           arrRGB2 = ["255", "255", "255"];
         }
         const cellOpts = {
           align: null,
-          bold: !!(window.getComputedStyle(cell).getPropertyValue("font-weight") === "bold" || Number(window.getComputedStyle(cell).getPropertyValue("font-weight")) >= 500),
+          bold: !!(window.getComputedStyle(cell2).getPropertyValue("font-weight") === "bold" || Number(window.getComputedStyle(cell2).getPropertyValue("font-weight")) >= 500),
           border: null,
           color: rgbToHex(Number(arrRGB1[0]), Number(arrRGB1[1]), Number(arrRGB1[2])),
           fill: { color: rgbToHex(Number(arrRGB2[0]), Number(arrRGB2[1]), Number(arrRGB2[2])) },
-          fontFace: (window.getComputedStyle(cell).getPropertyValue("font-family") || "").split(",")[0].replace(/"/g, "").replace("inherit", "").replace("initial", "") || null,
-          fontSize: Number(window.getComputedStyle(cell).getPropertyValue("font-size").replace(/[a-z]/gi, "")),
+          fontFace: (window.getComputedStyle(cell2).getPropertyValue("font-family") || "").split(",")[0].replace(/"/g, "").replace("inherit", "").replace("initial", "") || null,
+          fontSize: Number(window.getComputedStyle(cell2).getPropertyValue("font-size").replace(/[a-z]/gi, "")),
           margin: null,
-          colspan: Number(cell.getAttribute("colspan")) || null,
-          rowspan: Number(cell.getAttribute("rowspan")) || null,
+          colspan: Number(cell2.getAttribute("colspan")) || null,
+          rowspan: Number(cell2.getAttribute("rowspan")) || null,
           valign: null
         };
-        if (["left", "center", "right", "start", "end"].includes(window.getComputedStyle(cell).getPropertyValue("text-align"))) {
-          const align = window.getComputedStyle(cell).getPropertyValue("text-align").replace("start", "left").replace("end", "right");
+        if (["left", "center", "right", "start", "end"].includes(window.getComputedStyle(cell2).getPropertyValue("text-align"))) {
+          const align = window.getComputedStyle(cell2).getPropertyValue("text-align").replace("start", "left").replace("end", "right");
           cellOpts.align = align === "center" ? "center" : align === "left" ? "left" : align === "right" ? "right" : null;
         }
-        if (["top", "middle", "bottom"].includes(window.getComputedStyle(cell).getPropertyValue("vertical-align"))) {
-          const valign = window.getComputedStyle(cell).getPropertyValue("vertical-align");
+        if (["top", "middle", "bottom"].includes(window.getComputedStyle(cell2).getPropertyValue("vertical-align"))) {
+          const valign = window.getComputedStyle(cell2).getPropertyValue("vertical-align");
           cellOpts.valign = valign === "top" ? "top" : valign === "middle" ? "middle" : valign === "bottom" ? "bottom" : null;
         }
-        if (window.getComputedStyle(cell).getPropertyValue("padding-left")) {
+        if (window.getComputedStyle(cell2).getPropertyValue("padding-left")) {
           cellOpts.margin = [0, 0, 0, 0];
           const sidesPad = ["padding-top", "padding-right", "padding-bottom", "padding-left"];
           sidesPad.forEach((val, idxs) => {
-            cellOpts.margin[idxs] = Math.round(Number(window.getComputedStyle(cell).getPropertyValue(val).replace(/\D/gi, "")));
+            cellOpts.margin[idxs] = Math.round(Number(window.getComputedStyle(cell2).getPropertyValue(val).replace(/\D/gi, "")));
           });
         }
-        if (window.getComputedStyle(cell).getPropertyValue("border-top-width") || window.getComputedStyle(cell).getPropertyValue("border-right-width") || window.getComputedStyle(cell).getPropertyValue("border-bottom-width") || window.getComputedStyle(cell).getPropertyValue("border-left-width")) {
+        if (window.getComputedStyle(cell2).getPropertyValue("border-top-width") || window.getComputedStyle(cell2).getPropertyValue("border-right-width") || window.getComputedStyle(cell2).getPropertyValue("border-bottom-width") || window.getComputedStyle(cell2).getPropertyValue("border-left-width")) {
           cellOpts.border = [null, null, null, null];
           const sidesBor = ["top", "right", "bottom", "left"];
           sidesBor.forEach((val, idxb) => {
-            const intBorderW = Math.round(Number(window.getComputedStyle(cell).getPropertyValue("border-" + val + "-width").replace("px", "")));
+            const intBorderW = Math.round(Number(window.getComputedStyle(cell2).getPropertyValue("border-" + val + "-width").replace("px", "")));
             let arrRGB = [];
-            arrRGB = window.getComputedStyle(cell).getPropertyValue("border-" + val + "-color").replace(/\s+/gi, "").replace("rgba(", "").replace("rgb(", "").replace(")", "").split(",");
+            arrRGB = window.getComputedStyle(cell2).getPropertyValue("border-" + val + "-color").replace(/\s+/gi, "").replace("rgba(", "").replace("rgb(", "").replace(")", "").split(",");
             const strBorderC = rgbToHex(Number(arrRGB[0]), Number(arrRGB[1]), Number(arrRGB[2]));
             cellOpts.border[idxb] = { pt: intBorderW, color: strBorderC };
           });
         }
         arrObjTabCells.push({
           _type: SLIDE_OBJECT_TYPES.tablecell,
-          text: cell.innerText,
+          text: cell2.innerText,
           // `innerText` returns <br> as "\n", so linebreak etc. work later!
           options: cellOpts
         });
@@ -10953,20 +10955,20 @@ function genTableToSlides(pptx, tabEleId, options = {}, masterSlide) {
   opts._arrObjTabHeadRows = arrObjTabHeadRows || null;
   opts.colW = arrColW;
   getSlidesForTableRows([...arrObjTabHeadRows, ...arrObjTabBodyRows, ...arrObjTabFootRows], opts, pptx.presLayout, masterSlide).forEach((slide, idxTr) => {
-    const newSlide = pptx.addSlide({ masterName: opts.masterSlideName || null });
+    const newSlide2 = pptx.addSlide({ masterName: opts.masterSlideName || null });
     if (idxTr === 0)
       opts.y = opts.y || arrInchMargins[0];
     if (idxTr > 0)
       opts.y = opts.autoPageSlideStartY || opts.newSlideStartY || arrInchMargins[0];
     if (opts.verbose)
       console.log(`| opts.autoPageSlideStartY: ${opts.autoPageSlideStartY} / arrInchMargins[0]: ${arrInchMargins[0]} => opts.y = ${opts.y}`);
-    newSlide.addTable(slide.rows, { x: opts.x || arrInchMargins[3], y: opts.y, w: Number(emuSlideTabW) / EMU, colW: arrColW, autoPage: false });
+    newSlide2.addTable(slide.rows, { x: opts.x || arrInchMargins[3], y: opts.y, w: Number(emuSlideTabW) / EMU, colW: arrColW, autoPage: false });
     if (opts.addImage) {
       opts.addImage.options = opts.addImage.options || {};
       if (!opts.addImage.image || !opts.addImage.image.path && !opts.addImage.image.data) {
         console.warn("Warning: tableToSlides.addImage requires either `path` or `data`");
       } else {
-        newSlide.addImage({
+        newSlide2.addImage({
           path: opts.addImage.image.path,
           data: opts.addImage.image.data,
           x: opts.addImage.options.x,
@@ -10977,11 +10979,11 @@ function genTableToSlides(pptx, tabEleId, options = {}, masterSlide) {
       }
     }
     if (opts.addShape)
-      newSlide.addShape(opts.addShape.shapeName, opts.addShape.options || {});
+      newSlide2.addShape(opts.addShape.shapeName, opts.addShape.options || {});
     if (opts.addTable)
-      newSlide.addTable(opts.addTable.rows, opts.addTable.options || {});
+      newSlide2.addTable(opts.addTable.rows, opts.addTable.options || {});
     if (opts.addText)
-      newSlide.addText(opts.addText.text, opts.addText.options || {});
+      newSlide2.addText(opts.addText.text, opts.addText.options || {});
   });
 }
 var _chartCounter = 0;
@@ -11478,21 +11480,21 @@ function addTableDefinition(target, tableRows, options, slideLayout, presLayout,
   tableRows.forEach((row) => {
     const newRow = [];
     if (Array.isArray(row)) {
-      row.forEach((cell) => {
+      row.forEach((cell2) => {
         const newCell = {
           _type: SLIDE_OBJECT_TYPES.tablecell,
           text: "",
-          options: typeof cell === "object" && cell.options ? cell.options : {}
+          options: typeof cell2 === "object" && cell2.options ? cell2.options : {}
         };
-        if (typeof cell === "string" || typeof cell === "number")
-          newCell.text = cell.toString();
-        else if (cell.text) {
-          if (typeof cell.text === "string" || typeof cell.text === "number")
-            newCell.text = cell.text.toString();
-          else if (cell.text)
-            newCell.text = cell.text;
-          if (cell.options && typeof cell.options === "object")
-            newCell.options = cell.options;
+        if (typeof cell2 === "string" || typeof cell2 === "number")
+          newCell.text = cell2.toString();
+        else if (cell2.text) {
+          if (typeof cell2.text === "string" || typeof cell2.text === "number")
+            newCell.text = cell2.text.toString();
+          else if (cell2.text)
+            newCell.text = cell2.text;
+          if (cell2.options && typeof cell2.options === "object")
+            newCell.options = cell2.options;
         }
         newCell.options.border = newCell.options.border || opt.border || [{ type: "none" }, { type: "none" }, { type: "none" }, { type: "none" }];
         const cellBorder = newCell.options.border;
@@ -11594,15 +11596,15 @@ function addTableDefinition(target, tableRows, options, slideLayout, presLayout,
   if (opt.h && typeof opt.h === "number" && opt.h < 20)
     opt.h = inch2Emu(opt.h);
   arrRows.forEach((row) => {
-    row.forEach((cell, idy) => {
-      if (typeof cell === "number" || typeof cell === "string") {
+    row.forEach((cell2, idy) => {
+      if (typeof cell2 === "number" || typeof cell2 === "string") {
         row[idy] = { _type: SLIDE_OBJECT_TYPES.tablecell, text: String(row[idy]), options: opt };
-      } else if (typeof cell === "object") {
-        if (typeof cell.text === "number")
+      } else if (typeof cell2 === "object") {
+        if (typeof cell2.text === "number")
           row[idy].text = row[idy].text.toString();
-        else if (typeof cell.text === "undefined" || cell.text === null)
+        else if (typeof cell2.text === "undefined" || cell2.text === null)
           row[idy].text = "";
-        row[idy].options = cell.options || {};
+        row[idy].options = cell2.options || {};
         row[idy]._type = SLIDE_OBJECT_TYPES.tablecell;
       }
     });
@@ -11624,12 +11626,12 @@ function addTableDefinition(target, tableRows, options, slideLayout, presLayout,
       if (idx > 0)
         opt.y = inch2Emu(opt.autoPageSlideStartY || opt.newSlideStartY || arrTableMargin[0]);
       {
-        const newSlide = getSlide(target._slideNum + idx);
+        const newSlide2 = getSlide(target._slideNum + idx);
         opt.autoPage = false;
-        createHyperlinkRels(newSlide, slide.rows);
-        newSlide.addTable(slide.rows, Object.assign({}, opt));
+        createHyperlinkRels(newSlide2, slide.rows);
+        newSlide2.addTable(slide.rows, Object.assign({}, opt));
         if (idx > 0)
-          newAutoPagedSlides.push(newSlide);
+          newAutoPagedSlides.push(newSlide2);
       }
     });
   }
@@ -13558,8 +13560,8 @@ function slideObjectToXml(slide) {
         objTabOpts = slideItemObj.options;
         intColCnt = 0;
         intColW = 0;
-        arrTabRows[0].forEach((cell) => {
-          cellOpts = cell.options || null;
+        arrTabRows[0].forEach((cell2) => {
+          cellOpts = cell2.options || null;
           intColCnt += (cellOpts === null || cellOpts === void 0 ? void 0 : cellOpts.colspan) ? Number(cellOpts.colspan) : 1;
         });
         strXml = `<p:graphicFrame><p:nvGraphicFramePr><p:cNvPr id="${intTableNum * slide._slideNum + 1}" name="${slideItemObj.options.objectName}"/>`;
@@ -13589,9 +13591,9 @@ function slideObjectToXml(slide) {
         arrTabRows.forEach((cells) => {
           var _a3, _b2;
           for (let cIdx = 0; cIdx < cells.length; ) {
-            const cell = cells[cIdx];
-            const colspan = (_a3 = cell.options) === null || _a3 === void 0 ? void 0 : _a3.colspan;
-            const rowspan = (_b2 = cell.options) === null || _b2 === void 0 ? void 0 : _b2.rowspan;
+            const cell2 = cells[cIdx];
+            const colspan = (_a3 = cell2.options) === null || _a3 === void 0 ? void 0 : _a3.colspan;
+            const rowspan = (_b2 = cell2.options) === null || _b2 === void 0 ? void 0 : _b2.rowspan;
             if (colspan && colspan > 1) {
               const vMergeCells = new Array(colspan - 1).fill(void 0).map(() => {
                 return { _type: SLIDE_OBJECT_TYPES.tablecell, options: { rowspan }, _hmerge: true };
@@ -13607,11 +13609,11 @@ function slideObjectToXml(slide) {
           const nextRow = arrTabRows[rIdx + 1];
           if (!nextRow)
             return;
-          cells.forEach((cell, cIdx) => {
+          cells.forEach((cell2, cIdx) => {
             var _a3, _b2;
-            const rowspan = cell._rowContinue || ((_a3 = cell.options) === null || _a3 === void 0 ? void 0 : _a3.rowspan);
-            const colspan = (_b2 = cell.options) === null || _b2 === void 0 ? void 0 : _b2.colspan;
-            const _hmerge = cell._hmerge;
+            const rowspan = cell2._rowContinue || ((_a3 = cell2.options) === null || _a3 === void 0 ? void 0 : _a3.rowspan);
+            const colspan = (_b2 = cell2.options) === null || _b2 === void 0 ? void 0 : _b2.colspan;
+            const _hmerge = cell2._hmerge;
             if (rowspan && rowspan > 1) {
               const hMergeCell = { _type: SLIDE_OBJECT_TYPES.tablecell, options: { colspan }, _rowContinue: rowspan - 1, _vmerge: true, _hmerge };
               nextRow.splice(cIdx, 0, hMergeCell);
@@ -13630,29 +13632,29 @@ function slideObjectToXml(slide) {
           strXml += `<a:tr h="${intRowH}">`;
           cells.forEach((cellObj) => {
             var _a3, _b2, _c2, _d2, _e2;
-            const cell = cellObj;
+            const cell2 = cellObj;
             const cellSpanAttrs = {
-              rowSpan: ((_a3 = cell.options) === null || _a3 === void 0 ? void 0 : _a3.rowspan) > 1 ? cell.options.rowspan : void 0,
-              gridSpan: ((_b2 = cell.options) === null || _b2 === void 0 ? void 0 : _b2.colspan) > 1 ? cell.options.colspan : void 0,
-              vMerge: cell._vmerge ? 1 : void 0,
-              hMerge: cell._hmerge ? 1 : void 0
+              rowSpan: ((_a3 = cell2.options) === null || _a3 === void 0 ? void 0 : _a3.rowspan) > 1 ? cell2.options.rowspan : void 0,
+              gridSpan: ((_b2 = cell2.options) === null || _b2 === void 0 ? void 0 : _b2.colspan) > 1 ? cell2.options.colspan : void 0,
+              vMerge: cell2._vmerge ? 1 : void 0,
+              hMerge: cell2._hmerge ? 1 : void 0
             };
             let cellSpanAttrStr = Object.keys(cellSpanAttrs).map((k) => [k, cellSpanAttrs[k]]).filter(([, v]) => !!v).map(([k, v]) => `${String(k)}="${String(v)}"`).join(" ");
             if (cellSpanAttrStr)
               cellSpanAttrStr = " " + cellSpanAttrStr;
-            if (cell._hmerge || cell._vmerge) {
+            if (cell2._hmerge || cell2._vmerge) {
               strXml += `<a:tc${cellSpanAttrStr}><a:tcPr/></a:tc>`;
               return;
             }
-            const cellOpts2 = cell.options || {};
-            cell.options = cellOpts2;
+            const cellOpts2 = cell2.options || {};
+            cell2.options = cellOpts2;
             ["align", "bold", "border", "color", "fill", "fontFace", "fontSize", "margin", "textDirection", "underline", "valign"].forEach((name) => {
               if (objTabOpts[name] && !cellOpts2[name] && cellOpts2[name] !== 0)
                 cellOpts2[name] = objTabOpts[name];
             });
             const cellValign = cellOpts2.valign ? ` anchor="${cellOpts2.valign.replace(/^c$/i, "ctr").replace(/^m$/i, "ctr").replace("center", "ctr").replace("middle", "ctr").replace("top", "t").replace("btm", "b").replace("bottom", "b")}"` : "";
             const cellTextDir = cellOpts2.textDirection && cellOpts2.textDirection !== "horz" ? ` vert="${cellOpts2.textDirection}"` : "";
-            let fillColor = ((_d2 = (_c2 = cell._optImp) === null || _c2 === void 0 ? void 0 : _c2.fill) === null || _d2 === void 0 ? void 0 : _d2.color) ? cell._optImp.fill.color : ((_e2 = cell._optImp) === null || _e2 === void 0 ? void 0 : _e2.fill) && typeof cell._optImp.fill === "string" ? cell._optImp.fill : "";
+            let fillColor = ((_d2 = (_c2 = cell2._optImp) === null || _c2 === void 0 ? void 0 : _c2.fill) === null || _d2 === void 0 ? void 0 : _d2.color) ? cell2._optImp.fill.color : ((_e2 = cell2._optImp) === null || _e2 === void 0 ? void 0 : _e2.fill) && typeof cell2._optImp.fill === "string" ? cell2._optImp.fill : "";
             fillColor = fillColor || cellOpts2.fill ? cellOpts2.fill : "";
             const cellFill = fillColor ? genXmlColorSelection(fillColor) : "";
             let cellMargin = cellOpts2.margin === 0 || cellOpts2.margin ? cellOpts2.margin : DEF_CELL_MARGIN_IN;
@@ -13664,7 +13666,7 @@ function slideObjectToXml(slide) {
             } else {
               cellMarginXml = ` marL="${inch2Emu(cellMargin[3])}" marR="${inch2Emu(cellMargin[1])}" marT="${inch2Emu(cellMargin[0])}" marB="${inch2Emu(cellMargin[2])}"`;
             }
-            strXml += `<a:tc${cellSpanAttrStr}>${genXmlTextBody(cell)}<a:tcPr${cellMarginXml}${cellValign}${cellTextDir}>`;
+            strXml += `<a:tc${cellSpanAttrStr}>${genXmlTextBody(cell2)}<a:tcPr${cellMarginXml}${cellValign}${cellTextDir}>`;
             if (cellOpts2.border && Array.isArray(cellOpts2.border)) {
               [
                 { idx: 3, name: "lnL" },
@@ -14994,7 +14996,7 @@ var PptxGenJS = class {
       if (tmpLayout)
         slideLayout = tmpLayout;
     }
-    const newSlide = new Slide({
+    const newSlide2 = new Slide({
       addSlide: this.addNewSlide,
       getSlide: this.getSlide,
       presLayout: this.presLayout,
@@ -15004,26 +15006,26 @@ var PptxGenJS = class {
       slideNumber: this.slides.length + 1,
       slideLayout
     });
-    this._slides.push(newSlide);
+    this._slides.push(newSlide2);
     if (options === null || options === void 0 ? void 0 : options.sectionTitle) {
       const sect = this.sections.filter((section) => section.title === options.sectionTitle)[0];
       if (!sect)
         console.warn(`addSlide: unable to find section with title: "${options.sectionTitle}"`);
       else
-        sect._slides.push(newSlide);
+        sect._slides.push(newSlide2);
     } else if (this.sections && this.sections.length > 0 && !(options === null || options === void 0 ? void 0 : options.sectionTitle)) {
       const lastSect = this._sections[this.sections.length - 1];
       if (lastSect._type === "default")
-        lastSect._slides.push(newSlide);
+        lastSect._slides.push(newSlide2);
       else {
         this._sections.push({
           title: `Default-${this.sections.filter((sect) => sect._type === "default").length + 1}`,
           _type: "default",
-          _slides: [newSlide]
+          _slides: [newSlide2]
         });
       }
     }
-    return newSlide;
+    return newSlide2;
   }
   /**
    * Create a custom Slide Layout in any size
@@ -15093,1002 +15095,739 @@ var PptxGenJS = class {
 
 // gp.mjs
 var args = process.argv.slice(2);
-var inputPath = null;
-var outputPath = null;
-for (let i = 0; i < args.length; i++) {
-  if (args[i] === "--input" && args[i + 1]) {
-    inputPath = args[i + 1];
-    i++;
-  } else if (args[i] === "--output" && args[i + 1]) {
-    outputPath = args[i + 1];
-    i++;
-  }
-}
+var arg = (name) => {
+  const i = args.indexOf(name);
+  return i >= 0 ? args[i + 1] : null;
+};
+var inputPath = arg("--input");
+var outputPath = arg("--output");
 if (!inputPath || !outputPath) {
   console.error("Usage: node generate_presentation.js --input <input_json> --output <output_pptx>");
   process.exit(1);
 }
-var rawData = import_fs.default.readFileSync(inputPath, "utf8");
-var data = JSON.parse(rawData);
-var periodName = data.period?.name || "October 2026";
-var companyName = data.company_name || "Utah Fashion Ltd.";
-var departments = data.departments || [];
-var pres = new PptxGenJS();
-pres.layout = "LAYOUT_16x9";
-pres.author = "Utah Fashion Ltd. KPI System";
-pres.company = "Utah Fashion Ltd.";
-pres.title = `KPI Performance Presentation - ${periodName}`;
-var THEMES = {
-  "executive-navy": {
-    name: "Executive Navy (Dark)",
-    isDark: true,
-    slideBg: "0B132B",
-    headerBg: "0B132B",
-    headerBorder: "1C2541",
-    headerBrandColor: "93C5FD",
-    headerTitleColor: "FFFFFF",
-    tagBg: "1C2541",
-    tagBorder: "38BDF8",
-    tagText: "38BDF8",
-    cardBg: "1C2541",
-    cardBorder: "334155",
-    titleColor: "FFFFFF",
-    textColor: "CBD5E1",
-    mutedColor: "94A3B8",
-    tableHeaderBg: "1C2541",
-    tableHeaderColor: "FFFFFF",
-    tableRowAltBg: "162238",
-    tableRowBg: "0B132B",
-    tableRowTextColor: "F1F5F9",
-    tableBorder: "334155",
-    footerBorder: "334155",
-    footerText: "64748B",
-    chartLabelColor: "CBD5E1"
-  },
-  "corporate-white": {
-    name: "Corporate White (Clean / Printable)",
-    isDark: false,
-    slideBg: "FFFFFF",
-    headerBg: "0F172A",
-    headerBorder: "0F172A",
-    headerBrandColor: "93C5FD",
-    headerTitleColor: "FFFFFF",
-    tagBg: "1E293B",
-    tagBorder: "38BDF8",
-    tagText: "38BDF8",
-    cardBg: "F8FAFC",
-    cardBorder: "CBD5E1",
-    titleColor: "0F172A",
-    textColor: "334155",
-    mutedColor: "64748B",
-    tableHeaderBg: "0F172A",
-    tableHeaderColor: "FFFFFF",
-    tableRowAltBg: "F1F5F9",
-    tableRowBg: "FFFFFF",
-    tableRowTextColor: "1E293B",
-    tableBorder: "E2E8F0",
-    footerBorder: "CBD5E1",
-    footerText: "64748B",
-    chartLabelColor: "334155"
-  },
-  "slate-dark": {
-    name: "Industrial Slate (Dark)",
-    isDark: true,
-    slideBg: "0F172A",
-    headerBg: "020617",
-    headerBorder: "1E293B",
-    headerBrandColor: "6EE7B7",
-    headerTitleColor: "FFFFFF",
-    tagBg: "1E293B",
-    tagBorder: "34D399",
-    tagText: "34D399",
-    cardBg: "1E293B",
-    cardBorder: "334155",
-    titleColor: "F8FAFC",
-    textColor: "CBD5E1",
-    mutedColor: "94A3B8",
-    tableHeaderBg: "020617",
-    tableHeaderColor: "FFFFFF",
-    tableRowAltBg: "162032",
-    tableRowBg: "0F172A",
-    tableRowTextColor: "F1F5F9",
-    tableBorder: "334155",
-    footerBorder: "334155",
-    footerText: "64748B",
-    chartLabelColor: "CBD5E1"
-  },
-  "royal-gold": {
-    name: "Royal Blue & Gold",
-    isDark: true,
-    slideBg: "172554",
-    headerBg: "1E3A8A",
-    headerBorder: "2563EB",
-    headerBrandColor: "FCD34D",
-    headerTitleColor: "FFFFFF",
-    tagBg: "1E40AF",
-    tagBorder: "FBBF24",
-    tagText: "FBBF24",
-    cardBg: "1E3A8A",
-    cardBorder: "2563EB",
-    titleColor: "FFFFFF",
-    textColor: "E0E7FF",
-    mutedColor: "93C5FD",
-    tableHeaderBg: "1E3A8A",
-    tableHeaderColor: "FFFFFF",
-    tableRowAltBg: "1B3573",
-    tableRowBg: "172554",
-    tableRowTextColor: "FFFFFF",
-    tableBorder: "2563EB",
-    footerBorder: "2563EB",
-    footerText: "93C5FD",
-    chartLabelColor: "E0E7FF"
-  }
+var data = JSON.parse(import_fs.default.readFileSync(inputPath, "utf8"));
+var SCRIPT_DIR = import_path.default.dirname(import_path.default.resolve(process.argv[1]));
+var ASSETS = import_path.default.join(SCRIPT_DIR, "assets");
+var asset = (f) => {
+  const p = import_path.default.join(ASSETS, f);
+  return import_fs.default.existsSync(p) ? p : null;
 };
-var themeKey = data.theme || "executive-navy";
-var theme = THEMES[themeKey] || THEMES["executive-navy"];
-var COLOR_ACCENT_BLUE = "3B82F6";
-var COLOR_EMERALD = "10B981";
-var COLOR_AMBER = "F59E0B";
-var COLOR_ROSE = "EF4444";
-var currentSlideNumber = 0;
-function applySlideChrome(slide, title, deptCode = null) {
-  currentSlideNumber++;
-  slide.background = { color: theme.slideBg };
-  slide.addShape(pres.ShapeType.rect, {
-    x: 0,
-    y: 0,
-    w: "100%",
-    h: 0.8,
-    fill: { color: theme.headerBg },
-    line: { color: theme.headerBorder }
+var period = data.period || {};
+var YEAR = period.year;
+var PREV = period.prev_year ?? YEAR - 1;
+var CUR = data.currency || "$";
+var COMPANY = data.company_name || "";
+var C = {
+  red: "C00000",
+  brightRed: "FF0000",
+  green: "00B050",
+  darkGreen: "00843D",
+  navy: "1F2A5C",
+  blue: "2E3192",
+  cyan: "00B0F0",
+  gray: "D9D9D9",
+  grayDark: "7F7F7F",
+  white: "FFFFFF",
+  black: "000000",
+  text: "1A1A1A",
+  rowAvg: "FCD5B4",
+  rowTarget: "C5D9F1",
+  header: "DCE6F1",
+  headerDark: "1F3864",
+  cellRed: "FF5050",
+  cellGreen: "33CC66",
+  yellow: "FFFF00",
+  bar: "2E3192"
+};
+var SERIF = "Times New Roman";
+var SANS = "Arial";
+var W = 10;
+var H = 7.5;
+var pres = new PptxGenJS();
+pres.defineLayout({ name: "KPI_4x3", width: W, height: H });
+pres.layout = "KPI_4x3";
+pres.author = COMPANY || "KPI Performance System";
+pres.company = (COMPANY || "KPI").replace(/&/g, "&amp;");
+pres.title = `${data.report_title || "KPI Performance"} - ${period.name || ""}`;
+pres.theme = { headFontFace: SERIF, bodyFontFace: SANS };
+var isNum = (v) => v !== null && v !== void 0 && v !== "" && !Number.isNaN(Number(v));
+var pct = (v, dec = 0) => isNum(v) ? `${Number(v).toFixed(dec)}%` : "";
+var fmtInt = (v) => Math.round(Math.abs(Number(v))).toLocaleString("en-US");
+var money = (v) => {
+  if (!isNum(v)) return "";
+  const n = Number(v);
+  return n < 0 ? `${CUR} (${fmtInt(n)})` : `${CUR} ${fmtInt(n)}`;
+};
+var moneyShort = (v) => {
+  if (!isNum(v)) return "-";
+  const n = Number(v);
+  return `${n < 0 ? "-" : ""}${CUR}${fmtInt(n)}`;
+};
+var num = (v) => isNum(v) ? Math.round(Number(v)).toLocaleString("en-US") : "";
+var pad2 = (n) => String(n).padStart(2, "0");
+function imageSize(file) {
+  try {
+    const b = import_fs.default.readFileSync(file);
+    if (b.length > 24 && b.readUInt32BE(0) === 2303741511) return { w: b.readUInt32BE(16), h: b.readUInt32BE(20) };
+    if (b[0] === 71 && b[1] === 73) return { w: b.readUInt16LE(6), h: b.readUInt16LE(8) };
+    if (b[0] === 66 && b[1] === 77) return { w: b.readInt32LE(18), h: Math.abs(b.readInt32LE(22)) };
+    if (b.toString("ascii", 0, 4) === "RIFF" && b.toString("ascii", 8, 12) === "WEBP") {
+      const chunk = b.toString("ascii", 12, 16);
+      if (chunk === "VP8X") return { w: 1 + b.readUIntLE(24, 3), h: 1 + b.readUIntLE(27, 3) };
+      if (chunk === "VP8L") {
+        const bits = b.readUInt32LE(21);
+        return { w: (bits & 16383) + 1, h: (bits >> 14 & 16383) + 1 };
+      }
+      return { w: b.readUInt16LE(26) & 16383, h: b.readUInt16LE(28) & 16383 };
+    }
+    if (b[0] === 255 && b[1] === 216) {
+      let i = 2;
+      while (i < b.length) {
+        if (b[i] !== 255) {
+          i++;
+          continue;
+        }
+        const marker = b[i + 1];
+        const len = b.readUInt16BE(i + 2);
+        if ([192, 193, 194, 195, 197, 198, 199, 201, 202, 203, 205, 206, 207].includes(marker)) {
+          return { w: b.readUInt16BE(i + 7), h: b.readUInt16BE(i + 5) };
+        }
+        i += 2 + len;
+      }
+    }
+  } catch {
+  }
+  return null;
+}
+function imageData(file) {
+  const ext = import_path.default.extname(file).slice(1).toLowerCase().replace("jpg", "jpeg");
+  const mime = ext === "svg" ? "image/svg+xml" : `image/${ext || "png"}`;
+  return `${mime};base64,${import_fs.default.readFileSync(file).toString("base64")}`;
+}
+function addPhoto(slide, file, x, y, w, h, name = "Photo") {
+  slide.addShape(pres.shapes.RECTANGLE, { x, y, w, h, fill: { color: "F2F2F2" }, line: { color: "595959", width: 0.75 } });
+  if (file && import_fs.default.existsSync(file)) {
+    const size = imageSize(file);
+    const opts = { data: imageData(file), x, y, w, h, altText: name, objectName: name };
+    if (size && size.w > 0 && size.h > 0) {
+      opts.w = w;
+      opts.h = w * size.h / size.w;
+      opts.sizing = { type: "cover", w, h };
+    }
+    slide.addImage(opts);
+    slide.addShape(pres.shapes.RECTANGLE, { x, y, w, h, fill: { type: "none" }, line: { color: "404040", width: 0.75 } });
+    return;
+  }
+  const cx = x + w / 2;
+  slide.addShape(pres.shapes.OVAL, { x: cx - w * 0.2, y: y + h * 0.16, w: w * 0.4, h: w * 0.4, fill: { color: "BFBFBF" }, line: { type: "none" } });
+  slide.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: x + w * 0.16, y: y + h * 0.58, w: w * 0.68, h: h * 0.36, rectRadius: 0.2, fill: { color: "BFBFBF" }, line: { type: "none" } });
+}
+function vacantBox(slide, x, y, w, h) {
+  slide.addText("Vacant", {
+    x,
+    y,
+    w,
+    h,
+    isTextBox: true,
+    align: "center",
+    valign: "middle",
+    fontFace: SANS,
+    fontSize: 12,
+    color: C.brightRed,
+    fill: { color: "DDEBF7" },
+    line: { color: "404040", width: 0.75 },
+    margin: 0
   });
-  slide.addText(companyName.toUpperCase(), {
-    x: 0.5,
-    y: 0.15,
-    w: 3.5,
-    h: 0.3,
-    fontSize: 11,
+}
+function labelBox(slide, text, x, y, w, h = 0.3, fontSize = 9) {
+  slide.addText(text || "", {
+    x,
+    y,
+    w,
+    h,
+    isTextBox: true,
+    align: "center",
+    valign: "middle",
+    fontFace: SANS,
+    fontSize,
     bold: true,
-    color: theme.headerBrandColor
+    color: C.white,
+    fill: { color: C.cyan },
+    line: { color: "1F4E79", width: 0.75 },
+    margin: 0,
+    fit: "shrink"
+  });
+}
+function header(slide, tab, title, { titleSize = 26 } = {}) {
+  slide.addShape(pres.shapes.ROUNDED_RECTANGLE, {
+    x: 0.12,
+    y: 0.12,
+    w: 2.15,
+    h: 0.5,
+    rectRadius: 0.08,
+    fill: { color: "E7E6E6" },
+    line: { color: "A6A6A6", width: 0.75 },
+    shadow: { type: "outer", color: "7F7F7F", opacity: 0.35, blur: 3, offset: 2, angle: 90 }
+  });
+  slide.addText(tab || "", {
+    x: 0.12,
+    y: 0.12,
+    w: 2.15,
+    h: 0.5,
+    isTextBox: true,
+    align: "center",
+    valign: "middle",
+    fontFace: SERIF,
+    fontSize: 16,
+    color: C.red,
+    margin: 0,
+    fit: "shrink"
+  });
+  slide.addShape(pres.shapes.RECTANGLE, {
+    x: 2.35,
+    y: 0.06,
+    w: 7.35,
+    h: 0.6,
+    fill: { color: "E7E6E6" },
+    line: { color: "BFBFBF", width: 0.5 },
+    shadow: { type: "outer", color: "7F7F7F", opacity: 0.3, blur: 3, offset: 2, angle: 90 }
   });
   slide.addText(title, {
-    x: 0.5,
-    y: 0.38,
-    w: 8.5,
-    h: 0.35,
-    fontSize: 16,
+    x: 2.45,
+    y: 0.06,
+    w: 7.2,
+    h: 0.6,
+    isTextBox: true,
+    align: "left",
+    valign: "middle",
+    fontFace: SERIF,
+    fontSize: titleSize,
     bold: true,
-    color: theme.headerTitleColor
-  });
-  const tagText = deptCode ? `${deptCode} | ${periodName}` : periodName;
-  slide.addShape(pres.ShapeType.roundRect, {
-    x: 10.2,
-    y: 0.2,
-    w: 2.6,
-    h: 0.4,
-    fill: { color: theme.tagBg },
-    line: { color: theme.tagBorder, width: 1 },
-    rectRadius: 0.1
-  });
-  slide.addText(tagText, {
-    x: 10.2,
-    y: 0.2,
-    w: 2.6,
-    h: 0.4,
-    fontSize: 10,
-    bold: true,
-    align: "center",
-    color: theme.tagText
-  });
-  slide.addShape(pres.ShapeType.line, {
-    x: 0.5,
-    y: 7,
-    w: 12.33,
-    h: 0,
-    line: { color: theme.footerBorder, width: 1 }
-  });
-  slide.addText(`Utah Fashion Ltd. - KPI Performance Review | Theme: ${theme.name} | Confidential`, {
-    x: 0.5,
-    y: 7.05,
-    w: 8,
-    h: 0.3,
-    fontSize: 9,
-    color: theme.footerText
-  });
-  slide.addText(`Slide ${currentSlideNumber} of 85`, {
-    x: 9.5,
-    y: 7.05,
-    w: 3.3,
-    h: 0.3,
-    fontSize: 9,
-    bold: true,
-    align: "right",
-    color: theme.footerText
+    color: C.red,
+    margin: 0,
+    fit: "shrink"
   });
 }
-function buildCoverSlide() {
-  currentSlideNumber++;
-  const slide = pres.addSlide();
-  slide.background = { color: theme.slideBg };
-  slide.addShape(pres.ShapeType.rect, {
-    x: 0,
-    y: 0,
-    w: 0.4,
-    h: "100%",
-    fill: { color: theme.isDark ? "38BDF8" : "2563EB" },
-    line: { color: theme.isDark ? "38BDF8" : "2563EB" }
-  });
-  slide.addShape(pres.ShapeType.roundRect, {
-    x: 1.5,
-    y: 1.8,
-    w: 2.8,
-    h: 0.4,
-    fill: { color: theme.tagBg },
-    line: { color: theme.tagBorder, width: 1 },
-    rectRadius: 0.08
-  });
-  slide.addText("OFFICIAL MANAGEMENT REVIEW", {
-    x: 1.5,
-    y: 1.8,
-    w: 2.8,
-    h: 0.4,
-    fontSize: 10,
+function plainTitle(slide, title, size = 20) {
+  slide.addText(title, {
+    x: 0.2,
+    y: 0.05,
+    w: 9.6,
+    h: 0.55,
+    isTextBox: true,
+    fontFace: SERIF,
+    fontSize: size,
     bold: true,
-    color: theme.tagText,
-    align: "center"
-  });
-  slide.addText("UTAH FASHION LTD.", {
-    x: 1.5,
-    y: 2.4,
-    w: 10,
-    h: 0.8,
-    fontSize: 36,
-    bold: true,
-    color: theme.titleColor
-  });
-  slide.addText(`Monthly Key Performance Indicators (KPI) Presentation
-Review Period: ${periodName} | Theme: ${theme.name}`, {
-    x: 1.5,
-    y: 3.3,
-    w: 10,
-    h: 1,
-    fontSize: 20,
-    color: theme.mutedColor
-  });
-  const pillars = [
-    { title: "PRODUCTION & EFFICIENCY", desc: "Hour vs Plan & SMV Performance" },
-    { title: "QUALITY EXCELLENCE", desc: "DHU Trend & First Time Through %" },
-    { title: "LINE COST & PRODUCTIVITY", desc: "Cost Per Piece & Minute Rate" },
-    { title: "DELIVERY & DISCIPLINE", desc: "On-Time Shipment & NPT Control" }
-  ];
-  pillars.forEach((p, idx) => {
-    const xPos = 1.5 + idx * 2.6;
-    slide.addShape(pres.ShapeType.roundRect, {
-      x: xPos,
-      y: 4.8,
-      w: 2.4,
-      h: 1.3,
-      fill: { color: theme.cardBg },
-      line: { color: theme.cardBorder, width: 1 },
-      rectRadius: 0.1
-    });
-    slide.addText(p.title, {
-      x: xPos + 0.15,
-      y: 4.95,
-      w: 2.1,
-      h: 0.5,
-      fontSize: 10,
-      bold: true,
-      color: theme.isDark ? "60A5FA" : "2563EB"
-    });
-    slide.addText(p.desc, {
-      x: xPos + 0.15,
-      y: 5.45,
-      w: 2.1,
-      h: 0.5,
-      fontSize: 9,
-      color: theme.textColor
-    });
-  });
-  slide.addText(`Automated Presentation Engine | Generated from Live Production Ledger | ${theme.name}`, {
-    x: 1.5,
-    y: 6.6,
-    w: 8,
-    h: 0.3,
-    fontSize: 9,
-    color: theme.footerText
+    color: C.navy,
+    valign: "middle",
+    margin: 0,
+    fit: "shrink"
   });
 }
-function buildExecutiveScorecardSlide() {
-  const slide = pres.addSlide();
-  applySlideChrome(slide, "Executive KPI Scorecard - Factory Operational Units");
-  const tableRows = [
-    [
-      { text: "Department / Unit", options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: "left" } },
-      { text: "In-Charge / Head", options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: "left" } },
-      { text: "Active Lines", options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: "center" } },
-      { text: "Plan (Pcs)", options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: "right" } },
-      { text: "Produce (Pcs)", options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: "right" } },
-      { text: "Pcs Ach %", options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: "center" } },
-      { text: "Avg DHU %", options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: "center" } },
-      { text: "Status", options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: "center" } }
-    ]
-  ];
-  departments.forEach((dept, i) => {
-    const isAlt = i % 2 === 1;
-    const rowBg = isAlt ? theme.tableRowAltBg : theme.tableRowBg;
-    const ach = dept.totals.achievement_pct;
-    const achColor = ach >= 95 ? COLOR_EMERALD : ach >= 85 ? COLOR_AMBER : COLOR_ROSE;
-    const statusText = ach >= 95 ? "ON TRACK" : ach >= 85 ? "MONITOR" : "ATTENTION";
-    tableRows.push([
-      { text: dept.name, options: { fill: { color: rowBg }, color: theme.tableRowTextColor, bold: true } },
-      { text: dept.head_name || "Assigned", options: { fill: { color: rowBg }, color: theme.tableRowTextColor } },
-      { text: String(dept.totals.lines_count || 1), options: { fill: { color: rowBg }, color: theme.tableRowTextColor, align: "center" } },
-      { text: dept.totals.total_plan_pcs.toLocaleString(), options: { fill: { color: rowBg }, color: theme.tableRowTextColor, align: "right" } },
-      { text: dept.totals.total_produce_pcs.toLocaleString(), options: { fill: { color: rowBg }, color: theme.tableRowTextColor, align: "right" } },
-      { text: `${ach}%`, options: { fill: { color: rowBg }, align: "center", bold: true, color: achColor } },
-      { text: `${dept.totals.avg_dhu}%`, options: { fill: { color: rowBg }, color: theme.tableRowTextColor, align: "center" } },
-      { text: statusText, options: { fill: { color: rowBg }, align: "center", bold: true, color: achColor } }
-    ]);
-  });
-  slide.addTable(tableRows, {
-    x: 0.5,
-    y: 1.2,
-    w: 12.33,
-    fontSize: 10,
-    rowH: 0.45,
-    border: { pt: 1, color: theme.tableBorder }
-  });
-  slide.addShape(pres.ShapeType.roundRect, {
-    x: 0.5,
-    y: 5.7,
-    w: 12.33,
-    h: 1.1,
-    fill: { color: theme.cardBg },
-    line: { color: theme.cardBorder, width: 1 },
-    rectRadius: 0.08
-  });
-  slide.addText("Executive Summary & Operating Observations:", {
-    x: 0.7,
-    y: 5.8,
+function footerText(slide) {
+  slide.addText(`${COMPANY}  |  ${period.name || ""}`, {
+    x: 0.15,
+    y: 7.37,
     w: 6,
-    h: 0.3,
-    fontSize: 11,
-    bold: true,
-    color: theme.titleColor
-  });
-  slide.addText(
-    `\u2022 Knit divisions maintained stable performance with Knit-01 achieving strong line output and low DHU.
-\u2022 Cutting and specialized units (Printing, Embroidery, Schiffli) aligned with customer loading requirements.
-\u2022 Continuous focus on NPT minimization and line changeover speed planned across sewing floors.`,
-    {
-      x: 0.7,
-      y: 6.1,
-      w: 11.8,
-      h: 0.6,
-      fontSize: 9.5,
-      color: theme.textColor
-    }
-  );
-}
-function buildDepartmentOverviewSlide(dept, title) {
-  const slide = pres.addSlide();
-  applySlideChrome(slide, `${title} - Department Overview`, dept.code);
-  slide.addShape(pres.ShapeType.roundRect, {
-    x: 0.5,
-    y: 1.2,
-    w: 4.2,
-    h: 5.5,
-    fill: { color: theme.cardBg },
-    line: { color: theme.cardBorder, width: 1 },
-    rectRadius: 0.1
-  });
-  if (dept.head_avatar_path && import_fs.default.existsSync(dept.head_avatar_path)) {
-    slide.addImage({
-      path: dept.head_avatar_path,
-      x: 1.6,
-      y: 1.6,
-      w: 2,
-      h: 2,
-      round: true
-    });
-  } else {
-    slide.addShape(pres.ShapeType.roundRect, {
-      x: 1.6,
-      y: 1.6,
-      w: 2,
-      h: 2,
-      fill: { color: theme.tagBg },
-      line: { color: theme.tagBorder, width: 2 },
-      rectRadius: 0.2
-    });
-    slide.addText((dept.head_name || "DH").substring(0, 2).toUpperCase(), {
-      x: 1.6,
-      y: 2.2,
-      w: 2,
-      h: 0.8,
-      fontSize: 28,
-      bold: true,
-      align: "center",
-      color: theme.titleColor
-    });
-  }
-  slide.addText(dept.head_name || "In-Charge Unassigned", {
-    x: 0.7,
-    y: 3.8,
-    w: 3.8,
-    h: 0.4,
-    fontSize: 16,
-    bold: true,
-    align: "center",
-    color: theme.titleColor
-  });
-  slide.addText(`Head of Department | ${dept.name}`, {
-    x: 0.7,
-    y: 4.2,
-    w: 3.8,
-    h: 0.3,
-    fontSize: 11,
-    align: "center",
-    color: theme.mutedColor
-  });
-  const metrics = [
-    { label: "Total Planned Pcs", val: dept.totals.total_plan_pcs.toLocaleString() },
-    { label: "Total Produced Pcs", val: dept.totals.total_produce_pcs.toLocaleString() },
-    { label: "Achievement Rate", val: `${dept.totals.achievement_pct}%` },
-    { label: "Average DHU", val: `${dept.totals.avg_dhu}%` }
-  ];
-  metrics.forEach((m, idx) => {
-    const yP = 4.6 + idx * 0.5;
-    slide.addText(m.label, { x: 0.8, y: yP, w: 2, h: 0.3, fontSize: 9.5, color: theme.mutedColor });
-    slide.addText(m.val, { x: 2.8, y: yP, w: 1.7, h: 0.3, fontSize: 10, bold: true, align: "right", color: theme.titleColor });
-  });
-  const tableRows = [
-    [
-      { text: "Line", options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: "center" } },
-      { text: "Plan (Pcs)", options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: "right" } },
-      { text: "Produce (Pcs)", options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: "right" } },
-      { text: "Ach %", options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: "center" } },
-      { text: "DHU %", options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: "center" } },
-      { text: "Cost/Pc", options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: "right" } }
-    ]
-  ];
-  const previewLines = dept.lines.slice(0, 10);
-  previewLines.forEach((ln, i) => {
-    const isAlt = i % 2 === 1;
-    const rowBg = isAlt ? theme.tableRowAltBg : theme.tableRowBg;
-    tableRows.push([
-      { text: ln.line_number, options: { fill: { color: rowBg }, color: theme.tableRowTextColor, align: "center", bold: true } },
-      { text: ln.production.plan_pcs.toLocaleString(), options: { fill: { color: rowBg }, color: theme.tableRowTextColor, align: "right" } },
-      { text: ln.production.produce_pcs.toLocaleString(), options: { fill: { color: rowBg }, color: theme.tableRowTextColor, align: "right" } },
-      { text: `${ln.production.pcs_ach_pct}%`, options: { fill: { color: rowBg }, align: "center", bold: true, color: ln.production.pcs_ach_pct >= 95 ? COLOR_EMERALD : COLOR_AMBER } },
-      { text: `${ln.quality.dhu}%`, options: { fill: { color: rowBg }, color: theme.tableRowTextColor, align: "center" } },
-      { text: `${ln.cost.cost_per_piece} ${ln.cost.currency}`, options: { fill: { color: rowBg }, color: theme.tableRowTextColor, align: "right" } }
-    ]);
-  });
-  slide.addTable(tableRows, {
-    x: 5,
-    y: 1.2,
-    w: 7.8,
-    fontSize: 9.5,
-    rowH: 0.38,
-    border: { pt: 1, color: theme.tableBorder }
+    h: 0.13,
+    isTextBox: true,
+    fontFace: SANS,
+    fontSize: 7,
+    color: C.white,
+    margin: 0
   });
 }
-function buildLineDetailSlide(dept, line) {
-  const slide = pres.addSlide();
-  applySlideChrome(slide, `${dept.name} - Line ${line.line_number} Performance Analysis`, dept.code);
-  slide.addShape(pres.ShapeType.roundRect, {
-    x: 0.5,
-    y: 1.1,
-    w: 12.33,
-    h: 0.7,
-    fill: { color: theme.cardBg },
-    line: { color: theme.cardBorder, width: 1 },
-    rectRadius: 0.08
+var LAYOUTS = {};
+for (const bg of ["bg_band.png", "bg_plain.png", "bg_cover.png"]) {
+  const file = asset(bg);
+  const title = `KPI_${bg.replace(/\W/g, "_")}`;
+  pres.defineSlideMaster({ title, background: file ? { path: file } : { color: "FFFFFF" } });
+  LAYOUTS[bg] = title;
+}
+function newSlide(bg) {
+  return pres.addSlide({ masterName: LAYOUTS[bg] || LAYOUTS["bg_plain.png"] });
+}
+function arrow(slide, up, x, y, color) {
+  slide.addShape(up ? pres.shapes.UP_ARROW : pres.shapes.DOWN_ARROW, {
+    x,
+    y,
+    w: 0.34,
+    h: 0.52,
+    fill: { color },
+    line: { color: "262626", width: 0.5 }
   });
-  const cards = [
-    { label: "Line Name", val: line.line_name },
-    { label: "Plan Pcs", val: line.production.plan_pcs.toLocaleString() },
-    { label: "Produce Pcs", val: line.production.produce_pcs.toLocaleString() },
-    { label: "Pcs Ach %", val: `${line.production.pcs_ach_pct}%`, color: line.production.pcs_ach_pct >= 95 ? COLOR_EMERALD : COLOR_AMBER },
-    { label: "DHU %", val: `${line.quality.dhu}%` },
-    { label: "Operators / Helpers", val: `${line.production.operators_count} / ${line.production.helpers_count}` }
-  ];
-  cards.forEach((c, idx) => {
-    const xP = 0.7 + idx * 2;
-    slide.addText(c.label, { x: xP, y: 1.18, w: 1.9, h: 0.22, fontSize: 8.5, color: theme.mutedColor });
-    slide.addText(c.val, { x: xP, y: 1.4, w: 1.9, h: 0.32, fontSize: 11, bold: true, color: c.color || theme.titleColor });
-  });
-  const chartData = [
-    {
-      name: "Plan Pcs",
-      labels: ["Target", "Actual", "Checked"],
-      values: [line.production.plan_pcs, 0, 0]
-    },
-    {
-      name: "Produce Pcs",
-      labels: ["Target", "Actual", "Checked"],
-      values: [0, line.production.produce_pcs, line.quality.checked_units]
-    }
-  ];
-  slide.addChart(pres.ChartType.bar, chartData, {
-    x: 0.5,
-    y: 2.1,
-    w: 6,
-    h: 4.6,
-    barDir: "col",
-    chartColors: [COLOR_ACCENT_BLUE, COLOR_EMERALD],
+}
+function barChart(slide, title, labels, values, box, { percent = false, money: isMoney = false, decimals = 2, color = C.bar, horizontal = false } = {}) {
+  const clean = values.map((v) => isNum(v) ? Number(v) : null);
+  if (!labels.length) return;
+  const fmt = percent ? `0.${"0".repeat(decimals)}"%"` : isMoney ? "#,##0;-#,##0" : "#,##0";
+  slide.addShape(pres.shapes.RECTANGLE, { ...box, fill: { color: C.white }, line: { color: "1F3864", width: 1.25 } });
+  slide.addChart(pres.charts.BAR, [{ name: title, labels, values: clean }], {
+    x: box.x + 0.03,
+    y: box.y + 0.03,
+    w: box.w - 0.06,
+    h: box.h - 0.06,
+    barDir: horizontal ? "bar" : "col",
+    chartColors: [color],
+    invertIfNegative: false,
     showTitle: true,
-    title: "Production Units vs Inspection Volume",
-    titleColor: theme.titleColor,
-    titleFontSize: 11,
-    showLegend: true,
-    legendPos: "b",
-    catAxisLabelColor: theme.chartLabelColor,
-    valAxisLabelColor: theme.chartLabelColor
-  });
-  const defectRows = [
-    [
-      { text: "Inspection Category", options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor } },
-      { text: "Units / Metric", options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: "right" } }
-    ],
-    [
-      { text: "Total Checked Units", options: { fill: { color: theme.tableRowAltBg }, color: theme.tableRowTextColor } },
-      { text: line.quality.checked_units.toLocaleString(), options: { fill: { color: theme.tableRowAltBg }, color: theme.tableRowTextColor, align: "right", bold: true } }
-    ],
-    [
-      { text: "Defective Garments", options: { fill: { color: theme.tableRowBg }, color: theme.tableRowTextColor } },
-      { text: line.quality.defect_units.toLocaleString(), options: { fill: { color: theme.tableRowBg }, color: theme.tableRowTextColor, align: "right" } }
-    ],
-    [
-      { text: "Total Defect Points", options: { fill: { color: theme.tableRowAltBg }, color: theme.tableRowTextColor } },
-      { text: line.quality.total_defects.toLocaleString(), options: { fill: { color: theme.tableRowAltBg }, color: theme.tableRowTextColor, align: "right" } }
-    ],
-    [
-      { text: "DHU (Defects / Hundred Units)", options: { fill: { color: theme.tableRowBg } } },
-      { text: `${line.quality.dhu}%`, options: { fill: { color: theme.tableRowBg }, align: "right", bold: true, color: COLOR_ROSE } }
-    ],
-    [
-      { text: "First Time Through (FTT %)", options: { fill: { color: theme.tableRowAltBg } } },
-      { text: `${line.quality.ftt_pct}%`, options: { fill: { color: theme.tableRowAltBg }, align: "right", bold: true, color: COLOR_EMERALD } }
-    ],
-    [
-      { text: "Cost Per Piece", options: { fill: { color: theme.tableRowBg }, color: theme.tableRowTextColor } },
-      { text: `${line.cost.cost_per_piece} ${line.cost.currency}`, options: { fill: { color: theme.tableRowBg }, color: theme.tableRowTextColor, align: "right", bold: true } }
-    ],
-    [
-      { text: "Minute Cost Rate", options: { fill: { color: theme.tableRowAltBg }, color: theme.tableRowTextColor } },
-      { text: `${line.cost.per_minute_cost} ${line.cost.currency}/min`, options: { fill: { color: theme.tableRowAltBg }, color: theme.tableRowTextColor, align: "right" } }
-    ]
-  ];
-  slide.addTable(defectRows, {
-    x: 6.8,
-    y: 2.1,
-    w: 6,
-    fontSize: 10,
-    rowH: 0.45,
-    border: { pt: 1, color: theme.tableBorder }
+    title,
+    titleFontFace: SANS,
+    titleFontSize: 9,
+    titleColor: "262626",
+    showLegend: false,
+    showValue: true,
+    dataLabelFontSize: 6,
+    dataLabelColor: "262626",
+    dataLabelFormatCode: fmt,
+    dataLabelPosition: "outEnd",
+    valAxisLabelFormatCode: fmt,
+    valAxisLabelFontSize: 6,
+    catAxisLabelFontSize: 6,
+    catAxisLabelRotate: horizontal ? 0 : -45,
+    valGridLine: { color: "E7E6E6", size: 0.5 },
+    catGridLine: { style: "none" },
+    barGapWidthPct: 60,
+    catAxisLabelColor: "404040",
+    valAxisLabelColor: "404040"
   });
 }
-function buildSpecialTopicSlide(dept, title, topicType) {
-  const slide = pres.addSlide();
-  applySlideChrome(slide, `${dept.name} - ${title}`, dept.code);
-  if (topicType === "shipment") {
-    const tableRows = [
-      [
-        { text: "Buyer / Customer", options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor } },
-        { text: "Order Qty (Pcs)", options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: "right" } },
-        { text: "Shipped Qty (Pcs)", options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: "right" } },
-        { text: "Variance", options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: "right" } },
-        { text: "On-Time Delivery %", options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: "center" } }
-      ],
-      [
-        { text: "H&M Hennes & Mauritz", options: { fill: { color: theme.tableRowAltBg }, color: theme.tableRowTextColor, bold: true } },
-        { text: "120,000", options: { fill: { color: theme.tableRowAltBg }, color: theme.tableRowTextColor, align: "right" } },
-        { text: "120,000", options: { fill: { color: theme.tableRowAltBg }, color: theme.tableRowTextColor, align: "right" } },
-        { text: "0", options: { fill: { color: theme.tableRowAltBg }, color: theme.tableRowTextColor, align: "right" } },
-        { text: "100%", options: { fill: { color: theme.tableRowAltBg }, align: "center", bold: true, color: COLOR_EMERALD } }
-      ],
-      [
-        { text: "Zara / Inditex", options: { fill: { color: theme.tableRowBg }, color: theme.tableRowTextColor, bold: true } },
-        { text: "85,000", options: { fill: { color: theme.tableRowBg }, color: theme.tableRowTextColor, align: "right" } },
-        { text: "84,600", options: { fill: { color: theme.tableRowBg }, color: theme.tableRowTextColor, align: "right" } },
-        { text: "-400", options: { fill: { color: theme.tableRowBg }, color: theme.tableRowTextColor, align: "right" } },
-        { text: "99.5%", options: { fill: { color: theme.tableRowBg }, align: "center", bold: true, color: COLOR_EMERALD } }
-      ],
-      [
-        { text: "C&A Buying", options: { fill: { color: theme.tableRowAltBg }, color: theme.tableRowTextColor, bold: true } },
-        { text: "60,000", options: { fill: { color: theme.tableRowAltBg }, color: theme.tableRowTextColor, align: "right" } },
-        { text: "60,000", options: { fill: { color: theme.tableRowAltBg }, color: theme.tableRowTextColor, align: "right" } },
-        { text: "0", options: { fill: { color: theme.tableRowAltBg }, color: theme.tableRowTextColor, align: "right" } },
-        { text: "100%", options: { fill: { color: theme.tableRowAltBg }, align: "center", bold: true, color: COLOR_EMERALD } }
-      ]
-    ];
-    slide.addTable(tableRows, {
-      x: 0.5,
-      y: 1.5,
-      w: 12.33,
-      fontSize: 11,
-      rowH: 0.5,
-      border: { pt: 1, color: theme.tableBorder }
-    });
-  } else if (topicType === "npt") {
-    const nptRows = [
-      [
-        { text: "NPT Category / Reason", options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor } },
-        { text: "Minutes Lost", options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: "right" } },
-        { text: "% of Total NPT", options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: "center" } },
-        { text: "Root Cause & Immediate Action Plan", options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor } }
-      ],
-      [
-        { text: "Machine Breakdown", options: { fill: { color: theme.tableRowAltBg }, color: theme.tableRowTextColor, bold: true } },
-        { text: "420", options: { fill: { color: theme.tableRowAltBg }, color: theme.tableRowTextColor, align: "right" } },
-        { text: "35%", options: { fill: { color: theme.tableRowAltBg }, color: theme.tableRowTextColor, align: "center", bold: true } },
-        { text: "Preventive maintenance schedule revised; critical motor spares restocked", options: { fill: { color: theme.tableRowAltBg }, color: theme.tableRowTextColor } }
-      ],
-      [
-        { text: "Line Changeover Delay", options: { fill: { color: theme.tableRowBg }, color: theme.tableRowTextColor, bold: true } },
-        { text: "360", options: { fill: { color: theme.tableRowBg }, color: theme.tableRowTextColor, align: "right" } },
-        { text: "30%", options: { fill: { color: theme.tableRowBg }, color: theme.tableRowTextColor, align: "center", bold: true } },
-        { text: "Pre-setting mock-ups 24 hours in advance by IE department", options: { fill: { color: theme.tableRowBg }, color: theme.tableRowTextColor } }
-      ],
-      [
-        { text: "Input / Trims Waiting", options: { fill: { color: theme.tableRowAltBg }, color: theme.tableRowTextColor, bold: true } },
-        { text: "240", options: { fill: { color: theme.tableRowAltBg }, color: theme.tableRowTextColor, align: "right" } },
-        { text: "20%", options: { fill: { color: theme.tableRowAltBg }, color: theme.tableRowTextColor, align: "center", bold: true } },
-        { text: "Cutting store kit dispatch synchronized with floor supervisors", options: { fill: { color: theme.tableRowAltBg }, color: theme.tableRowTextColor } }
-      ],
-      [
-        { text: "Operator Absenteeism", options: { fill: { color: theme.tableRowBg }, color: theme.tableRowTextColor, bold: true } },
-        { text: "180", options: { fill: { color: theme.tableRowBg }, color: theme.tableRowTextColor, align: "right" } },
-        { text: "15%", options: { fill: { color: theme.tableRowBg }, color: theme.tableRowTextColor, align: "center", bold: true } },
-        { text: "Multi-skilled reliever pool deployed during morning roll-call", options: { fill: { color: theme.tableRowBg }, color: theme.tableRowTextColor } }
-      ]
-    ];
-    slide.addTable(nptRows, {
-      x: 0.5,
-      y: 1.5,
-      w: 12.33,
-      fontSize: 10.5,
-      rowH: 0.5,
-      border: { pt: 1, color: theme.tableBorder }
-    });
-  } else {
-    slide.addShape(pres.ShapeType.roundRect, {
-      x: 0.5,
-      y: 1.5,
-      w: 12.33,
-      h: 5,
-      fill: { color: theme.cardBg },
-      line: { color: theme.cardBorder, width: 1 },
-      rectRadius: 0.1
-    });
-    slide.addText(`${title} - Operating Findings & Control Measures:`, {
-      x: 0.8,
-      y: 1.8,
-      w: 11.5,
-      h: 0.4,
-      fontSize: 14,
-      bold: true,
-      color: theme.titleColor
-    });
-    slide.addText(
-      `1. End-of-line leftover audits completed with store reconciliation.
-2. Finished goods clearance within 48 hours of shipment audit sign-off.
-3. Floor scrap and cutting remnant sorting maintained at 98.5% discipline standard.
-4. Line supervisors accountable for zero unaccounted balance at style close.`,
-      {
-        x: 0.8,
-        y: 2.4,
-        w: 11.5,
-        h: 3.5,
-        fontSize: 12,
-        color: theme.textColor
-      }
-    );
-  }
+var goodBad = (ach, target, higherIsBetter = true) => {
+  if (!isNum(ach) || !isNum(target)) return null;
+  return higherIsBetter ? Number(ach) >= Number(target) ? C.cellGreen : C.cellRed : Number(ach) <= Number(target) ? C.cellGreen : C.cellRed;
+};
+var signColor = (v) => isNum(v) ? Number(v) >= 0 ? C.cellGreen : C.cellRed : null;
+function cell(text, opts = {}) {
+  return { text: text ?? "", options: { fontFace: SANS, fontSize: 6.5, align: "center", valign: "middle", color: C.text, margin: 0.01, ...opts } };
 }
-function buildSpecializedDepartmentSlide(dept, slideTitle, subtitle, records) {
-  const slide = pres.addSlide();
-  applySlideChrome(slide, `${dept.name} - ${slideTitle}`, dept.code);
-  slide.addShape(pres.ShapeType.roundRect, {
-    x: 0.5,
-    y: 1.2,
-    w: 3.8,
-    h: 5.4,
-    fill: { color: theme.cardBg },
-    line: { color: theme.cardBorder, width: 1 },
-    rectRadius: 0.1
-  });
-  if (dept.head_avatar_path && import_fs.default.existsSync(dept.head_avatar_path)) {
-    slide.addImage({
-      path: dept.head_avatar_path,
-      x: 1.4,
-      y: 1.6,
-      w: 2,
-      h: 2,
-      round: true
-    });
-  } else {
-    slide.addShape(pres.ShapeType.roundRect, {
-      x: 1.4,
-      y: 1.6,
-      w: 2,
-      h: 2,
-      fill: { color: theme.tagBg },
-      line: { color: theme.tagBorder, width: 2 },
-      rectRadius: 0.2
-    });
-    slide.addText((dept.head_name || "SP").substring(0, 2).toUpperCase(), {
-      x: 1.4,
-      y: 2.2,
-      w: 2,
-      h: 0.8,
-      fontSize: 28,
+function coverSlide() {
+  const s = newSlide("bg_cover.png");
+  s.addText([
+    { text: data.report_title || "KPI Performance", options: { breakLine: true } },
+    { text: `Year to date-${period.month_name || ""} ${YEAR}` }
+  ], { x: 0.4, y: 0.35, w: 6.6, h: 1.5, isTextBox: true, fontFace: SERIF, fontSize: 32, bold: true, color: C.red, valign: "top", margin: 0, fit: "shrink" });
+  s.addText(COMPANY, { x: 0.4, y: 1.9, w: 6.6, h: 0.5, isTextBox: true, fontFace: SERIF, fontSize: 22, bold: true, color: C.navy, margin: 0, fit: "shrink" });
+  const quotes = [data.cover_quote, data.cover_quote_2].filter(Boolean);
+  if (quotes.length) {
+    s.addText(quotes.map((q, i) => ({ text: q, options: { breakLine: i < quotes.length - 1, paraSpaceAfter: 8 } })), {
+      x: 0.4,
+      y: 2.6,
+      w: 5.4,
+      h: 2.2,
+      isTextBox: true,
+      fontFace: SANS,
+      fontSize: 16,
       bold: true,
-      align: "center",
-      color: theme.titleColor
+      color: C.black,
+      valign: "top",
+      margin: 0,
+      fit: "shrink"
     });
   }
-  slide.addText(dept.head_name || "Section In-Charge", {
-    x: 0.7,
-    y: 3.8,
-    w: 3.4,
-    h: 0.4,
-    fontSize: 15,
-    bold: true,
-    align: "center",
-    color: theme.titleColor
+  if (data.cover_tagline) {
+    s.addText(data.cover_tagline, { x: 5, y: 5.75, w: 3, h: 0.8, isTextBox: true, fontFace: SANS, fontSize: 18, bold: true, color: C.red, margin: 0, align: "right", fit: "shrink" });
+  }
+  const bars = [0.35, 0.55, 0.8, 1.05, 1.35, 1.7];
+  bars.forEach((bh, i) => {
+    s.addShape(pres.shapes.RECTANGLE, { x: 8.15 + i * 0.25, y: 7.25 - bh, w: 0.18, h: bh, fill: { color: i === bars.length - 1 ? "E46C0A" : "2F75D6" }, line: { type: "none" } });
   });
-  slide.addText(subtitle, {
-    x: 0.7,
-    y: 4.2,
-    w: 3.4,
-    h: 0.3,
-    fontSize: 10,
-    align: "center",
-    color: theme.mutedColor
-  });
-  const tableRows = [
-    [
-      { text: "Operational Metric", options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor } },
-      { text: "Performance / Output", options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: "right" } },
-      { text: "Evaluation", options: { bold: true, fill: { color: theme.tableHeaderBg }, color: theme.tableHeaderColor, align: "center" } }
-    ]
-  ];
-  records.forEach((r, idx) => {
-    const isAlt = idx % 2 === 1;
-    const rowBg = isAlt ? theme.tableRowAltBg : theme.tableRowBg;
-    tableRows.push([
-      { text: r.metric, options: { fill: { color: rowBg }, color: theme.tableRowTextColor, bold: true } },
-      { text: r.val, options: { fill: { color: rowBg }, color: theme.tableRowTextColor, align: "right" } },
-      { text: r.eval, options: { fill: { color: rowBg }, align: "center", bold: true, color: r.color || COLOR_EMERALD } }
-    ]);
-  });
-  slide.addTable(tableRows, {
-    x: 4.6,
-    y: 1.2,
-    w: 8.2,
-    fontSize: 11,
-    rowH: 0.55,
-    border: { pt: 1, color: theme.tableBorder }
-  });
-}
-function buildConclusionSlide() {
-  const slide = pres.addSlide();
-  applySlideChrome(slide, "Utah Fashion Ltd. - Executive Conclusion & Corrective Roadmap");
-  const actionCards = [
-    {
-      title: "1. Production & Throughput Optimization",
-      items: [
-        "Enforce 15-minute morning bottleneck audits across Knit and Woven floors.",
-        "Implement standardized SMV pre-validation before style loading.",
-        "Target factory-wide monthly production achievement >= 98.5%."
-      ]
-    },
-    {
-      title: "2. Quality & Defect (DHU) Reduction",
-      items: [
-        "Maintain sewing line DHU strictly below 2.5% threshold.",
-        "Daily end-of-line traffic light alerts for any line exceeding 3.0% DHU.",
-        "Enhance Sample Section RFT (Right First Time) to >= 96% buyer approval."
-      ]
-    },
-    {
-      title: "3. Cost Discipline & NPT Containment",
-      items: [
-        "Cap total monthly machine breakdown NPT below 250 total minutes factory-wide.",
-        "Synchronize cutting kit releases with line changeovers to eliminate idle wait.",
-        "Weekly review of cost per piece variance against planned departmental budgets."
-      ]
+  if (data.logo && import_fs.default.existsSync(data.logo)) {
+    const sz = imageSize(data.logo);
+    const boxW = 1.4;
+    const boxH = 0.9;
+    let w = boxW;
+    let h = sz ? boxW * sz.h / sz.w : boxH;
+    if (h > boxH) {
+      h = boxH;
+      w = sz ? boxH * sz.w / sz.h : boxW;
     }
-  ];
-  actionCards.forEach((c, idx) => {
-    const yP = 1.3 + idx * 1.7;
-    slide.addShape(pres.ShapeType.roundRect, {
-      x: 0.5,
-      y: yP,
-      w: 12.33,
-      h: 1.5,
-      fill: { color: theme.cardBg },
-      line: { color: theme.cardBorder, width: 1 },
-      rectRadius: 0.08
-    });
-    slide.addText(c.title, {
-      x: 0.8,
-      y: yP + 0.1,
-      w: 11.5,
-      h: 0.35,
-      fontSize: 12,
-      bold: true,
-      color: theme.titleColor
-    });
-    const bodyText = c.items.map((it) => `\u2022 ${it}`).join("\n");
-    slide.addText(bodyText, {
-      x: 0.8,
-      y: yP + 0.45,
-      w: 11.5,
-      h: 0.95,
-      fontSize: 10,
-      color: theme.textColor
-    });
-  });
-  slide.addText("Prepared By: Industrial Engineering & Quality Directorate | Utah Fashion Ltd.", {
-    x: 0.5,
-    y: 6.55,
-    w: 12.33,
-    h: 0.35,
-    fontSize: 9.5,
-    italic: true,
-    align: "center",
-    color: theme.footerText
-  });
+    s.addImage({ data: imageData(data.logo), x: 0.4, y: 6.3, w, h, altText: "Company logo" });
+  }
 }
-console.log(`Generating presentation for ${periodName} (Scope: ${data.scope})...`);
-var deptMap = {};
-departments.forEach((d) => {
-  deptMap[d.code] = d;
-});
-buildCoverSlide();
-buildExecutiveScorecardSlide();
-var knit01 = deptMap["KNIT-01"] || { name: "Knit-01 Department", code: "KNIT-01", head_name: "PM-Hafizur Rahman", lines: [], totals: { total_plan_pcs: 0, total_produce_pcs: 0, achievement_pct: 0, avg_dhu: 0 } };
-buildDepartmentOverviewSlide(knit01, "Knit-01 Department");
-buildSpecialTopicSlide(knit01, "Monthly Production & Efficiency Trend", "summary");
-for (let i = 1; i <= 9; i++) {
-  const ln = knit01.lines.find((l) => l.line_number === String(i)) || {
-    line_number: String(i),
-    line_name: `Line ${i}`,
-    production: { plan_pcs: 24e3, produce_pcs: 23600, pcs_ach_pct: 98.3, operators_count: 38, helpers_count: 12 },
-    quality: { checked_units: 23600, defect_units: 520, total_defects: 580, dhu: 2.45, ftt_pct: 97.5 },
-    cost: { cost_per_piece: 23.5, currency: "BDT", per_minute_cost: 38 }
-  };
-  buildLineDetailSlide(knit01, ln);
-}
-buildSpecialTopicSlide(knit01, "Costing Productivity & Line Cost Analysis", "cost");
-buildSpecialTopicSlide(knit01, "Shipment Performance & Buyer Compliance", "shipment");
-buildSpecialTopicSlide(knit01, "Non-Productive Time (NPT) Root Cause Analysis", "npt");
-buildSpecialTopicSlide(knit01, "Leftovers & Style Close-Out Summary", "leftovers");
-var knit02 = deptMap["KNIT-02"] || { name: "Knit-02 Department", code: "KNIT-02", head_name: "FM-Mohibul Islam / IE-Touhid", lines: [], totals: { total_plan_pcs: 0, total_produce_pcs: 0, achievement_pct: 0, avg_dhu: 0 } };
-buildDepartmentOverviewSlide(knit02, "Knit-02 Department");
-buildSpecialTopicSlide(knit02, "Line Cost & Factory Floor Efficiency", "cost");
-for (let i = 1; i <= 18; i++) {
-  const ln = knit02.lines.find((l) => l.line_number === String(i)) || {
-    line_number: String(i),
-    line_name: `Line ${i}`,
-    production: { plan_pcs: 22e3, produce_pcs: 21500, pcs_ach_pct: 97.7, operators_count: 36, helpers_count: 10 },
-    quality: { checked_units: 21500, defect_units: 480, total_defects: 540, dhu: 2.51, ftt_pct: 97.8 },
-    cost: { cost_per_piece: 24.1, currency: "BDT", per_minute_cost: 37.5 }
-  };
-  buildLineDetailSlide(knit02, ln);
-}
-buildSpecialTopicSlide(knit02, "Leftovers & Remnant Analysis", "leftovers");
-buildSpecialTopicSlide(knit02, "Non-Productive Time (NPT) Floor Breakdown", "npt");
-buildSpecialTopicSlide(knit02, "Monthly Operations Review & Action Items", "summary");
-var knit03 = deptMap["KNIT-03"] || { name: "Knit-03 Department", code: "KNIT-03", head_name: "AGM-Rafiq / IEM-Rakib", lines: [], totals: { total_plan_pcs: 0, total_produce_pcs: 0, achievement_pct: 0, avg_dhu: 0 } };
-buildDepartmentOverviewSlide(knit03, "Knit-03 Department");
-buildSpecialTopicSlide(knit03, "Monthly Production Throughput", "summary");
-for (let i = 1; i <= 9; i++) {
-  const ln = knit03.lines.find((l) => l.line_number === String(i)) || {
-    line_number: String(i),
-    line_name: `Line ${i}`,
-    production: { plan_pcs: 21e3, produce_pcs: 20400, pcs_ach_pct: 97.1, operators_count: 38, helpers_count: 12 },
-    quality: { checked_units: 20400, defect_units: 510, total_defects: 570, dhu: 2.79, ftt_pct: 97.2 },
-    cost: { cost_per_piece: 25, currency: "BDT", per_minute_cost: 39 }
-  };
-  buildLineDetailSlide(knit03, ln);
-}
-buildSpecialTopicSlide(knit03, "Line Cost vs Standard Budget", "cost");
-buildSpecialTopicSlide(knit03, "Shipment & On-Time Performance", "shipment");
-buildSpecialTopicSlide(knit03, "NPT Loss Distribution & Technical Stoppages", "npt");
-buildSpecialTopicSlide(knit03, "Section Review & Preventive Protocol", "summary");
-var woven = deptMap["WOVEN"] || { name: "Woven Department", code: "WOVEN", head_name: "PM-Mr. Suhag / IEM-Habib", lines: [], totals: { total_plan_pcs: 0, total_produce_pcs: 0, achievement_pct: 0, avg_dhu: 0 } };
-buildDepartmentOverviewSlide(woven, "Woven Department");
-buildSpecialTopicSlide(woven, "Production & SMV Realization", "summary");
-for (let i = 1; i <= 9; i++) {
-  const ln = woven.lines.find((l) => l.line_number === String(i)) || {
-    line_number: String(i),
-    line_name: `Line ${i}`,
-    production: { plan_pcs: 18e3, produce_pcs: 17500, pcs_ach_pct: 97.2, operators_count: 42, helpers_count: 14 },
-    quality: { checked_units: 17500, defect_units: 490, total_defects: 550, dhu: 3.14, ftt_pct: 96.8 },
-    cost: { cost_per_piece: 28.5, currency: "BDT", per_minute_cost: 41.2 }
-  };
-  buildLineDetailSlide(woven, ln);
-}
-buildSpecialTopicSlide(woven, "Woven Costing Productivity & Margin Protection", "cost");
-buildSpecialTopicSlide(woven, "Fabric Wastage & Leftover Tracking", "leftovers");
-buildSpecialTopicSlide(woven, "NPT Interruption Log", "npt");
-buildSpecialTopicSlide(woven, "Shipment Reconciliation", "shipment");
-buildSpecialTopicSlide(woven, "Woven Corrective Plan", "summary");
-var cutting = deptMap["CUTTING"] || { name: "Cutting Department", code: "CUTTING", head_name: "AGM-Mr. Jahangir", lines: [], totals: { total_plan_pcs: 0, total_produce_pcs: 0, achievement_pct: 0, avg_dhu: 0 } };
-buildSpecializedDepartmentSlide(cutting, "Section Overview & Capacity", "Cutting Floor Head | AGM-Mr. Jahangir", [
-  { metric: "Planned Monthly Lay (Pcs)", val: "850,000 Pcs", eval: "CAPACITY OK" },
-  { metric: "Actual Cut Output (Pcs)", val: "838,500 Pcs", eval: "98.6% ACH", color: COLOR_EMERALD },
-  { metric: "Fabric Utilization %", val: "87.4%", eval: "BENCHMARK MET", color: COLOR_EMERALD },
-  { metric: "End Loss & Remnant %", val: "1.85%", eval: "CONTROLLED", color: COLOR_EMERALD }
-]);
-var cuttingSupervisors = [
-  { name: "Supervisor: Fozlu", title: "Table 1-3 In-Charge", lay: "210,000 Pcs", ach: "99.1%" },
-  { name: "Supervisor: Salam", title: "Table 4-6 In-Charge", lay: "208,000 Pcs", ach: "98.5%" },
-  { name: "Supervisor: Sumon & Delower", title: "Table 7-9 & Bundling", lay: "420,500 Pcs", ach: "98.4%" }
-];
-cuttingSupervisors.forEach((sup) => {
-  buildSpecializedDepartmentSlide(cutting, sup.name, sup.title, [
-    { metric: "Assigned Cutting Volume", val: sup.lay, eval: "TARGET MET" },
-    { metric: "Lay Achievement %", val: sup.ach, eval: "ON TRACK", color: COLOR_EMERALD },
-    { metric: "Bundle Accuracy Audit", val: "99.8%", eval: "EXCELLENT", color: COLOR_EMERALD },
-    { metric: "Numbering & Shade Rejection", val: "0.04%", eval: "MINIMAL", color: COLOR_EMERALD }
+function goalsSlide(group) {
+  const s = newSlide("bg_plain.png");
+  header(s, "Main KPI's", `Our Main KPI's Goal (${group.group})`, { titleSize: 22 });
+  const rows = group.rows || [];
+  const fs_ = rows.length > 12 ? 12 : rows.length > 9 ? 14 : 16;
+  const rowH = Math.min(0.42, 5.9 / (rows.length + 1));
+  const head = ["Categories", String(YEAR), "Responsible"].map((t) => cell(t, { bold: true, color: C.white, fill: { color: "4F81BD" }, fontSize: fs_ + 1, fontFace: "Calibri" }));
+  const body = rows.map((r) => [
+    cell(`\u27A2  ${r.category}`, { align: "left", fontSize: fs_, bold: true, fontFace: "Calibri", margin: [0, 0, 0, 0.1] }),
+    cell(r.target || "", { fontSize: fs_, bold: true, fontFace: "Calibri" }),
+    cell(r.responsible || "", { align: "left", fontSize: fs_, fontFace: "Calibri", margin: [0, 0, 0, 0.1] })
   ]);
-});
-buildSpecialTopicSlide(cutting, "Cutting Fabric Wastage & Remnant Efficiency", "leftovers");
-var printing = deptMap["PRINTING"] || { name: "Printing Department", code: "PRINTING", head_name: "AGM-Mr. Azam", lines: [], totals: { total_plan_pcs: 0, total_produce_pcs: 0, achievement_pct: 0, avg_dhu: 0 } };
-buildSpecializedDepartmentSlide(printing, "Printing Production & Revenue", "Head: AGM-Mr. Azam | Daily Earning Target $2,500", [
-  { metric: "Daily Earning Target ($USD)", val: "$2,500 / Day", eval: "STANDARD" },
-  { metric: "Actual Average Realization", val: "$2,480 / Day", eval: "99.2% ACH", color: COLOR_EMERALD },
-  { metric: "Total Monthly Output", val: "185,000 Pcs", eval: "ON SCHEDULE", color: COLOR_EMERALD },
-  { metric: "Print Rejection / Strike-Off %", val: "0.62%", eval: "LOW", color: COLOR_EMERALD }
-]);
-var embroidery = deptMap["EMBROIDERY"] || { name: "Embroidery Department", code: "EMBROIDERY", head_name: "EMBM-Mr. Zulfiker", lines: [], totals: { total_plan_pcs: 0, total_produce_pcs: 0, achievement_pct: 0, avg_dhu: 0 } };
-buildSpecializedDepartmentSlide(embroidery, "Embroidery Capacity & Stitches", "Head: EMBM-Mr. Zulfiker", [
-  { metric: "Total Monthly Stitches", val: "48.5 Million", eval: "CAPACITY MET" },
-  { metric: "Garments Embroidered", val: "92,400 Pcs", eval: "98.8% ACH", color: COLOR_EMERALD },
-  { metric: "Thread Break Rate / Head", val: "1.4 / Shift", eval: "NORMAL", color: COLOR_EMERALD },
-  { metric: "Needle Breakage Rejection", val: "0.02%", eval: "NEGLIGIBLE", color: COLOR_EMERALD }
-]);
-var schiffli = deptMap["SCHIFFLI"] || { name: "Schiffli Department", code: "SCHIFFLI", head_name: "SFM-Mr. Kamal", lines: [], totals: { total_plan_pcs: 0, total_produce_pcs: 0, achievement_pct: 0, avg_dhu: 0 } };
-buildSpecializedDepartmentSlide(schiffli, "Schiffli Lace & Motif Production", "Head: SFM-Mr. Kamal", [
-  { metric: "Monthly Yards Produced", val: "38,200 Yards", eval: "HIGH RUN" },
-  { metric: "Machine Utilization", val: "91.4%", eval: "GOOD", color: COLOR_EMERALD },
-  { metric: "Yarn Tension Faults", val: "0.8%", eval: "ACCEPTABLE", color: COLOR_EMERALD },
-  { metric: "On-Time Supply to Sewing", val: "100%", eval: "EXCELLENT", color: COLOR_EMERALD }
-]);
-buildSpecialTopicSlide(printing, "Specialized Units Capacity & Floor Synchronization", "summary");
-var sample = deptMap["SAMPLE"] || { name: "Sample Department", code: "SAMPLE", head_name: "AGM-Mr. Hafiz Al Asad", lines: [], totals: { total_plan_pcs: 0, total_produce_pcs: 0, achievement_pct: 0, avg_dhu: 0 } };
-buildSpecializedDepartmentSlide(sample, "Sample Development Overview", "Head: AGM-Mr. Hafiz Al Asad | Delowar, Rafiq, Tuhin, Shalam", [
-  { metric: "Total Sample Requests", val: "1,420 Styles", eval: "HIGH VOLUME" },
-  { metric: "Samples Executed & Dispatched", val: "1,398 Styles", eval: "98.5% ACH", color: COLOR_EMERALD },
-  { metric: "Average Lead Time", val: "3.2 Days", eval: "FASTER THAN SLA", color: COLOR_EMERALD },
-  { metric: "Right First Time (RFT %)", val: "95.8%", eval: "STRONG", color: COLOR_EMERALD }
-]);
-buildSpecializedDepartmentSlide(sample, "Sample Capacity vs Monthly Requests", "Sample Room Loading & Resource Allocation", [
-  { metric: "Dedicated Sample Machines", val: "45 Machines", eval: "ACTIVE" },
-  { metric: "Sample Pattern Makers", val: "8 Specialists", eval: "FULL STAFF" },
-  { metric: "Capacity Utilization %", val: "94.2%", eval: "OPTIMAL", color: COLOR_EMERALD },
-  { metric: "Urgent Fit Approval Turnaround", val: "< 24 Hours", eval: "100% MET", color: COLOR_EMERALD }
-]);
-buildSpecializedDepartmentSlide(sample, "Buyer-wise Sample RFT Performance", "Approval Rate by International Brand", [
-  { metric: "H&M Hennes & Mauritz RFT %", val: "97.2%", eval: "APPROVED", color: COLOR_EMERALD },
-  { metric: "Zara / Inditex RFT %", val: "96.5%", eval: "APPROVED", color: COLOR_EMERALD },
-  { metric: "C&A Buying RFT %", val: "95.0%", eval: "APPROVED", color: COLOR_EMERALD },
-  { metric: "Target & Next Sourcing RFT %", val: "94.8%", eval: "APPROVED", color: COLOR_EMERALD }
-]);
-buildSpecialTopicSlide(sample, "Sample Rejection & Rework Root Cause Log", "summary");
-buildConclusionSlide();
-console.log(`Total slides generated: ${currentSlideNumber}`);
-pres.writeFile({ fileName: outputPath }).then(() => {
-  console.log(`Successfully written presentation to ${outputPath}`);
-  process.exit(0);
+  s.addTable([head, ...body], {
+    x: 0.5,
+    y: 1,
+    w: 9,
+    colW: [4.4, 1.6, 3],
+    rowH,
+    border: { type: "solid", pt: 0.75, color: "4F81BD" },
+    fill: { color: "F2F7FC" }
+  });
+  footerText(s);
+}
+function costSlide(dept) {
+  const s = newSlide("bg_band.png");
+  header(s, dept.code, "Line wise Cost Achievement");
+  const total = dept.cost_total;
+  s.addText(`Line Cost
+Achievement ${YEAR}`, { x: 0.05, y: 0.8, w: 3.1, h: 0.95, isTextBox: true, fontFace: SERIF, fontSize: 22, bold: true, color: C.navy, align: "center", valign: "middle", margin: 0 });
+  s.addText(moneyShort(total), { x: 0.05, y: 1.75, w: 3.1, h: 0.6, isTextBox: true, fontFace: SERIF, fontSize: 30, bold: true, color: isNum(total) && total >= 0 ? C.darkGreen : C.red, align: "center", margin: 0, fit: "shrink" });
+  addPhoto(s, dept.head_photo, 3.3, 0.78, 1.15, 1.3, dept.head_label || "Head");
+  labelBox(s, dept.head_label, 3.2, 2.1, 1.35, 0.28);
+  const labels = dept.line_labels || [];
+  const ytd = (dept.lines || []).map((l) => l.ytd?.cost_total ?? null);
+  barChart(s, `${dept.code} Line Cost Achievement (${YEAR} total)`, labels, ytd, { x: 4.65, y: 0.72, w: 5.25, h: 1.68 }, { money: true });
+  const nLines = labels.length;
+  const firstColW = 0.95;
+  const avgColW = 0.55;
+  const lineColW = Math.max(0.36, (9.8 - firstColW - avgColW) / Math.max(1, nLines));
+  const tableW = firstColW + avgColW + lineColW * nLines;
+  const fsz = nLines > 14 ? 5.5 : 6.5;
+  const headRow = [
+    cell("Month", { bold: true, fill: { color: C.header }, fontSize: fsz }),
+    cell("Avg", { bold: true, fill: { color: C.header }, fontSize: fsz }),
+    ...labels.map((l) => cell(l, { bold: true, fill: { color: C.header }, fontSize: fsz }))
+  ];
+  const targets = dept.prod_rows?.[0]?.values || [];
+  const prodBody = (dept.prod_rows || []).map((r, idx) => {
+    const isTarget = idx === 0;
+    const isAvg = idx === 1 || idx === 2;
+    const base = { fontSize: fsz, bold: isTarget || isAvg };
+    const rowFill = isTarget ? C.rowTarget : idx === 1 ? C.yellow : null;
+    return [
+      cell(r.label, { ...base, align: "left", fill: rowFill ? { color: rowFill } : void 0 }),
+      cell(pct(r.avg), { ...base, fill: isTarget ? { color: C.rowTarget } : goodBad(r.avg, avgOf(targets)) ? { color: goodBad(r.avg, avgOf(targets)) } : void 0 }),
+      ...r.values.map((v, i) => cell(pct(v), { ...base, fill: isTarget ? { color: C.rowTarget } : goodBad(v, targets[i]) ? { color: goodBad(v, targets[i]) } : void 0 }))
+    ];
+  });
+  const costHead = [
+    cell("Month", { bold: true, fill: { color: C.header }, fontSize: fsz }),
+    cell("Total", { bold: true, fill: { color: C.header }, fontSize: fsz }),
+    ...labels.map((l) => cell(l, { bold: true, fill: { color: C.header }, fontSize: fsz }))
+  ];
+  const costBody = (dept.cost_rows || []).map((r, idx) => [
+    cell(r.label, { fontSize: fsz, bold: idx === 0, align: "left", fill: idx === 0 ? { color: C.yellow } : void 0 }),
+    cell(moneyShort(r.total), { fontSize: fsz, bold: true, fill: signColor(r.total) ? { color: signColor(r.total) } : void 0 }),
+    ...r.values.map((v) => cell(isNum(v) ? moneyShort(v) : "", { fontSize: fsz, fill: signColor(v) ? { color: signColor(v) } : void 0 }))
+  ]);
+  const top = 2.55;
+  const bottom = 7.25;
+  const gap = 0.1;
+  const totalRows = prodBody.length + 1 + (costBody.length ? costBody.length + 1 : 0);
+  const rowH = Math.min(0.2, (bottom - top - gap) / Math.max(1, totalRows));
+  const colW = [firstColW, avgColW, ...labels.map(() => lineColW)];
+  const x = Math.max(0.1, (W - tableW) / 2);
+  s.addTable([headRow, ...prodBody], { x, y: top, w: tableW, colW, rowH, border: { type: "solid", pt: 0.5, color: "7F7F7F" }, fill: { color: C.white } });
+  if (costBody.length) {
+    s.addTable([costHead, ...costBody], { x, y: top + rowH * (prodBody.length + 1) + gap, w: tableW, colW, rowH, border: { type: "solid", pt: 0.5, color: "7F7F7F" }, fill: { color: C.white } });
+  }
+  footerText(s);
+}
+function scaleTo(widths, total) {
+  const sum = widths.reduce((a, b) => a + b, 0);
+  return widths.map((w) => Math.round(w * total * 1e3 / sum) / 1e3);
+}
+function avgOf(values) {
+  const v = (values || []).filter(isNum).map(Number);
+  return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null;
+}
+function lineSlide(dept, line) {
+  const s = newSlide("bg_band.png");
+  header(s, dept.code, line.label || `Line No ${pad2(line.number)}`, { titleSize: 30 });
+  const cost = line.ytd?.cost_total;
+  s.addText(`Line Cost
+Achievement ${YEAR}`, { x: 0, y: 0.82, w: 2, h: 1, isTextBox: true, fontFace: SERIF, fontSize: 17, color: C.black, align: "center", valign: "middle", margin: 0 });
+  s.addText(isNum(cost) ? moneyShort(cost) : "-", { x: 0, y: 1.86, w: 1.45, h: 0.5, isTextBox: true, fontFace: SERIF, fontSize: 20, bold: true, color: isNum(cost) && cost >= 0 ? C.darkGreen : C.red, align: "center", margin: 0, fit: "shrink" });
+  if (isNum(cost)) arrow(s, cost >= 0, 1.5, 1.84, cost >= 0 ? C.darkGreen : C.red);
+  const dhu = line.ytd?.sew_dhu;
+  const dhuTarget = line.latest_target?.sew_dhu_target ?? line.current?.sew_dhu_target;
+  const dhuBad = isNum(dhu) && isNum(dhuTarget) ? Number(dhu) > Number(dhuTarget) : false;
+  s.addText(`Average Sew
+DHU (${YEAR})`, { x: 8.15, y: 0.78, w: 1.8, h: 0.75, isTextBox: true, fontFace: SERIF, fontSize: 16, color: C.black, align: "center", valign: "middle", margin: 0 });
+  s.addText(pct(dhu, 2) || "-", { x: 8.62, y: 1.55, w: 1.33, h: 0.48, isTextBox: true, fontFace: SERIF, fontSize: 20, bold: true, color: dhuBad ? C.red : C.darkGreen, align: "center", margin: 0, fit: "shrink" });
+  if (isNum(dhu)) arrow(s, dhuBad, 8.25, 1.82, dhuBad ? C.red : C.darkGreen);
+  const staff = (line.staff || []).slice(0, 6);
+  const slotW = 0.94;
+  const pitch = 1.015;
+  const startX = 2.08 + (6 - staff.length) * pitch / 2;
+  staff.forEach((p, i) => {
+    const x = startX + i * pitch;
+    if (p.vacant) vacantBox(s, x, 0.78, slotW, 1.24);
+    else addPhoto(s, p.photo, x, 0.78, slotW, 1.24, p.label);
+    labelBox(s, p.label || "", x - 0.02, 2.07, slotW + 0.04, 0.3, 8.5);
+  });
+  const rows = line.rows || [];
+  const H1 = (t, span) => cell(t, { bold: true, fill: { color: C.header }, colspan: span, fontSize: 6.5 });
+  const head1 = [cell("", { fill: { color: C.header } }), H1("Efficiency", 2), H1("Productivity Achievement", 2), H1("Line Cost Achievement", 3), H1("Sewing DHU", 2), H1("Finishing DHU", 2)];
+  const head2 = ["Month", "Target", "Ach :", "Target", "Ach :", "Total profit/Loss", "Total Idle hour loss", "Total Diff from actual cost", "Target", "Ach :", "Target", "Ach :"].map((t) => cell(t, { bold: true, fill: { color: C.header }, fontSize: 6 }));
+  const body = rows.map((r) => {
+    const rowFill = r.is_avg ? { color: C.rowAvg } : void 0;
+    const fillFor = (c) => c ? { color: c } : rowFill;
+    return [
+      cell(r.label, { align: "left", bold: r.is_avg, fill: rowFill }),
+      cell(pct(r.eff_target), { fill: rowFill }),
+      cell(pct(r.eff_ach), { fill: fillFor(goodBad(r.eff_ach, r.eff_target)) }),
+      cell(pct(r.prod_target), { fill: rowFill }),
+      cell(pct(r.prod_ach), { fill: fillFor(goodBad(r.prod_ach, r.prod_target)) }),
+      cell(money(r.profit_loss), { fill: fillFor(signColor(r.profit_loss)), align: "right" }),
+      cell(money(r.idle_loss), { fill: fillFor(signColor(r.idle_loss)), align: "right" }),
+      cell(money(r.cost_diff), { fill: fillFor(signColor(r.cost_diff)), align: "right", bold: true }),
+      cell(pct(r.sew_dhu_target), { fill: rowFill }),
+      cell(pct(r.sew_dhu, 2), { fill: fillFor(goodBad(r.sew_dhu, r.sew_dhu_target, false)) }),
+      cell(pct(r.fin_dhu_target), { fill: rowFill }),
+      cell(pct(r.fin_dhu, 2), { fill: fillFor(goodBad(r.fin_dhu, r.fin_dhu_target, false)) })
+    ];
+  });
+  const tableRows = [head1, head2, ...body];
+  const rowH = Math.min(0.2, 2.62 / tableRows.length);
+  s.addTable(tableRows, {
+    x: 0.05,
+    y: 2.47,
+    w: 6.98,
+    colW: scaleTo([0.86, 0.42, 0.44, 0.42, 0.44, 0.76, 0.76, 0.84, 0.42, 0.48, 0.42, 0.48], 6.98),
+    rowH,
+    border: { type: "solid", pt: 0.5, color: "7F7F7F" },
+    fill: { color: C.white }
+  });
+  const labels = rows.map((r) => r.label);
+  barChart(s, `Finishing DHU-${line.label} - ${dept.code}`, labels, rows.map((r) => r.fin_dhu), { x: 7.1, y: 2.47, w: 2.85, h: 2.62 }, { percent: true });
+  barChart(s, `Profit/Loss-${line.label} - ${dept.code}`, labels, rows.map((r) => r.cost_diff), { x: 0.05, y: 5.15, w: 4.93, h: 2.12 }, { money: true });
+  barChart(s, `Sewing DHU-${line.label} - ${dept.code}`, labels, rows.map((r) => r.sew_dhu), { x: 5.06, y: 5.15, w: 4.89, h: 2.12 }, { percent: true });
+  footerText(s);
+}
+function nptSlide(dept) {
+  const reasons = (dept.npt?.reasons || []).filter((r) => isNum(r.hours));
+  if (!reasons.length) return;
+  const s = newSlide("bg_plain.png");
+  plainTitle(s, `${dept.name} Major Reason For NPT - ${YEAR}`);
+  const sorted = [...reasons].sort((a, b) => Number(a.hours) - Number(b.hours));
+  const total = dept.npt.total;
+  const rows = [
+    [cell(`${dept.code} (${period.month_name})`, { bold: true, align: "left", fill: { color: "FFF2CC" }, fontSize: 10 }), cell("Hour", { bold: true, fill: { color: "DDEBF7" }, fontSize: 10 })],
+    ...sorted.map((r) => [cell(r.reason, { align: "left", fontSize: 9 }), cell(num(r.hours), { bold: true, fontSize: 10, align: "right" })]),
+    [cell("Total Loss Time", { bold: true, align: "left", fontSize: 10, fill: { color: "DDEBF7" } }), cell(num(total), { bold: true, fontSize: 10, align: "right", fill: { color: "DDEBF7" } })]
+  ];
+  const rowH = Math.min(0.45, 4.8 / rows.length);
+  s.addTable(rows, { x: 0.15, y: 1, w: 4.4, colW: [3.6, 0.8], rowH, border: { type: "solid", pt: 0.5, color: "9BC2E6" }, fill: { color: C.white } });
+  barChart(s, `${dept.code} NPT Total - ${num(total)} Hours`, sorted.map((r) => r.reason), sorted.map((r) => r.hours), { x: 4.75, y: 1, w: 5.1, h: Math.max(2.6, rowH * rows.length) }, { horizontal: true });
+  footerText(s);
+}
+function unitSlide(dept) {
+  const rows = dept.rows || [];
+  const has = (f) => rows.some((r) => isNum(r[f]));
+  if (!rows.some((r) => ["plan", "produce", "eff_ach", "earning", "dhu"].some((f) => isNum(r[f])))) return;
+  const s = newSlide("bg_plain.png");
+  plainTitle(s, `${dept.name} KPI`, 22);
+  addPhoto(s, dept.head_photo, 8.75, 0.7, 1.05, 1.2, dept.head_label || "Head");
+  labelBox(s, dept.head_label, 8.6, 1.92, 1.35, 0.28, 8);
+  const cols = [{ h: "Month", f: (r) => r.label, w: 0.95, left: true }];
+  if (has("plan")) cols.push({ h: "Plan", f: (r) => num(r.plan), w: 0.95 });
+  if (has("produce")) cols.push({ h: "Produce", f: (r) => num(r.produce), w: 0.95 });
+  if (has("plan") && has("produce")) cols.push({ h: "Ach%", f: (r) => pct(r.prod_ach), w: 0.6, c: (r) => goodBad(r.prod_ach, 100) });
+  if (has("eff_ach")) {
+    if (has("eff_target")) cols.push({ h: "Eff. Target", f: (r) => pct(r.eff_target), w: 0.65 });
+    cols.push({ h: "Efficiency", f: (r) => pct(r.eff_ach), w: 0.7, c: (r) => goodBad(r.eff_ach, r.eff_target) });
+  }
+  if (has("earning")) {
+    cols.push({ h: "Earning Target", f: (r) => num(r.earning_target), w: 0.8 });
+    cols.push({ h: "Earning", f: (r) => num(r.earning), w: 0.8 });
+    cols.push({ h: "Earn. Ach%", f: (r) => pct(r.earning_ach), w: 0.6, c: (r) => goodBad(r.earning_ach, 100) });
+  }
+  if (has("dhu")) {
+    if (has("dhu_target")) cols.push({ h: "DHU Target", f: (r) => pct(r.dhu_target, 2), w: 0.62 });
+    cols.push({ h: "DHU", f: (r) => pct(r.dhu, 2), w: 0.62, c: (r) => goodBad(r.dhu, r.dhu_target, false) });
+  }
+  const totalW = cols.reduce((a, c) => a + c.w, 0);
+  const scale = Math.min(1, 8.3 / totalW);
+  const colW = cols.map((c) => c.w * scale);
+  const head = cols.map((c) => cell(c.h, { bold: true, fill: { color: C.headerDark }, color: C.white, fontSize: 7.5 }));
+  const body = rows.map((r) => cols.map((c) => {
+    const color = c.c ? c.c(r) : null;
+    return cell(c.f(r), { fontSize: 7.5, align: c.left ? "left" : "center", bold: r.is_avg, fill: color ? { color } : r.is_avg ? { color: C.rowAvg } : void 0 });
+  }));
+  s.addText(`KPI Achievement Summary - ${YEAR} ${dept.name}`, { x: 0.2, y: 0.72, w: colW.reduce((a, b) => a + b, 0), h: 0.28, isTextBox: true, align: "center", fontFace: SANS, fontSize: 10, bold: true, color: C.white, fill: { color: "000000" }, margin: 0 });
+  const rowH = Math.min(0.24, 3.4 / (body.length + 1));
+  s.addTable([head, ...body], { x: 0.2, y: 1, w: colW.reduce((a, b) => a + b, 0), colW, rowH, border: { type: "solid", pt: 0.5, color: "7F7F7F" }, fill: { color: C.white } });
+  const labels = rows.map((r) => r.label);
+  const chartTop = 1 + rowH * (body.length + 1) + 0.15;
+  const chartH = Math.max(1.8, 7.25 - chartTop);
+  const first = has("plan") && has("produce") ? ["Productivity Ach%", rows.map((r) => r.prod_ach)] : ["Efficiency %", rows.map((r) => r.eff_ach)];
+  const second = has("dhu") ? ["DHU %", rows.map((r) => r.dhu)] : ["Efficiency %", rows.map((r) => r.eff_ach)];
+  barChart(s, first[0], labels, first[1], { x: 0.2, y: chartTop, w: 4.75, h: chartH }, { percent: true, decimals: 0 });
+  barChart(s, second[0], labels, second[1], { x: 5.05, y: chartTop, w: 4.75, h: chartH }, { percent: true, decimals: 2 });
+  footerText(s);
+}
+function supervisorSlides(dept) {
+  const people = (dept.people || []).filter((p) => (p.rows || []).some((r) => isNum(r.eff_ach) || isNum(r.produce)));
+  for (let i = 0; i < people.length; i += 2) {
+    const s = newSlide("bg_plain.png");
+    plainTitle(s, `Supervisor wise ${dept.name} KPI`, 20);
+    people.slice(i, i + 2).forEach((p, k) => {
+      const top = 0.72 + k * 3.28;
+      const rows = p.rows || [];
+      const head = ["Month", "Eff. Target", "Ach :", "Plan", "Produce", "Ach%"].map((t) => cell(t, { bold: true, fill: { color: C.header }, fontSize: 6.5 }));
+      const body = rows.map((r) => [
+        cell(r.label, { align: "left", bold: r.is_avg, fill: r.is_avg ? { color: C.rowAvg } : void 0 }),
+        cell(pct(r.eff_target)),
+        cell(pct(r.eff_ach), { fill: goodBad(r.eff_ach, r.eff_target) ? { color: goodBad(r.eff_ach, r.eff_target) } : void 0 }),
+        cell(num(r.plan)),
+        cell(num(r.produce)),
+        cell(pct(r.prod_ach), { fill: goodBad(r.prod_ach, 100) ? { color: goodBad(r.prod_ach, 100) } : void 0 })
+      ]);
+      const rowH = Math.min(0.2, 3.1 / (body.length + 1));
+      s.addTable([head, ...body], { x: 0.15, y: top, w: 4.1, colW: [0.9, 0.6, 0.55, 0.75, 0.75, 0.55], rowH, border: { type: "solid", pt: 0.5, color: "7F7F7F" }, fill: { color: C.white } });
+      barChart(s, `Efficiency - ${p.label}`, rows.map((r) => r.label), rows.map((r) => r.eff_ach), { x: 4.35, y: top, w: 4.1, h: 3.1 }, { percent: true, decimals: 0, color: C.red });
+      addPhoto(s, p.photo, 8.6, top + 0.5, 1.15, 1.35, p.label);
+      labelBox(s, p.label, 8.5, top + 1.9, 1.35, 0.3, 8);
+    });
+    footerText(s);
+  }
+}
+function thankYouSlide() {
+  const s = newSlide("bg_plain.png");
+  s.addText(COMPANY, { x: 0.5, y: 0.05, w: 9, h: 0.55, isTextBox: true, align: "center", valign: "middle", fontFace: SERIF, fontSize: 24, bold: true, color: "2E3192", margin: 0, fit: "shrink" });
+  s.addText("Thank You", { x: 0.5, y: 2.4, w: 9, h: 1.6, isTextBox: true, align: "center", valign: "middle", fontFace: SERIF, fontSize: 66, italic: true, color: C.navy, margin: 0 });
+  s.addText(`${data.report_title || "KPI Performance"} \xB7 ${period.name || ""}`, { x: 0.5, y: 4.1, w: 9, h: 0.5, isTextBox: true, align: "center", fontFace: SANS, fontSize: 16, color: C.grayDark, margin: 0 });
+}
+coverSlide();
+var shownGoals = /* @__PURE__ */ new Set();
+var goalsByName = Object.fromEntries((data.goals || []).map((g) => [g.group, g]));
+for (const dept of data.departments || []) {
+  if (dept.goal_group && goalsByName[dept.goal_group] && !shownGoals.has(dept.goal_group)) {
+    goalsSlide(goalsByName[dept.goal_group]);
+    shownGoals.add(dept.goal_group);
+  }
+  if (dept.kind === "lines") {
+    if ((dept.lines || []).length) costSlide(dept);
+    for (const line of dept.lines || []) lineSlide(dept, line);
+    nptSlide(dept);
+  } else {
+    unitSlide(dept);
+    supervisorSlides(dept);
+  }
+}
+for (const g of data.goals || []) {
+  if (!shownGoals.has(g.group) && (data.departments || []).length > 1) goalsSlide(g);
+}
+thankYouSlide();
+var CRC_TABLE = (() => {
+  const t = new Uint32Array(256);
+  for (let n = 0; n < 256; n++) {
+    let c = n;
+    for (let k = 0; k < 8; k++) c = c & 1 ? 3988292384 ^ c >>> 1 : c >>> 1;
+    t[n] = c >>> 0;
+  }
+  return t;
+})();
+function crc32(buf) {
+  let c = 4294967295;
+  for (let i = 0; i < buf.length; i++) c = CRC_TABLE[(c ^ buf[i]) & 255] ^ c >>> 8;
+  return (c ^ 4294967295) >>> 0;
+}
+function cleanZip(buf) {
+  const eocd = buf.lastIndexOf(Buffer.from([80, 75, 5, 6]));
+  if (eocd < 0) return buf;
+  const count = buf.readUInt16LE(eocd + 10);
+  let cd = buf.readUInt32LE(eocd + 16);
+  const entries = [];
+  for (let i = 0; i < count; i++) {
+    const nameLen = buf.readUInt16LE(cd + 28);
+    const extraLen = buf.readUInt16LE(cd + 30);
+    const commentLen = buf.readUInt16LE(cd + 32);
+    const localOff = buf.readUInt32LE(cd + 42);
+    const name = buf.toString("utf8", cd + 46, cd + 46 + nameLen);
+    const central = Buffer.from(buf.subarray(cd, cd + 46 + nameLen + extraLen + commentLen));
+    cd += 46 + nameLen + extraLen + commentLen;
+    const lNameLen = buf.readUInt16LE(localOff + 26);
+    const lExtraLen = buf.readUInt16LE(localOff + 28);
+    const method = buf.readUInt16LE(localOff + 8);
+    const compSize = central.readUInt32LE(20);
+    const dataStart = localOff + 30 + lNameLen + lExtraLen;
+    entries.push({ name, central, method, data: buf.subarray(dataStart, dataStart + compSize), crc: central.readUInt32LE(16), size: central.readUInt32LE(24) });
+  }
+  const canonical = {};
+  const seen = /* @__PURE__ */ new Map();
+  for (const e of entries) {
+    if (!e.name.startsWith("ppt/media/")) continue;
+    const key = `${e.crc}:${e.size}`;
+    const first = seen.get(key);
+    if (first && first.data.equals(e.data)) canonical[e.name] = first.name;
+    else if (!first) seen.set(key, e);
+  }
+  const renames = Object.entries(canonical).map(([dup, keep]) => [import_path.default.posix.basename(dup), import_path.default.posix.basename(keep)]);
+  const out = [];
+  const centrals = [];
+  let offset = 0;
+  for (const e of entries) {
+    if (e.name.endsWith("/") || canonical[e.name]) continue;
+    let { data: data2, crc, size, method } = e;
+    if (renames.length && e.name.endsWith(".rels") && e.name.includes("/_rels/")) {
+      let xml = (method === 8 ? import_zlib.default.inflateRawSync(data2) : data2).toString("utf8");
+      let changed = false;
+      for (const [dup, keep] of renames) {
+        const needle = `media/${dup}"`;
+        if (xml.includes(needle)) {
+          xml = xml.split(needle).join(`media/${keep}"`);
+          changed = true;
+        }
+      }
+      if (changed) {
+        const raw = Buffer.from(xml, "utf8");
+        crc = crc32(raw);
+        size = raw.length;
+        data2 = import_zlib.default.deflateRawSync(raw);
+        method = 8;
+      }
+    }
+    const nameBuf = Buffer.from(e.name, "utf8");
+    const local = Buffer.alloc(30);
+    local.writeUInt32LE(67324752, 0);
+    local.writeUInt16LE(20, 4);
+    local.writeUInt16LE(2048, 6);
+    local.writeUInt16LE(method, 8);
+    local.writeUInt32LE(e.central.readUInt32LE(12), 10);
+    local.writeUInt32LE(crc, 14);
+    local.writeUInt32LE(data2.length, 18);
+    local.writeUInt32LE(size, 22);
+    local.writeUInt16LE(nameBuf.length, 26);
+    local.writeUInt16LE(0, 28);
+    const central = Buffer.alloc(46);
+    central.writeUInt32LE(33639248, 0);
+    central.writeUInt16LE(20, 4);
+    central.writeUInt16LE(20, 6);
+    central.writeUInt16LE(2048, 8);
+    central.writeUInt16LE(method, 10);
+    central.writeUInt32LE(e.central.readUInt32LE(12), 12);
+    central.writeUInt32LE(crc, 16);
+    central.writeUInt32LE(data2.length, 20);
+    central.writeUInt32LE(size, 24);
+    central.writeUInt16LE(nameBuf.length, 28);
+    central.writeUInt32LE(offset, 42);
+    out.push(local, nameBuf, data2);
+    centrals.push(central, nameBuf);
+    offset += 30 + nameBuf.length + data2.length;
+  }
+  const cdBuf = Buffer.concat(centrals);
+  const end = Buffer.alloc(22);
+  end.writeUInt32LE(101010256, 0);
+  end.writeUInt16LE(centrals.length / 2, 8);
+  end.writeUInt16LE(centrals.length / 2, 10);
+  end.writeUInt32LE(cdBuf.length, 12);
+  end.writeUInt32LE(offset, 16);
+  return Buffer.concat([...out, cdBuf, end]);
+}
+pres.write({ outputType: "STREAM", compression: true }).then((buffer) => {
+  let out = buffer;
+  try {
+    out = cleanZip(buffer);
+  } catch (e) {
+    console.warn("Zip clean-up skipped:", e.message);
+  }
+  import_fs.default.writeFileSync(outputPath, out);
+  console.log(`Presentation generated: ${outputPath}`);
 }).catch((err) => {
-  console.error("Failed to write presentation:", err);
+  console.error("Error writing presentation:", err);
   process.exit(1);
 });

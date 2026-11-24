@@ -1,157 +1,98 @@
-export interface ReportingPeriod {
-  id: string;
+export interface StaffSlot {
+  position: number;
+  role: string;
   name: string;
-  period_type: string;
-  year: number;
-  month: number;
-  start_date: string;
-  end_date: string;
-  is_closed: boolean;
+  is_vacant: boolean;
+  photo_url: string | null;
 }
 
-export interface ProductionLine {
-  id: string;
-  department_id: string;
-  line_number: string;
-  line_name: string;
-  supervisor_id?: string;
-  supervisor?: Employee;
-  standard_manpower: number;
-  standard_smv: number;
-  sort_order: number;
+export interface Line {
+  id: number;
+  department_id: number;
+  number: number;
+  name: string | null;
+  label: string;
   is_active: boolean;
+  staff: StaffSlot[];
+}
+
+export interface UnitPerson {
+  id: number;
+  department_id: number;
+  label: string;
+  photo_url: string | null;
 }
 
 export interface Department {
-  id: string;
+  id: number;
   code: string;
   name: string;
-  department_type: string;
-  head_name: string;
-  head_avatar_url?: string;
+  kind: 'lines' | 'unit';
+  head_label: string | null;
+  head_photo_url: string | null;
+  goal_group: string | null;
   sort_order: number;
   is_active: boolean;
-  lines?: ProductionLine[];
+  lines: Line[];
+  unit_people: UnitPerson[];
 }
 
-export interface Employee {
-  id: string;
-  employee_code: string;
-  full_name: string;
-  designation?: string;
-  avatar_url?: string;
-  department_id?: string;
-  department?: Department;
-  phone?: string;
-  email?: string;
-  is_active: boolean;
+export interface Period {
+  year: number;
+  month: number;
 }
 
-export interface Role {
+export interface AppSettings {
+  company_name: string;
+  report_title: string;
+  cover_quote: string;
+  cover_quote_2: string;
+  cover_tagline: string;
+  currency_symbol: string;
+  auto_backup_minutes: number;
+  logo_url: string | null;
+  google_client_id: string;
+  google_client_secret_set: boolean;
+  google_configured: boolean;
+}
+
+export interface Me {
   id: number;
-  slug: string;
   name: string;
-  description?: string;
-  avatar_url?: string;
+  email: string | null;
+  avatar_url: string | null;
+  is_default: boolean;
+  google_connected: boolean;
+  google_configured: boolean;
+  last_backup_at: string | null;
 }
 
-export interface ProductionRecord {
-  id: string;
-  submission_id: string;
-  line_id?: string;
-  line?: ProductionLine;
-  month_name?: string;
-  plan_hours: number;
-  produce_hours: number;
-  hour_ach_pct: number;
-  plan_pcs: number;
-  produce_pcs: number;
-  pcs_ach_pct: number;
-  earned_minutes: number;
-  available_minutes: number;
-  efficiency_pct: number;
-  operators_count: number;
-  helpers_count: number;
+export interface KpiGoal {
+  id?: number;
+  group_name: string;
+  category: string;
+  target: string | null;
+  responsible: string | null;
 }
 
-export interface LineCostRecord {
-  id: string;
-  submission_id: string;
-  line_id?: string;
-  line?: ProductionLine;
-  month_name?: string;
-  budgeted_cost: number;
-  actual_cost: number;
-  total_profit_loss: number;
-  idle_hour_loss: number;
-  cost_ach_pct: number;
-  costing_productivity: number;
-}
+export const LINE_FIELDS = [
+  'eff_target', 'eff_ach', 'prod_target', 'prod_ach', 'profit_loss', 'idle_loss', 'cost_diff',
+  'sew_dhu_target', 'sew_dhu', 'fin_dhu_target', 'fin_dhu',
+] as const;
+export type LineField = (typeof LINE_FIELDS)[number];
 
-export interface QualityRecord {
-  id: string;
-  submission_id: string;
-  line_id?: string;
-  line?: ProductionLine;
-  month_name?: string;
-  checked_units: number;
-  defect_units: number;
-  total_defects: number;
-  dhu: number;
-  rejection_units: number;
-  ftt_pct: number;
-}
+export const UNIT_FIELDS = ['plan', 'produce', 'eff_target', 'eff_ach', 'earning_target', 'earning', 'dhu_target', 'dhu'] as const;
+export type UnitField = (typeof UNIT_FIELDS)[number];
 
-export interface SpecializedRecord {
-  id: string;
-  submission_id: string;
-  department_type: string;
-  supervisor_id?: string;
-  supervisor?: Employee;
-  month_name?: string;
-  metric_name: string;
-  target_value?: number;
-  actual_value?: number;
-  achievement_pct?: number;
-  details?: Record<string, any>;
-}
+export type MetricValues = Partial<Record<string, number | null>>;
 
-export interface KpiSubmission {
-  id: string;
-  reporting_period_id: string;
-  reporting_period?: ReportingPeriod;
-  department_id: string;
-  department?: Department;
-  status: 'draft' | 'submitted' | 'approved' | 'rejected' | 'revision_required';
-  submission_notes?: string;
-  version: number;
-  approved_at?: string;
-  production_records?: ProductionRecord[];
-  line_cost_records?: LineCostRecord[];
-  quality_records?: QualityRecord[];
-  specialized_records?: SpecializedRecord[];
-}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type LineMetricRow = { line_id: number; number: number; label: string; previous?: MetricValues | null; [field: string]: any };
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type UnitMetricRow = { unit_person_id: number; label: string; previous?: MetricValues | null; [field: string]: any };
 
-export interface CompanyOverviewData {
-  period: ReportingPeriod;
-  summary: {
-    total_plan_pcs: number;
-    total_produce_pcs: number;
-    overall_plan_achievement_pct: number;
-    total_profit_loss: number;
-    total_departments: number;
-    approved_departments: number;
-  };
-  departments: Array<{
-    department_id: string;
-    code: string;
-    name: string;
-    type: string;
-    head_name: string;
-    status: string;
-    plan_pcs: number;
-    produce_pcs: number;
-    achievement_pct: number;
-    status_color: 'green' | 'yellow' | 'red' | 'grey';
-  }>;
+export interface NptReason {
+  id?: number;
+  reason: string;
+  hours: number | null;
 }

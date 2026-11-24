@@ -42,7 +42,16 @@ if ($uri !== '/' && is_file($publicPath.$uri) && !str_ends_with(strtolower($uri)
     return false;
 }
 
-// 3. Everything else -> Laravel
+// 3. The app screen itself (/, /dashboard, ...) -> index.html straight away.
+//    No Laravel boot needed, and never cached so an update can't leave a stale page.
+if (!str_starts_with($uri, '/api/') && !str_starts_with($uri, '/auth/') && $uri !== '/up' && is_file($publicPath.'/index.html')) {
+    header('Content-Type: text/html; charset=UTF-8');
+    header('Cache-Control: no-cache, no-store, must-revalidate');
+    readfile($publicPath.'/index.html');
+    return true;
+}
+
+// 4. API -> Laravel
 $_SERVER['SCRIPT_FILENAME'] = $publicPath.'/index.php';
 $_SERVER['SCRIPT_NAME'] = '/index.php';
 require_once $publicPath.'/index.php';

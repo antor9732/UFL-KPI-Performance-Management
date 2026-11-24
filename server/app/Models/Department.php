@@ -2,45 +2,32 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Department extends Model
 {
-    use HasUuids;
+    protected $guarded = ['id'];
 
-    protected $fillable = [
-        'code',
-        'name',
-        'department_type',
-        'head_name',
-        'sort_order',
-        'is_active',
-    ];
-
-    protected $casts = [
-        'is_active' => 'boolean',
-        'sort_order' => 'integer',
-    ];
-
-    public function areas(): HasMany
-    {
-        return $this->hasMany(ProductionArea::class)->orderBy('sort_order');
-    }
+    protected $casts = ['is_active' => 'boolean', 'sort_order' => 'integer'];
 
     public function lines(): HasMany
     {
-        return $this->hasMany(ProductionLine::class)->orderBy('sort_order');
+        return $this->hasMany(Line::class)->orderBy('sort_order')->orderBy('number');
     }
 
-    public function employees(): HasMany
+    public function unitPeople(): HasMany
     {
-        return $this->hasMany(Employee::class);
+        return $this->hasMany(UnitPerson::class)->orderBy('sort_order')->orderBy('id');
     }
 
-    public function submissions(): HasMany
+    public function nptReasons(): HasMany
     {
-        return $this->hasMany(KpiSubmission::class);
+        return $this->hasMany(NptReason::class)->orderBy('sort_order');
+    }
+
+    public function isLines(): bool
+    {
+        return $this->kind === 'lines';
     }
 }

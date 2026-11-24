@@ -1,9 +1,9 @@
 {
-  "name": "ufl-kpi-desktop",
+  "name": "kpi-system-desktop",
   "version": "1.0.0",
-  "description": "Utah Fashion Ltd. KPI Performance Management & Presentation System",
+  "description": "KPI Performance Management & Presentation System",
   "main": "main.cjs",
-  "author": "Utah Fashion Ltd. IE & Management Directorate",
+  "author": "KPI Performance System",
   "license": "UNLICENSED",
   "scripts": {
     "start": "electron .",
