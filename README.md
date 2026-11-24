@@ -11,7 +11,7 @@ The **UFL KPI Performance Management System** is an enterprise-grade, local-firs
 - **Embedded Portable Runtimes**: Bundles a standalone portable PHP 8.4 runtime (`runtime/php/`) and Node.js (`runtime/node/node.exe`) directly inside the application folder!
 - **Native Windows GUI Executable (`UFL_KPI_App.exe`)**:
   - Double-clicking `UFL_KPI_App.exe` launches the application instantly with zero black console windows.
-  - Automatically loads the local engine, connects to the portable pre-seeded database (`database.sqlite`), and opens the dashboard in the default browser.
+  - Automatically loads the local engine, connects to the portable pre-seeded SQLite database (`server\database\database.sqlite`), and opens the dashboard in the default browser.
   - Adds a Utah Fashion Ltd. System Tray icon in the Windows taskbar for 1-click access and clean shutdown.
 - **Official Windows Installer**: Inno Setup script (`installer/setup.iss`) compiles an `.exe` setup wizard that installs the system and places a desktop shortcut.
 - **Alternative Launchers**: `UFL_KPI_Launcher.vbs` (silent script launcher) and `start-ufl-kpi.bat` (batch launcher).
@@ -86,22 +86,31 @@ D:\UFL KPI Performance Management
 
 ## 🏃 Running the Application
 
-### Method 1: Silent 1-Click Launch (Recommended for Users)
-Double-click `UFL_KPI_Launcher.vbs`. The system launches silently and opens `http://127.0.0.1:8000` in your web browser.
+### Client PC (no server setup needed)
+1. Run the installer `UFL_KPI_Performance_Setup_v1.0.1.exe` (no admin rights required).
+2. Open **Utah Fashion Ltd. KPI System** from the desktop shortcut.
+3. The first launch takes about a minute (it unpacks the bundled PHP libraries). After that it starts in a few seconds.
 
-### Method 2: Batch Launch
-Double-click `start-ufl-kpi.bat`.
+`UFL_KPI_App.exe` does everything automatically:
+- uses the bundled portable PHP (`runtime\php`) and Node.js (`runtime\node`), so Laragon, XAMPP, Apache, MySQL or Node do not need to be installed
+- unpacks `server\vendor.zip`, creates `server\.env` with a unique `APP_KEY`, and creates `server\database\database.sqlite` from the seeded `ufl_kpi_db`
+- runs pending database migrations, so updates are safe
+- starts the local engine on `127.0.0.1` (port 8000, or the next free port up to 8010), opens the browser, and adds a tray icon
+- stops the PHP server when you choose **Stop Server & Exit** or close the launcher
+- writes its log to `server\storage\logs\launcher.log`
 
-### Method 3: Desktop Window (Electron)
+Updates and reinstalls never overwrite the client's database (`server\database\database.sqlite`).
+
+`start-ufl-kpi.bat` and `UFL_KPI_Launcher.vbs` both simply start `UFL_KPI_App.exe`. `stop-ufl-kpi.bat` stops it.
+
+### Building a new installer (developer PC only)
+Run `build-release.bat`. It builds the client into `server\public`, installs production Composer packages, packs `server\vendor.zip`, compiles `UFL_KPI_App.exe` from `desktop\Launcher.cs` using the `csc.exe` that comes with Windows, and compiles `installer\setup.iss` with Inno Setup 6.
+
+### Desktop Window (Electron, optional/dev)
 ```powershell
-cd 'D:\UFL KPI Performance Management\desktop'
+cd desktop
+npm install
 npm start
-```
-
-### Stopping the Server
-Double-click `stop-ufl-kpi.bat` or run:
-```powershell
-powershell -Command "Stop-Process -Name php -Force"
 ```
 
 ---

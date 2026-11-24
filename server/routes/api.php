@@ -8,6 +8,9 @@ use App\Http\Controllers\Api\ReportExportController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
+    // Health check used by the desktop launcher to confirm this app owns the port
+    Route::get('/ping', fn () => response()->json(['app' => 'ufl-kpi', 'status' => 'ok']));
+
     // Organization & Setup
     Route::get('/departments', [OrganizationController::class, 'departments']);
     Route::get('/reporting-periods', [OrganizationController::class, 'reportingPeriods']);

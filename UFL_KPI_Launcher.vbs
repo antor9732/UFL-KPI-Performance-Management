@@ -1,30 +1,16 @@
-' Utah Fashion Ltd. - Silent 1-Click Desktop Launcher
-' Launches local background server and opens dashboard with ZERO console popup
+' Utah Fashion Ltd. - Silent launcher
+' Starts UFL_KPI_App.exe, which prepares and runs the local engine
+' (bundled PHP + SQLite) and opens the dashboard in the default browser.
 
 Set WshShell = CreateObject("WScript.Shell")
 Set fso = CreateObject("Scripting.FileSystemObject")
 
 currentDir = fso.GetParentFolderName(WScript.ScriptFullName)
-serverDir = currentDir & "\server"
-publicDir = serverDir & "\public"
+appExe = currentDir & "\UFL_KPI_App.exe"
 
-' Detect PHP binary
-phpBin = "php"
-If fso.FileExists(currentDir & "\runtime\php\php.exe") Then
-    phpBin = currentDir & "\runtime\php\php.exe"
-ElseIf fso.FileExists("D:\laragon\bin\php\php-8.4.13-Win32-vs17-x64\php.exe") Then
-    phpBin = "D:\laragon\bin\php\php-8.4.13-Win32-vs17-x64\php.exe"
-ElseIf fso.FileExists("C:\laragon\bin\php\php-8.4.13-Win32-vs17-x64\php.exe") Then
-    phpBin = "C:\laragon\bin\php\php-8.4.13-Win32-vs17-x64\php.exe"
+If fso.FileExists(appExe) Then
+    WshShell.CurrentDirectory = currentDir
+    WshShell.Run """" & appExe & """", 1, False
+Else
+    MsgBox "UFL_KPI_App.exe not found. Please reinstall the application.", 16, "UFL KPI System"
 End If
-
-' Launch PHP background server with window hidden (0 = hide window)
-WshShell.CurrentDirectory = serverDir
-cmdString = """" & phpBin & """ -S 127.0.0.1:8000 -t """ & publicDir & """"
-WshShell.Run cmdString, 0, False
-
-' Wait 2 seconds for server socket initialization
-WScript.Sleep 2000
-
-' Open application in default web browser
-WshShell.Run "http://127.0.0.1:8000"

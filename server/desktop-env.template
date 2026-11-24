@@ -1,0 +1,32 @@
+# desktop-env.template - used by UFL_KPI_App.exe on first run on a client PC.
+# The launcher copies this to .env and fills in a unique APP_KEY.
+APP_NAME="UFL KPI System"
+APP_ENV=production
+APP_KEY=
+APP_DEBUG=false
+APP_URL=http://127.0.0.1:8000
+
+APP_LOCALE=en
+APP_FALLBACK_LOCALE=en
+APP_FAKER_LOCALE=en_US
+APP_MAINTENANCE_DRIVER=file
+
+BCRYPT_ROUNDS=12
+
+LOG_CHANNEL=single
+LOG_LEVEL=warning
+
+DB_CONNECTION=sqlite
+
+SESSION_DRIVER=file
+SESSION_LIFETIME=480
+SESSION_ENCRYPT=false
+SESSION_PATH=/
+SESSION_DOMAIN=null
+
+BROADCAST_CONNECTION=log
+FILESYSTEM_DISK=local
+QUEUE_CONNECTION=sync
+CACHE_STORE=file
+
+MAIL_MAILER=log

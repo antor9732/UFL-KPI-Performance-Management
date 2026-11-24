@@ -70,9 +70,21 @@ async function startBackendServer() {
   console.log(`Starting UFL KPI server with ${phpBin}...`);
   console.log(`Document Root: ${publicDir}`);
 
+  // Bundled php.ini uses a relative extension_dir ("ext") which would resolve
+  // against the working directory, so pass absolute paths explicitly.
+  const phpArgs = [];
+  if (path.isAbsolute(phpBin)) {
+    const phpDir = path.dirname(phpBin);
+    phpArgs.push('-c', path.join(phpDir, 'php.ini'), '-d', `extension_dir=${path.join(phpDir, 'ext')}`);
+  }
+  phpArgs.push('-S', `${SERVER_HOST}:${SERVER_PORT}`, '-t', publicDir);
+  // Router serves /storage uploads and sends app routes to Laravel
+  const router = path.join(serverDir, 'server.php');
+  if (fs.existsSync(router)) phpArgs.push(router);
+
   phpProcess = spawn(
     phpBin,
-    ['-S', `${SERVER_HOST}:${SERVER_PORT}`, '-t', publicDir],
+    phpArgs,
     {
       cwd: serverDir,
       detached: false,

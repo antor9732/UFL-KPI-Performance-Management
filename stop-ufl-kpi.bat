@@ -1,13 +1,14 @@
 @echo off
 title Stop Utah Fashion Ltd. KPI Server
-color 0c
+echo Stopping Utah Fashion Ltd. KPI System...
 
-echo Stopping Utah Fashion Ltd. local KPI server...
+rem Close the tray launcher (its PHP server is stopped with it)
+taskkill /im UFL_KPI_App.exe /f >nul 2>&1
 
-for /f "tokens=5" %%a in ('netstat -aon ^| findstr ":8000" ^| findstr "LISTENING"') do (
-    echo Terminating server process PID: %%a
-    taskkill /f /pid %%a >nul 2>&1
-)
+rem Stop only the PHP server that belongs to THIS installation
+powershell -NoProfile -ExecutionPolicy Bypass -Command ^
+  "$rt = (Join-Path '%~dp0' 'runtime\php\php.exe');" ^
+  "Get-Process php -ErrorAction SilentlyContinue | Where-Object { $_.Path -eq $rt } | Stop-Process -Force"
 
-echo Server stopped cleanly.
+echo KPI System stopped.
 timeout /t 2 /nobreak >nul

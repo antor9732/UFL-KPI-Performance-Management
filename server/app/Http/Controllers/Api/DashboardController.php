@@ -85,7 +85,7 @@ class DashboardController extends Controller
             ];
         }
 
-        $overallAchPct = $totalPlanPcs > 0 ? round(($totalProducePcs / $totalPlanPcs) * 100, 2) : 100.0;
+        $overallAchPct = $totalPlanPcs > 0 ? round(($totalProducePcs / $totalPlanPcs) * 100, 2) : 0.0;
 
         return response()->json([
             'period' => [

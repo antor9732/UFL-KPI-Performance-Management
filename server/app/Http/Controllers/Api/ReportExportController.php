@@ -33,6 +33,9 @@ class ReportExportController extends Controller
         if (!$periodId) {
             $period = ReportingPeriod::where('year', 2026)->where('month', 10)->first()
                 ?? ReportingPeriod::latest('start_date')->first();
+            if (!$period) {
+                return response()->json(['error' => 'No reporting period found. Please create a reporting period first.'], 422);
+            }
             $periodId = $period->id;
         } else {
             $period = ReportingPeriod::findOrFail($periodId);
@@ -58,7 +61,12 @@ class ReportExportController extends Controller
 
         // Locate bundled or system node binary
         $nodeBin = $this->findNodeBinary();
-        $scriptPath = base_path('scripts/generate_presentation.js');
+        // Prefer the self-contained bundle (pptxgenjs inlined) so client PCs
+        // do not need node_modules. Fall back to the source script for dev.
+        $scriptPath = base_path('scripts/generate_presentation.bundle.cjs');
+        if (!File::exists($scriptPath)) {
+            $scriptPath = base_path('scripts/generate_presentation.js');
+        }
 
         $process = new Process([
             $nodeBin,
@@ -70,7 +78,17 @@ class ReportExportController extends Controller
         ]);
 
         $process->setTimeout(180); // 3 minutes timeout for 85 slides
-        $process->run();
+        $process->setWorkingDirectory(base_path());
+
+        try {
+            $process->run();
+        } catch (\Throwable $e) {
+            File::delete($inputJsonPath);
+            return response()->json([
+                'error' => 'Failed to start presentation engine (Node.js)',
+                'details' => $e->getMessage(),
+            ], 500);
+        }
 
         // Clean up input json
         if (File::exists($inputJsonPath)) {
@@ -98,9 +116,14 @@ class ReportExportController extends Controller
      */
     protected function findNodeBinary(): string
     {
-        $bundled = base_path('../runtime/node/node.exe');
-        if (File::exists($bundled)) {
-            return $bundled;
+        $candidates = [
+            base_path('../runtime/node/node.exe'),
+            base_path('runtime/node/node.exe'),
+        ];
+        foreach ($candidates as $bundled) {
+            if (File::exists($bundled)) {
+                return realpath($bundled) ?: $bundled;
+            }
         }
 
         return 'node';
